@@ -1,0 +1,79 @@
+"use client";
+
+import { cachedFetch } from "@/lib/fetch-cache";
+import { useState, useEffect } from "react";
+import { type YouTubeWidgetData, cleanYouTubeInput } from "@/lib/youtube";
+import { useDebouncedValue } from "./useDebouncedValue";
+
+interface UseYouTubeChannelReturn {
+  data: YouTubeWidgetData | null;
+  loading: boolean;
+  error: string | null;
+  refetch: () => void;
+}
+
+export function useYouTubeChannel(
+  rawInput: string | null | undefined
+): UseYouTubeChannelReturn {
+  const cleanInput = rawInput ? cleanYouTubeInput(rawInput) : "";
+  const [data, setData] = useState<YouTubeWidgetData | null>(null);
+  const [loading, setLoading] = useState<boolean>(Boolean(cleanInput));
+  const [error, setError] = useState<string | null>(null);
+  const [trigger, setTrigger] = useState<number>(0);
+
+  const { value: fetchInput, isPending } = useDebouncedValue(cleanInput);
+
+  useEffect(() => {
+    if (!fetchInput) {
+      setData(null);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    let isMounted = true;
+    setData(null);
+    setLoading(true);
+    setError(null);
+
+    async function fetchData() {
+      try {
+        const res = await cachedFetch(
+          `/api/widgets/youtube/channel/${encodeURIComponent(fetchInput)}`
+        );
+        const json = await res.json();
+
+        if (!isMounted) return;
+
+        if (res.ok && json.data) {
+          setData(json.data);
+          setError(null);
+        } else {
+          setData(null);
+          setError(json.error || "Channel not found");
+        }
+      } catch {
+        if (!isMounted) return;
+        setData(null);
+        setError("Failed to fetch YouTube channel");
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchInput, trigger]);
+
+  return {
+    data: isPending ? null : data,
+    loading: isPending || loading,
+    error: isPending ? null : error,
+    refetch: () => setTrigger((prev) => prev + 1),
+  };
+}

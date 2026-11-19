@@ -1,0 +1,88 @@
+"use client";
+
+import { cachedFetch } from "@/lib/fetch-cache";
+import { useEffect, useState } from "react";
+export interface GitHubRepoData {
+  full_name: string;
+  owner: {
+    avatar_url: string;
+  };
+  stargazers_count: number;
+  forks_count: number;
+  subscribers_count: number;
+  open_issues_count: number;
+  language: string | null;
+  html_url: string;
+}
+import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
+
+export function useGitHubRepo(repoString: string) {
+  const cleanRepo = (repoString || "")
+    .trim()
+    .replace(/^https?:\/\/(www\.)?github\.com\//i, "")
+    .replace(/\/$/, "");
+  const parts = cleanRepo.split("/");
+  const isValidRepo = parts.length === 2 && Boolean(parts[0]) && Boolean(parts[1]);
+
+  const { value: fetchRepo, isPending } = useDebouncedValue(isValidRepo ? cleanRepo : "");
+
+  const [data, setData] = useState<GitHubRepoData | null>(null);
+  const [loading, setLoading] = useState<boolean>(isValidRepo);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!fetchRepo) {
+      setData(null);
+      setLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    const controller = new AbortController();
+
+    const fetchRepoData = async () => {
+      setData(null);
+      setLoading(true);
+      setError(null);
+
+      try {
+        const [owner, repo] = fetchRepo.split("/");
+        const res = await cachedFetch(
+          `/api/widgets/github/repo/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`,
+          {
+            signal: controller.signal,
+          }
+        );
+        if (!res.ok) throw new Error("Failed to load GitHub repository");
+        const json = (await res.json()) as GitHubRepoData;
+        if (isMounted) {
+          setData(json);
+          setLoading(false);
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === "AbortError") return;
+        if (isMounted) {
+          setError(err instanceof Error ? err : new Error("Failed to load GitHub repository"));
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchRepoData();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [fetchRepo]);
+
+  const isReady = isValidRepo && !isPending;
+
+  return {
+    data: isReady ? data : null,
+    loading: isValidRepo && (isPending || loading),
+    error: isReady ? error : null,
+    isValidRepo,
+    cleanRepo,
+  };
+}

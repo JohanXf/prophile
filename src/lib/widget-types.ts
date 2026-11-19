@@ -1,0 +1,28 @@
+import type { WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
+
+export type WidgetConfig = WidgetItem;
+
+export const PLATFORM_WIDGET_TYPES: Record<string, string[]> = {
+  discord: ["presence", "server"],
+  tiktok: ["tiktok-profile"],
+  instagram: ["instagram-profile"],
+  soundcloud: ["soundcloud-profile", "soundcloud-track"],
+  youtube: ["youtube-profile"],
+  spotify: [
+    "spotify-track",
+    "spotify-album",
+    "spotify-playlist",
+    "spotify-artist",
+    "spotify-user",
+  ],
+  "apple-music": ["apple-music-track", "apple-music-album", "apple-music-artist"],
+  twitch: ["twitch-channel"],
+  github: ["github-user", "github-repo"],
+  pinterest: ["pinterest-profile", "pinterest-board"],
+  valorant: ["valorant-profile"],
+  steam: ["steam-profile"],
+  genshin: ["genshin-profile"],
+  telegram: ["telegram-profile"],
+  roblox: ["roblox-profile"],
+  weather: ["weather-current"],
+};

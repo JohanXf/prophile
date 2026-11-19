@@ -1,0 +1,1345 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { GenshinLogoIcon, RobloxLogoIcon, SoundcloudLogoIcon, TelegramLogoIcon, WeatherConditionIcon } from "@/components/profile/widgets/WidgetIcons";
+import { parseSpotifyIdentifier } from "@/lib/spotify";
+import { cleanYouTubeInput } from "@/lib/youtube";
+import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
+import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
+import { cleanInstagramUsername, isValidInstagramUsername } from "@/lib/instagram";
+import {
+  cleanSoundcloudHandle,
+  cleanSoundcloudTrackPath,
+  isValidSoundcloudHandle,
+  isValidSoundcloudTrackPath,
+} from "@/lib/soundcloud";
+import { isValidAppleMusicId, parseAppleMusicInput } from "@/lib/apple-music";
+import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
+import { PLATFORM_WIDGET_TYPES } from "@/lib/widget-types";
+
+interface AddWidgetModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAdd: (widget: { platform: string; type: string; useLinked: boolean; customId: string }) => void;
+  linkedDiscordId?: string | null;
+  linkedDiscordUsername?: string | null;
+}
+
+const PLATFORMS = [
+  { id: "none", name: "None" },
+  { id: "discord", name: "Discord" },
+  { id: "tiktok", name: "TikTok" },
+  { id: "instagram", name: "Instagram" },
+  { id: "soundcloud", name: "SoundCloud" },
+  { id: "youtube", name: "YouTube" },
+  { id: "spotify", name: "Spotify" },
+  { id: "apple-music", name: "Apple Music" },
+  { id: "twitch", name: "Twitch" },
+  { id: "github", name: "GitHub" },
+  { id: "pinterest", name: "Pinterest" },
+  { id: "valorant", name: "Valorant" },
+  { id: "steam", name: "Steam" },
+  { id: "genshin", name: "Genshin Impact" },
+  { id: "telegram", name: "Telegram" },
+  { id: "roblox", name: "Roblox" },
+  { id: "weather", name: "Weather" },
+];
+
+const SPOTIFY_TYPES = [
+  { id: "spotify-track" as const, name: "Spotify Track", placeholder: "Track link, URI, or ID (e.g. 4cOdK2wGLETKBW3PvgPWqT)" },
+  { id: "spotify-album" as const, name: "Spotify Album", placeholder: "Album link, URI, or ID (e.g. 1A2GTWGtXBfuI0x08OHWyJ)" },
+  { id: "spotify-playlist" as const, name: "Spotify Playlist", placeholder: "Playlist link, URI, or ID (e.g. 37i9dQZF1DXcBWIGoYBM5M)" },
+  { id: "spotify-artist" as const, name: "Spotify Artist", placeholder: "Artist link, URI, or ID (e.g. 06HL4z0CvFAxyc27GXpf02)" },
+  { id: "spotify-user" as const, name: "Spotify User", placeholder: "User link, URI, or ID (e.g. spotify)" },
+];
+
+const APPLE_MUSIC_TYPES = [
+  { id: "apple-music-track" as const, name: "Apple Music Track", placeholder: "Track link or ID" },
+  { id: "apple-music-album" as const, name: "Apple Music Album", placeholder: "Album link or ID" },
+  { id: "apple-music-artist" as const, name: "Apple Music Artist", placeholder: "Artist link or ID" },
+];
+
+export default function AddWidgetModal({
+  isOpen,
+  onClose,
+  onAdd,
+  linkedDiscordId,
+  linkedDiscordUsername,
+}: AddWidgetModalProps) {
+
+  const [platformChoice, setPlatformChoice] = useState<string | null>(null);
+  const [isPlatformDropdownOpen, setIsPlatformDropdownOpen] = useState(false);
+  const [isSpotifyTypeDropdownOpen, setIsSpotifyTypeDropdownOpen] = useState(false);
+  const [isAppleMusicTypeDropdownOpen, setIsAppleMusicTypeDropdownOpen] = useState(false);
+  const [customDiscordId, setCustomDiscordId] = useState("");
+  const [serverId, setServerId] = useState("");
+  const [tiktokUsername, setTiktokUsername] = useState("");
+  const [instagramUsername, setInstagramUsername] = useState("");
+  const [soundcloudHandle, setSoundcloudHandle] = useState("");
+  const [soundcloudTrack, setSoundcloudTrack] = useState("");
+  const [youtubeInput, setYoutubeInput] = useState("");
+  const [twitchUsername, setTwitchUsername] = useState("");
+  const [spotifyInput, setSpotifyInput] = useState("");
+  const [appleMusicInput, setAppleMusicInput] = useState("");
+  const [githubUsername, setGithubUsername] = useState("");
+  const [githubRepo, setGithubRepo] = useState("");
+  const [pinterestUsername, setPinterestUsername] = useState("");
+  const [pinterestBoard, setPinterestBoard] = useState("");
+  const [valorantId, setValorantId] = useState("");
+  const [steamId, setSteamId] = useState("");
+  const [genshinUid, setGenshinUid] = useState("");
+  const [telegramUsername, setTelegramUsername] = useState("");
+  const [robloxInput, setRobloxInput] = useState("");
+  const [weatherLocation, setWeatherLocation] = useState("");
+  const [customWidgetType, setCustomWidgetType] = useState<string | null>(null);
+  const [useLinkedAccount, setUseLinkedAccount] = useState(Boolean(linkedDiscordId));
+  const modalRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const spotifyTypeDropdownRef = useRef<HTMLDivElement>(null);
+  const appleMusicTypeDropdownRef = useRef<HTMLDivElement>(null);
+
+  const firstOpenPlatform =
+    PLATFORMS.find((p) => PLATFORM_WIDGET_TYPES[p.id])?.id || "discord";
+
+  const selectedPlatform = platformChoice || firstOpenPlatform;
+
+  const setSelectedPlatform = (platform: string) => {
+    setPlatformChoice(platform);
+    setCustomWidgetType(null);
+  };
+
+  const platformTypes = PLATFORM_WIDGET_TYPES[selectedPlatform] || [];
+
+  const defaultWidgetType = platformTypes[0] || "presence";
+
+  const widgetType =
+    customWidgetType && platformTypes.includes(customWidgetType)
+      ? customWidgetType
+      : defaultWidgetType;
+
+  const setWidgetType = (t: string) => setCustomWidgetType(t);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsPlatformDropdownOpen(false);
+      }
+      if (spotifyTypeDropdownRef.current && !spotifyTypeDropdownRef.current.contains(e.target as Node)) {
+        setIsSpotifyTypeDropdownOpen(false);
+      }
+      if (appleMusicTypeDropdownRef.current && !appleMusicTypeDropdownRef.current.contains(e.target as Node)) {
+        setIsAppleMusicTypeDropdownOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", handleKeyDown);
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+      window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const isDiscord = selectedPlatform === "discord";
+  const isTikTok = selectedPlatform === "tiktok";
+  const isInstagram = selectedPlatform === "instagram";
+  const isSoundcloud = selectedPlatform === "soundcloud";
+  const isYouTube = selectedPlatform === "youtube";
+  const isSpotify = selectedPlatform === "spotify";
+  const isAppleMusic = selectedPlatform === "apple-music";
+  const isTwitch = selectedPlatform === "twitch";
+  const isGitHub = selectedPlatform === "github";
+  const isPinterest = selectedPlatform === "pinterest";
+  const isValorant = selectedPlatform === "valorant";
+  const isSteam = selectedPlatform === "steam";
+  const isGenshin = selectedPlatform === "genshin";
+  const isTelegram = selectedPlatform === "telegram";
+  const isRoblox = selectedPlatform === "roblox";
+  const isWeather = selectedPlatform === "weather";
+  const isPresence = widgetType === "presence";
+  const isServer = widgetType === "server";
+  const isGitHubUser = widgetType === "github-user";
+  const isGitHubRepo = widgetType === "github-repo";
+  const isPinterestProfile = widgetType === "pinterest-profile";
+  const isPinterestBoard = widgetType === "pinterest-board";
+  const isSoundcloudTrack = widgetType === "soundcloud-track";
+
+  const targetId = isDiscord
+    ? isPresence
+      ? useLinkedAccount
+        ? linkedDiscordId || ""
+        : customDiscordId.trim()
+      : serverId.trim()
+    : isTikTok
+    ? tiktokUsername.trim().replace(/^https?:\/\/(www\.)?tiktok\.com\/@?/i, "").replace(/^@/, "").replace(/\/$/, "")
+    : isInstagram
+    ? cleanInstagramUsername(instagramUsername)
+    : isSoundcloud
+    ? isSoundcloudTrack
+      ? cleanSoundcloudTrackPath(soundcloudTrack)
+      : cleanSoundcloudHandle(soundcloudHandle)
+    : isYouTube
+    ? cleanYouTubeInput(youtubeInput)
+    : isSpotify
+    ? spotifyInput.trim()
+    : isAppleMusic
+    ? parseAppleMusicInput(appleMusicInput).id
+    : isTwitch
+    ? twitchUsername.trim().replace(/^https?:\/\/(www\.)?twitch\.tv\//i, "").replace(/\/$/, "")
+    : isGitHub
+    ? isGitHubUser
+      ? githubUsername.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "")
+      : githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "")
+    : isPinterest
+    ? isPinterestProfile
+      ? pinterestUsername.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "")
+      : pinterestBoard.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "")
+    : isValorant
+    ? valorantId.trim()
+    : isSteam
+    ? steamId.trim().replace(/^https?:\/\/(www\.)?steamcommunity\.com\/(id|profiles)\//i, "").replace(/\/$/, "")
+    : isGenshin
+    ? genshinUid.trim()
+    : isTelegram
+    ? cleanTelegramUsername(telegramUsername)
+    : isRoblox
+    ? cleanRobloxInput(robloxInput)
+    : isWeather
+    ? cleanWeatherLocation(weatherLocation)
+    : "";
+
+  const isFormatValid =
+    (isDiscord
+      ? isPresence
+        ? useLinkedAccount
+          ? Boolean(linkedDiscordId)
+          : /^\d{17,20}$/.test(customDiscordId.trim())
+        : serverId.trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "").length >= 2
+      : isTikTok
+      ? /^[a-zA-Z0-9_.-]{1,24}$/.test(tiktokUsername.trim().replace(/^https?:\/\/(www\.)?tiktok\.com\/@?/i, "").replace(/^@/, "").replace(/\/$/, ""))
+      : isInstagram
+      ? isValidInstagramUsername(cleanInstagramUsername(instagramUsername))
+      : isSoundcloud
+      ? isSoundcloudTrack
+        ? isValidSoundcloudTrackPath(cleanSoundcloudTrackPath(soundcloudTrack))
+        : isValidSoundcloudHandle(cleanSoundcloudHandle(soundcloudHandle))
+      : isYouTube
+      ? /^(UC[\w-]{22}|@?[a-zA-Z0-9_.-]{3,30})$/.test(cleanYouTubeInput(youtubeInput))
+      : isSpotify
+      ? spotifyInput.trim().length >= 3
+      : isAppleMusic
+      ? isValidAppleMusicId(parseAppleMusicInput(appleMusicInput).id)
+      : isTwitch
+      ? /^[a-zA-Z0-9_]{3,25}$/.test(twitchUsername.trim().replace(/^https?:\/\/(www\.)?twitch\.tv\//i, "").replace(/\/$/, ""))
+      : isGitHub
+      ? isGitHubUser
+        ? /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/.test(githubUsername.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, ""))
+        : githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").split("/").length === 2 &&
+          Boolean(githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").split("/")[0]) &&
+          Boolean(githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").split("/")[1])
+      : isPinterest
+      ? isPinterestProfile
+        ? /^[a-zA-Z0-9_]{1,30}$/.test(pinterestUsername.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, ""))
+        : pinterestBoard.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "").split("/").filter(Boolean).length >= 2
+      : isValorant
+      ? /^.{3,16}#[a-zA-Z0-9]{3,5}$/.test(valorantId.trim())
+      : isSteam
+      ? steamId.trim().replace(/^https?:\/\/(www\.)?steamcommunity\.com\/(id|profiles)\//i, "").replace(/\/$/, "").length >= 2
+      : isGenshin
+      ? /^[1-9][0-9]{8,9}$/.test(genshinUid.trim())
+      : isTelegram
+      ? isValidTelegramUsername(cleanTelegramUsername(telegramUsername))
+      : isRoblox
+      ? isValidRobloxInput(cleanRobloxInput(robloxInput))
+      : isWeather
+      ? isValidWeatherLocation(cleanWeatherLocation(weatherLocation))
+      : false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isFormatValid) return;
+
+    if (isDiscord) {
+      if (isPresence && useLinkedAccount && linkedDiscordId) {
+        onAdd({
+          platform: selectedPlatform,
+          type: widgetType,
+          useLinked: true,
+          customId: linkedDiscordId,
+        });
+        onClose();
+        return;
+      }
+
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isTikTok) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isInstagram) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isSoundcloud) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isYouTube) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isSpotify) {
+      const parsed = parseSpotifyIdentifier(targetId);
+      const resolvedId = parsed.id || targetId;
+      const resolvedType = parsed.type ? `spotify-${parsed.type}` : widgetType;
+
+      onAdd({
+        platform: selectedPlatform,
+        type: resolvedType,
+        useLinked: false,
+        customId: resolvedId,
+      });
+      onClose();
+    } else if (isAppleMusic) {
+      const parsed = parseAppleMusicInput(appleMusicInput);
+      const resolvedType = widgetType.startsWith("apple-music-")
+        ? widgetType
+        : parsed.type
+          ? `apple-music-${parsed.type}`
+          : "apple-music-track";
+
+      onAdd({
+        platform: selectedPlatform,
+        type: resolvedType,
+        useLinked: false,
+        customId: parsed.id,
+      });
+      onClose();
+    } else if (isTwitch) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isGitHub) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isPinterest) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isValorant) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isSteam) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isGenshin) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isTelegram) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isRoblox) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isWeather) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        onClick={onClose}
+        className="fixed inset-0 bg-black/75 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
+      />
+
+      <div
+        ref={modalRef}
+        className="relative w-full max-w-[440px] max-h-[85vh] overflow-y-auto bg-[#0c0c0c] border border-white/10 rounded-[24px] p-4 sm:p-6 shadow-2xl z-10 flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-200"
+      >
+        <div className="flex items-start justify-between">
+          <div className="flex flex-col">
+            <h3 className="text-[16px] font-normal text-white/95 tracking-tight">Add a Widget</h3>
+            <p className="text-[12.5px] font-normal text-white/40 mt-0.5">
+              Select platform and configure details for your page.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="shrink-0 w-8 h-8 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center justify-center text-white/40 hover:text-white/80 transition-colors cursor-pointer"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-[12px] font-normal text-white/60">Platform</label>
+          <div className="relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setIsPlatformDropdownOpen(!isPlatformDropdownOpen)}
+              className="w-full flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl px-4 py-2.5 text-[13.5px] text-white/90 hover:border-white/10 transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                {selectedPlatform === "discord" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#5865F2">
+                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+                  </svg>
+                ) : selectedPlatform === "tiktok" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white shrink-0">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.43c.03-.03.07-.07.1-.1a6.3 6.3 0 0 0 1.87-4.52V8.71a8.28 8.28 0 0 0 4.76 1.49v-3.46a4.87 4.87 0 0 1-1-.05z" />
+                  </svg>
+                ) : selectedPlatform === "youtube" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#FF0000" className="shrink-0">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                  </svg>
+                ) : selectedPlatform === "spotify" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#1ED760" className="shrink-0">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
+                  </svg>
+                ) : selectedPlatform === "apple-music" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#FC3C44" className="shrink-0">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.6 5.4v8.4a2.85 2.85 0 1 1-1.8-2.64V8.1l-5.4 1.14v5.1a2.85 2.85 0 1 1-1.8-2.64V7.5c0-.42.3-.78.71-.86l7.2-1.5c.5-.11.99.27.99.78z" />
+                  </svg>
+                ) : selectedPlatform === "twitch" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#9146FF" className="shrink-0">
+                    <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
+                  </svg>
+                ) : selectedPlatform === "telegram" ? (
+                  <TelegramLogoIcon size={18} className="w-[18px] h-[18px]" />
+                ) : selectedPlatform === "roblox" ? (
+                  <RobloxLogoIcon size={18} className="w-[18px] h-[18px]" />
+                ) : selectedPlatform === "weather" ? (
+                  <WeatherConditionIcon
+                    kind="partly-cloudy"
+                    size={18}
+                    className="w-[18px] h-[18px]"
+                  />
+                ) : selectedPlatform === "github" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                  </svg>
+                ) : selectedPlatform === "pinterest" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#E60023" className="shrink-0">
+                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z" />
+                  </svg>
+                ) : selectedPlatform === "valorant" ? (
+                  <svg width="18" height="18" viewBox="0 0 100 100" fill="#FF4655">
+                    <path d="M9.9 14.5L5.7 20.4v40.3l37.2 38.6h11.1L9.9 14.5zm84.4 0L57.1 66.8h17.2L94.3 35V14.5z" />
+                  </svg>
+                ) : selectedPlatform === "steam" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white shrink-0">
+                    <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.005.105.005.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zM7.54 18.216l-1.464-.606c.263.568.736 1.015 1.328 1.246.885.344 1.875.05 2.434-.674-.326-.062-.644-.176-.932-.341-.607-.35-1.042-.907-1.226-1.562l-.14-.063zm8.4-11.455c-1.18 0-2.137.957-2.137 2.137 0 1.18.957 2.137 2.137 2.137 1.18 0 2.137-.957 2.137-2.137 0-1.18-.957-2.137-2.137-2.137zm0 .802c.737 0 1.335.598 1.335 1.335 0 .737-.598 1.335-1.335 1.335-.737 0-1.335-.598-1.335-1.335 0-.737.598-1.335 1.335-1.335z" />
+                  </svg>
+                ) : selectedPlatform === "genshin" ? (
+                  <GenshinLogoIcon size={18} className="w-[18px] h-[18px] text-[#5b6cf5] shrink-0" />
+                ) : selectedPlatform === "soundcloud" ? (
+                  <SoundcloudLogoIcon size={18} className="w-[18px] h-[18px] text-[#FF5500] shrink-0" />
+                ) : null}
+                <span>{PLATFORMS.find((p) => p.id === selectedPlatform)?.name || "Select platform"}</span>
+              </div>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`text-white/40 transition-transform duration-200 ${isPlatformDropdownOpen ? "rotate-180" : ""}`}
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+
+            {isPlatformDropdownOpen && (
+              <div className="absolute top-[calc(100%+6px)] left-0 right-0 p-1 bg-[#161616] border border-white/10 rounded-xl shadow-xl z-50 flex flex-col gap-0.5 max-h-[308px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-white/20">
+                {PLATFORMS.map((platform) => {
+                  return (
+                    <button
+                      key={platform.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedPlatform(platform.id);
+                        setIsPlatformDropdownOpen(false);
+                      }}
+                      className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-[13px] transition-colors ${
+                        selectedPlatform === platform.id
+                          ? "bg-white/10 text-white font-normal cursor-pointer"
+                          : "text-white/50 hover:bg-white/5 hover:text-white cursor-pointer"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        {platform.id === "discord" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#5865F2">
+                            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+                          </svg>
+                        ) : platform.id === "tiktok" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-white shrink-0">
+                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.43c.03-.03.07-.07.1-.1a6.3 6.3 0 0 0 1.87-4.52V8.71a8.28 8.28 0 0 0 4.76 1.49v-3.46a4.87 4.87 0 0 1-1-.05z" />
+                          </svg>
+                        ) : platform.id === "instagram" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white shrink-0">
+                            <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" />
+                            <circle cx="12" cy="12" r="4.4" />
+                            <circle cx="17.4" cy="6.6" r="1.15" fill="currentColor" stroke="none" />
+                          </svg>
+                        ) : platform.id === "soundcloud" ? (
+                          <SoundcloudLogoIcon size={16} className="w-4 h-4 text-[#FF5500] shrink-0" />
+                        ) : platform.id === "youtube" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#FF0000" className="shrink-0">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                          </svg>
+                        ) : platform.id === "spotify" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#1ED760" className="shrink-0">
+                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
+                          </svg>
+                        ) : platform.id === "apple-music" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#FC3C44" className="shrink-0">
+                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.6 5.4v8.4a2.85 2.85 0 1 1-1.8-2.64V8.1l-5.4 1.14v5.1a2.85 2.85 0 1 1-1.8-2.64V7.5c0-.42.3-.78.71-.86l7.2-1.5c.5-.11.99.27.99.78z" />
+                          </svg>
+                        ) : platform.id === "twitch" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#9146FF" className="shrink-0">
+                            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
+                          </svg>
+                        ) : platform.id === "telegram" ? (
+                          <TelegramLogoIcon size={16} className="w-4 h-4" />
+                        ) : platform.id === "roblox" ? (
+                          <RobloxLogoIcon size={16} className="w-4 h-4" />
+                        ) : platform.id === "weather" ? (
+                          <WeatherConditionIcon
+                            kind="partly-cloudy"
+                            size={16}
+                            className="w-4 h-4"
+                          />
+                        ) : platform.id === "github" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-white">
+                            <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                          </svg>
+                        ) : platform.id === "pinterest" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#E60023" className="shrink-0">
+                            <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z" />
+                          </svg>
+                        ) : platform.id === "valorant" ? (
+                          <svg width="16" height="16" viewBox="0 0 100 100" fill="#FF4655">
+                            <path d="M9.9 14.5L5.7 20.4v40.3l37.2 38.6h11.1L9.9 14.5zm84.4 0L57.1 66.8h17.2L94.3 35V14.5z" />
+                          </svg>
+                        ) : platform.id === "steam" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-white">
+                            <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.005.105.005.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zM7.54 18.216l-1.464-.606c.263.568.736 1.015 1.328 1.246.885.344 1.875.05 2.434-.674-.326-.062-.644-.176-.932-.341-.607-.35-1.042-.907-1.226-1.562l-.14-.063zm8.4-11.455c-1.18 0-2.137.957-2.137 2.137 0 1.18.957 2.137 2.137 2.137 1.18 0 2.137-.957 2.137-2.137 0-1.18-.957-2.137-2.137-2.137zm0 .802c.737 0 1.335.598 1.335 1.335 0 .737-.598 1.335-1.335 1.335-.737 0-1.335-.598-1.335-1.335 0-.737.598-1.335 1.335-1.335z" />
+                          </svg>
+                        ) : platform.id === "genshin" ? (
+                          <GenshinLogoIcon size={16} className="w-4 h-4 text-[#5b6cf5] shrink-0" />
+                        ) : null}
+                        <span>{platform.name}</span>
+                      </div>
+                      {selectedPlatform === platform.id ? (
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#5b6cf5]" />
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {isTikTok && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">TikTok Username</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={tiktokUsername}
+                onChange={(e) => setTiktokUsername(e.target.value)}
+                placeholder="e.g. charlidamelio"
+                maxLength={24}
+                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              Your TikTok username or profile URL (e.g. &apos;charlidamelio&apos; or tiktok.com/@charlidamelio).
+            </p>
+          </div>
+        )}
+
+        {isInstagram && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">Instagram Username</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={instagramUsername}
+                onChange={(e) => setInstagramUsername(e.target.value)}
+                placeholder="e.g. instagram"
+                maxLength={60}
+                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              Your Instagram username or profile URL (e.g. &apos;instagram&apos; or instagram.com/instagram).
+            </p>
+            <p className="text-[11px] leading-normal text-amber-400/80">
+              Private profiles do not expose stats — those widgets show a warning instead.
+            </p>
+          </div>
+        )}
+
+        {isSoundcloud && (
+          <>
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-normal text-white/60">Type</label>
+              <div className="flex items-center gap-1.5 p-1 bg-[#161616] border border-white/5 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setWidgetType("soundcloud-profile")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
+                    !isSoundcloudTrack
+                      ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
+                      : "text-white/40 hover:text-white/70 cursor-pointer"
+                  }`}
+                >
+                  SoundCloud Artist
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWidgetType("soundcloud-track")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
+                    isSoundcloudTrack
+                      ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
+                      : "text-white/40 hover:text-white/70 cursor-pointer"
+                  }`}
+                >
+                  SoundCloud Track
+                </button>
+              </div>
+            </div>
+
+            {isSoundcloudTrack ? (
+              <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+                <label className="text-[12px] font-normal text-white/60">SoundCloud Track Link</label>
+                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                  <input
+                    type="text"
+                    value={soundcloudTrack}
+                    onChange={(e) => setSoundcloudTrack(e.target.value)}
+                    placeholder="e.g. soundcloud.com/kehlanimusic/lights-on"
+                    maxLength={300}
+                    className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                  Full track link or &apos;artist/track-name&apos;.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+                <label className="text-[12px] font-normal text-white/60">SoundCloud Handle</label>
+                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                  <input
+                    type="text"
+                    value={soundcloudHandle}
+                    onChange={(e) => setSoundcloudHandle(e.target.value)}
+                    placeholder="e.g. kehlanimusic"
+                    maxLength={80}
+                    className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                  Your SoundCloud artist handle or profile URL (e.g. &apos;kehlanimusic&apos; or soundcloud.com/kehlanimusic).
+                </p>
+              </div>
+            )}
+          </>
+        )}
+
+        {isYouTube && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">YouTube Channel</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={youtubeInput}
+                onChange={(e) => setYoutubeInput(e.target.value)}
+                placeholder="e.g. @MrBeast"
+                maxLength={100}
+                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              Your channel handle, ID, or URL (e.g. &apos;@MrBeast&apos; or youtube.com/@MrBeast).
+            </p>
+          </div>
+        )}
+
+        {isSpotify && (
+          <>
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-normal text-white/60">Type</label>
+              <div className="relative" ref={spotifyTypeDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsSpotifyTypeDropdownOpen(!isSpotifyTypeDropdownOpen)}
+                  className="w-full flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl px-4 py-2.5 text-[13.5px] text-white/90 hover:border-white/10 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#1ED760" className="shrink-0">
+                      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
+                    </svg>
+                    <span>{SPOTIFY_TYPES.find((t) => t.id === widgetType)?.name || "Spotify Track"}</span>
+                  </div>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`text-white/40 transition-transform duration-200 ${isSpotifyTypeDropdownOpen ? "rotate-180" : ""}`}
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </button>
+
+                {isSpotifyTypeDropdownOpen && (
+                  <div className="absolute top-[calc(100%+6px)] left-0 right-0 p-1 bg-[#161616] border border-white/10 rounded-xl shadow-xl z-50 flex flex-col gap-0.5">
+                    {SPOTIFY_TYPES.map((typeOption) => {
+                      return (
+                        <button
+                          key={typeOption.id}
+                          type="button"
+                          onClick={() => {
+                            setWidgetType(typeOption.id);
+                            setIsSpotifyTypeDropdownOpen(false);
+                          }}
+                          className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-[13px] transition-colors ${
+                            widgetType === typeOption.id
+                              ? "bg-white/10 text-white font-normal cursor-pointer"
+                              : "text-white/50 hover:bg-white/5 hover:text-white cursor-pointer"
+                          }`}
+                        >
+                          <span>{typeOption.name}</span>
+                          {widgetType === typeOption.id ? (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#1ED760]" />
+                          ) : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+              <label className="text-[12px] font-normal text-white/60">
+                {SPOTIFY_TYPES.find((t) => t.id === widgetType)?.name || "Spotify Item"} Link or ID
+              </label>
+              <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                <input
+                  type="text"
+                  value={spotifyInput}
+                  onChange={(e) => setSpotifyInput(e.target.value)}
+                  placeholder={
+                    SPOTIFY_TYPES.find((t) => t.id === widgetType)?.placeholder ||
+                    "Enter Spotify link, URI, or ID"
+                  }
+                  className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                />
+              </div>
+              <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                Paste the full Spotify share link (open.spotify.com/...), URI (spotify:track:...), or ID.
+              </p>
+            </div>
+          </>
+        )}
+
+        {isAppleMusic && (
+          <>
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-normal text-white/60">Type</label>
+              <div className="relative" ref={appleMusicTypeDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsAppleMusicTypeDropdownOpen(!isAppleMusicTypeDropdownOpen)}
+                  className="w-full flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl px-4 py-2.5 text-[13.5px] text-white/90 hover:border-white/10 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#FC3C44" className="shrink-0">
+                      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.6 5.4v8.4a2.85 2.85 0 1 1-1.8-2.64V8.1l-5.4 1.14v5.1a2.85 2.85 0 1 1-1.8-2.64V7.5c0-.42.3-.78.71-.86l7.2-1.5c.5-.11.99.27.99.78z" />
+                    </svg>
+                    <span>{APPLE_MUSIC_TYPES.find((t) => t.id === widgetType)?.name || "Apple Music Track"}</span>
+                  </div>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`text-white/40 transition-transform duration-200 ${isAppleMusicTypeDropdownOpen ? "rotate-180" : ""}`}
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </button>
+
+                {isAppleMusicTypeDropdownOpen && (
+                  <div className="absolute top-[calc(100%+6px)] left-0 right-0 p-1 bg-[#161616] border border-white/10 rounded-xl shadow-xl z-50 flex flex-col gap-0.5">
+                    {APPLE_MUSIC_TYPES.map((typeOption) => {
+                      return (
+                        <button
+                          key={typeOption.id}
+                          type="button"
+                          onClick={() => {
+                            setWidgetType(typeOption.id);
+                            setIsAppleMusicTypeDropdownOpen(false);
+                          }}
+                          className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-[13px] transition-colors ${
+                            widgetType === typeOption.id
+                              ? "bg-white/10 text-white font-normal cursor-pointer"
+                              : "text-white/50 hover:bg-white/5 hover:text-white cursor-pointer"
+                          }`}
+                        >
+                          <span>{typeOption.name}</span>
+                          {widgetType === typeOption.id ? (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#FC3C44]" />
+                          ) : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+              <label className="text-[12px] font-normal text-white/60">
+                {APPLE_MUSIC_TYPES.find((t) => t.id === widgetType)?.name || "Apple Music Item"} Link or ID
+              </label>
+              <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                <input
+                  type="text"
+                  value={appleMusicInput}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setAppleMusicInput(value);
+                    const detected = parseAppleMusicInput(value).type;
+                    if (detected) setWidgetType(`apple-music-${detected}`);
+                  }}
+                  placeholder={
+                    APPLE_MUSIC_TYPES.find((t) => t.id === widgetType)?.placeholder ||
+                    "music.apple.com/... or store ID"
+                  }
+                  className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                />
+              </div>
+              <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                Paste a track, album or artist link — the type is detected automatically.
+              </p>
+            </div>
+          </>
+        )}
+
+        {isDiscord && (
+          <>
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-normal text-white/60">Type</label>
+              <div className="flex items-center gap-1.5 p-1 bg-[#161616] border border-white/5 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setWidgetType("presence")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
+                    widgetType === "presence"
+                      ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
+                      : "text-white/40 hover:text-white/70 cursor-pointer"
+                  }`}
+                >
+                  Discord Presence
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWidgetType("server")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
+                    widgetType === "server"
+                      ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
+                      : "text-white/40 hover:text-white/70 cursor-pointer"
+                  }`}
+                >
+                  Discord Server
+                </button>
+              </div>
+            </div>
+
+            {isPresence && (
+              <>
+                <div className="flex flex-col gap-2 p-3.5 rounded-xl bg-[#141414]/60 border border-white/5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <span className="text-[13px] font-normal text-white/90">Use connected Discord</span>
+                      <span className="text-[11.5px] text-white/35">
+                        {linkedDiscordId && linkedDiscordUsername
+                          ? `@${linkedDiscordUsername}`
+                          : "No Discord account connected"}
+                      </span>
+                    </div>
+
+                    {linkedDiscordId ? (
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={useLinkedAccount}
+                        onClick={() => setUseLinkedAccount(!useLinkedAccount)}
+                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+                          useLinkedAccount ? "bg-[#5b6cf5]" : "bg-white/10"
+                        }`}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition duration-200 ${
+                            useLinkedAccount ? "translate-x-4" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    ) : (
+                      <Link
+                        href="/api/auth/discord"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#5b6cf5]/15 hover:bg-[#5b6cf5]/25 border border-[#5b6cf5]/20 text-[12px] font-normal text-white transition-all cursor-pointer active:scale-95"
+                      >
+                        <span>Link account</span>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#5b6cf5] opacity-80">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" />
+                        </svg>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+
+                <div className={`flex flex-col gap-1.5 transition-opacity duration-200 ${useLinkedAccount && linkedDiscordId ? "opacity-35 pointer-events-none" : "opacity-100"}`}>
+                  <div className="flex items-center justify-between">
+                    <label className="text-[12px] font-normal text-white/60">Discord User ID</label>
+                    {useLinkedAccount && linkedDiscordId && (
+                      <span className="text-[11px] text-white/40">Using connected account ID</span>
+                    )}
+                  </div>
+                  <div className={`flex items-center bg-[#161616] border rounded-xl px-3.5 h-[40px] transition-colors ${useLinkedAccount && linkedDiscordId ? "border-white/5 bg-[#121212]" : "border-white/5 focus-within:border-white/15"}`}>
+                    <input
+                      type="text"
+                      disabled={Boolean(useLinkedAccount && linkedDiscordId)}
+                      value={useLinkedAccount && linkedDiscordId ? linkedDiscordId : customDiscordId}
+                      onChange={(e) => setCustomDiscordId(e.target.value.replace(/\D/g, ""))}
+                      placeholder="e.g. 1024354678901234567"
+                      maxLength={20}
+                      className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none disabled:text-white/40"
+                    />
+                  </div>
+                  <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                    Settings → Advanced → Enable Developer Mode → Right-click profile → Copy User ID.
+                  </p>
+                </div>
+              </>
+            )}
+
+            {isServer && (
+              <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+                <label className="text-[12px] font-normal text-white/60">Discord Server Invite Code</label>
+                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                  <input
+                    type="text"
+                    value={serverId}
+                    onChange={(e) => setServerId(e.target.value)}
+                    placeholder="e.g. QgZEkJjF8q"
+                    maxLength={100}
+                    className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                  The code from your permanent invite link (e.g. &apos;QgZEkJjF8q&apos; from discord.gg/QgZEkJjF8q).
+                </p>
+              </div>
+            )}
+          </>
+        )}
+
+        {isTwitch && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">Twitch Username</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={twitchUsername}
+                onChange={(e) => setTwitchUsername(e.target.value)}
+                placeholder="e.g. shroud"
+                maxLength={25}
+                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              Your Twitch channel username or link (e.g. &apos;shroud&apos; from twitch.tv/shroud).
+            </p>
+          </div>
+        )}
+
+        {isGitHub && (
+          <>
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-normal text-white/60">Type</label>
+              <div className="flex items-center gap-1.5 p-1 bg-[#161616] border border-white/5 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setWidgetType("github-user")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
+                    widgetType === "github-user"
+                      ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
+                      : "text-white/40 hover:text-white/70 cursor-pointer"
+                  }`}
+                >
+                  GitHub User
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWidgetType("github-repo")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
+                    widgetType === "github-repo"
+                      ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
+                      : "text-white/40 hover:text-white/70 cursor-pointer"
+                  }`}
+                >
+                  GitHub Repository
+                </button>
+              </div>
+            </div>
+
+            {isGitHubUser && (
+              <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+                <label className="text-[12px] font-normal text-white/60">GitHub Username</label>
+                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                  <input
+                    type="text"
+                    value={githubUsername}
+                    onChange={(e) => setGithubUsername(e.target.value)}
+                    placeholder="e.g. octocat"
+                    maxLength={39}
+                    className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                  Your GitHub username or profile link (e.g. &apos;octocat&apos;).
+                </p>
+              </div>
+            )}
+
+            {isGitHubRepo && (
+              <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+                <label className="text-[12px] font-normal text-white/60">GitHub Repository</label>
+                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                  <input
+                    type="text"
+                    value={githubRepo}
+                    onChange={(e) => setGithubRepo(e.target.value)}
+                    placeholder="e.g. torvalds/linux"
+                    maxLength={100}
+                    className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                  Format as &apos;owner/repository&apos; or full repository link.
+                </p>
+              </div>
+            )}
+          </>
+        )}
+
+        {isPinterest && (
+          <>
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-normal text-white/60">Type</label>
+              <div className="flex items-center gap-1.5 p-1 bg-[#161616] border border-white/5 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setWidgetType("pinterest-profile")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
+                    widgetType === "pinterest-profile"
+                      ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
+                      : "text-white/40 hover:text-white/70 cursor-pointer"
+                  }`}
+                >
+                  Pinterest Profile
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWidgetType("pinterest-board")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
+                    widgetType === "pinterest-board"
+                      ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
+                      : "text-white/40 hover:text-white/70 cursor-pointer"
+                  }`}
+                >
+                  Pinterest Board
+                </button>
+              </div>
+            </div>
+
+            {isPinterestProfile && (
+              <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+                <label className="text-[12px] font-normal text-white/60">Pinterest Username</label>
+                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                  <input
+                    type="text"
+                    value={pinterestUsername}
+                    onChange={(e) => setPinterestUsername(e.target.value)}
+                    placeholder="e.g. username"
+                    maxLength={30}
+                    className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                  Your Pinterest username or profile link (e.g. &apos;username&apos; from pinterest.com/username). The profile must be public.
+                </p>
+              </div>
+            )}
+
+            {isPinterestBoard && (
+              <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+                <label className="text-[12px] font-normal text-white/60">Pinterest Board</label>
+                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                  <input
+                    type="text"
+                    value={pinterestBoard}
+                    onChange={(e) => setPinterestBoard(e.target.value)}
+                    placeholder="e.g. username/board"
+                    maxLength={100}
+                    className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                  The board in &apos;username/board&apos; format (e.g. &apos;username/board&apos; from pinterest.com/username/board).
+                </p>
+              </div>
+            )}
+          </>
+        )}
+
+        {isValorant && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">Riot ID</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={valorantId}
+                onChange={(e) => setValorantId(e.target.value)}
+                placeholder="e.g. tenz#sen"
+                maxLength={30}
+                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              Your Riot ID in &apos;name#tag&apos; format (e.g. &apos;tenz#sen&apos;). Find it on your Riot account page.
+            </p>
+          </div>
+        )}
+
+        {isSteam && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">Steam ID or Vanity URL</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={steamId}
+                onChange={(e) => setSteamId(e.target.value)}
+                placeholder="e.g. gabelogannewell or 76561197960287930"
+                maxLength={100}
+                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              Custom URL name, SteamID64, or full Steam profile link. Profile must be public.
+            </p>
+          </div>
+        )}
+
+        {isGenshin && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">Genshin Impact UID</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={genshinUid}
+                onChange={(e) => setGenshinUid(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                placeholder="e.g. 800000024"
+                maxLength={10}
+                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              Your 9-10 digit in-game UID. Public details fetched via Enka.Network.
+            </p>
+          </div>
+        )}
+
+        {isTelegram && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">Telegram Username</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={telegramUsername}
+                onChange={(e) => setTelegramUsername(e.target.value)}
+                placeholder="e.g. durov"
+                maxLength={64}
+                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              Your Telegram handle without the @ (e.g. &apos;durov&apos; from t.me/durov).
+              Profile must be public.
+            </p>
+          </div>
+        )}
+
+        {isRoblox && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">User ID or Username</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={robloxInput}
+                onChange={(e) => setRobloxInput(e.target.value)}
+                placeholder="e.g. builderman"
+                maxLength={80}
+                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              A Roblox profile link, the numeric User ID, or a username (e.g.
+              &apos;builderman&apos;).
+            </p>
+          </div>
+        )}
+
+        {isWeather && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">Location</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={weatherLocation}
+                onChange={(e) => setWeatherLocation(e.target.value)}
+                placeholder="e.g. Vienna, Austria"
+                maxLength={80}
+                className="w-full bg-transparent text-[13px] text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              A city name, optionally with state and country, or &apos;lat,lon&apos;
+              coordinates.
+            </p>
+          </div>
+        )}
+
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl text-[13px] font-normal text-white/50 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            disabled={!isFormatValid}
+            onClick={handleSubmit}
+            className={`px-5 py-2 rounded-xl text-[13px] font-normal transition-all cursor-pointer flex items-center justify-center gap-2 min-w-[95px] ${
+              isFormatValid
+                ? "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/30 text-white"
+                : "bg-white/5 border border-white/5 text-white/20 cursor-not-allowed"
+            }`}
+          >
+            Add Widget
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

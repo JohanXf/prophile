@@ -1,0 +1,119 @@
+import { getCurrentSessionDataSync } from "@/lib/features/users/db";
+import { AnalyticsChart, DeviceChart } from "@/components/charts/LazyCharts";
+import { WorldMapCard } from "@/components/dashboard/LazyWorldMap";
+import RecentComments from "@/components/dashboard/RecentComments";
+import RecentFeedback from "@/components/dashboard/RecentFeedback";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { isPremiumActive } from "@/lib/premium";
+import ProfileCompletion from "@/components/dashboard/ProfileCompletion";
+
+export default function DashboardPage() {
+  const {
+    user,
+    backgrounds,
+    equippedBadges: badges,
+    rawViews,
+    hourlyViews,
+    deviceStats,
+    countryStats,
+    commentsReceived,
+    commentsGiven,
+    feedbackReceived,
+    feedbackGiven,
+  } = getCurrentSessionDataSync();
+  const premium = isPremiumActive(user);
+
+  const completionSteps = [
+    { label: "Upload an avatar", done: !!user?.avatarUrl, href: "/dashboard/customize/profile/general" },
+    { label: "Add a background", done: backgrounds.length > 0, href: "/dashboard/customize/profile/general" },
+    { label: "Write a short bio", done: !!user?.bio?.trim(), href: "/dashboard/customize/profile/general" },
+    { label: "Add a link", done: (user?.links?.length ?? 0) > 0, href: "/dashboard/customize/links" },
+    { label: "Add a music track", done: (user?.musicTracks?.length ?? 0) > 0, href: "/dashboard/customize/music" },
+    { label: "Add a widget", done: (user?.widgets?.length ?? 0) > 0, href: "/dashboard/customize/profile/widgets" },
+    { label: "Equip a badge", done: badges.length > 0, href: "/dashboard/customize/badges" },
+    { label: "Connect Discord", done: !!user?.discordId, href: "/dashboard/customize/badges" },
+  ];
+
+  return (
+    <div className="flex flex-col gap-8" style={{ fontFamily: "var(--font-comfortaa)" }}>
+      <div className="border-b border-white/4 pb-5 -mx-4 px-4 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12">
+        <Breadcrumb>
+          <BreadcrumbList className="text-[13px] gap-2">
+            <BreadcrumbItem>
+              <BreadcrumbPage className="text-[#5b6cf5] font-light tracking-tight" style={{ fontFamily: "var(--font-comfortaa)" }}>Dashboard</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+
+      <div>
+        <h1 className="text-2xl font-light text-white tracking-tight" style={{ fontFamily: "var(--font-comfortaa)" }}>Welcome back, {user?.username || "User"}</h1>
+        <p className="text-white/30 text-sm mt-1">Here is an overview of your statistics.</p>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {[
+          { label: "USER ID", value: user?.id ? String(user.id) : "—", icon: <span className="font-normal text-lg">#</span>, color: "#5b6cf5" },
+          { label: "TOTAL VIEWS", value: user?.views != null ? String(user.views) : "0", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>, color: "#5b6cf5" },
+          { label: "USERNAME", value: user?.username || "—", icon: <span className="font-normal text-lg">@</span>, color: "#5b6cf5" },
+          { label: "PLAN", value: premium ? "Premium" : "Free", icon: <svg width="18" height="18" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M396.31 32H264l84.19 112.26L396.31 32Zm-280.62 0 48.12 112.26L248 32H115.69ZM256 74.67 192 160h128l-64-85.33Zm166.95-23.61L376.26 160H488L422.95 51.06Zm-333.9 0L23 160h112.74L89.05 51.06ZM146.68 192H24l222.8 288h.53L146.68 192Zm218.64 0L264.67 480h.53L488 192H365.32Zm-35.93 0H182.61L256 400l73.39-208Z" /></svg>, color: "#5b6cf5" },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="bg-white/2 border border-white/4 rounded-2xl sm:rounded-[20px] p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:border-white/8 transition-colors"
+          >
+            <div
+              className="w-9 h-9 sm:w-11 sm:h-11 shrink-0 rounded-xl sm:rounded-2xl flex items-center justify-center"
+              style={{ backgroundColor: `${stat.color}15`, color: stat.color }}
+            >
+              {stat.icon}
+            </div>
+            <div className="flex flex-col gap-1 min-w-0 flex-1">
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-wide sm:tracking-wider text-white/50 font-normal whitespace-nowrap">
+                {stat.label}
+              </span>
+              <span className="text-white text-[15px] sm:text-base font-normal leading-none truncate">
+                {stat.value}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <ProfileCompletion steps={completionSteps} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="lg:col-span-2 min-w-0 min-h-0">
+          <AnalyticsChart totalViews={user?.views || 0} initialData={rawViews} hourlyData={hourlyViews} />
+        </div>
+
+        <div className="lg:col-span-1 min-w-0 min-h-0">
+          <DeviceChart stats={deviceStats} />
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <WorldMapCard data={countryStats} />
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+        <RecentComments
+          initialReceived={commentsReceived}
+          initialGiven={commentsGiven}
+          initialReceivedHasMore={false}
+          initialGivenHasMore={false}
+          initialReceivedTotal={commentsReceived.length}
+          initialGivenTotal={commentsGiven.length}
+        />
+        <RecentFeedback
+          initialReceived={feedbackReceived}
+          initialGiven={feedbackGiven}
+          initialReceivedHasMore={false}
+          initialGivenHasMore={false}
+          initialReceivedTotal={feedbackReceived.length}
+          initialGivenTotal={feedbackGiven.length}
+        />
+      </div>
+    </div>
+  );
+}

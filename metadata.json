@@ -1,0 +1,6 @@
+{
+  "name": "prophile",
+  "description": "Free link-in-bio platform - build a customizable page with your links, music player, live widgets, effects and themes. Claim your prophile/username today.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

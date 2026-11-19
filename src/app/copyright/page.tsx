@@ -1,0 +1,68 @@
+"use client";
+
+import React from "react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import LegalLayout, { LegalSection } from "@/components/legal/LegalLayout";
+import { getStore } from "@/lib/local-store";
+
+export default function CopyrightPage() {
+  const auth = getStore().sessionUserId !== null;
+  return (
+    <>
+      <Navbar isAuthenticated={auth} />
+      <LegalLayout
+        eyebrow="Legal"
+        title="Copyright Policy"
+        updated="October 13, 2026"
+        intro="We respect the work of creators, and we expect the same on prophile pages. This policy explains how to report infringement and what happens next."
+      >
+        <LegalSection heading="Your work stays yours">
+          <p>
+            Everything you post on your page remains your property. Our Terms only ask for
+            the narrow license needed to host and display it. Your own uploads, tracks,
+            artwork and custom badge icons must be your original work or something you have
+            permission to use.
+          </p>
+        </LegalSection>
+
+        <LegalSection heading="Reporting infringement">
+          <p>
+            If you believe content on prophile infringes your copyright, email
+            support@prophile.com with COPYRIGHT in the subject line and include: the work you
+            own, the page or file that infringes it, your contact details, a statement that
+            you believe in good faith the use is unauthorized, and a statement that your
+            notice is accurate. False reports can get your own account restricted, so only
+            report work you actually own.
+          </p>
+        </LegalSection>
+
+        <LegalSection heading="What we do">
+          <p>
+            Valid reports get the content restricted or removed, and the account behind it
+            notified. Repeat infringers lose their accounts. If a report looks invalid or
+            abusive, we reject it and may restrict the reporter instead.
+          </p>
+        </LegalSection>
+
+        <LegalSection heading="Counter notices">
+          <p>
+            If your content was removed and you believe that was a mistake, reply to our
+            notice with an explanation and proof of your rights. We review counter notices
+            case by case and restore content when the claim does not hold up.
+          </p>
+        </LegalSection>
+
+        <LegalSection heading="Badges and assets">
+          <p>
+            Custom badges must be your own original work. No cloning or near copies of
+            official prophile badges or system marks. Badges that copy ours or anyone
+            else work get pulled, and abusing the badge system can cost customization
+            access entirely.
+          </p>
+        </LegalSection>
+      </LegalLayout>
+      <Footer />
+    </>
+  );
+}
