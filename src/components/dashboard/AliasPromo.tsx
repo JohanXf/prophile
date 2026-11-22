@@ -26,7 +26,7 @@ export default function AliasPromo({ premium }: { premium: boolean }) {
         />
       </div>
       <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/65 to-black/35" aria-hidden="true" />
-      <div className="absolute inset-0 bg-[#5b6cf5]/[0.06]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[#f05e23]/[0.06]" aria-hidden="true" />
 
       <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-5 p-5 sm:p-6">
         <div className="flex items-start gap-4 flex-1 min-w-0">
@@ -34,7 +34,7 @@ export default function AliasPromo({ premium }: { premium: boolean }) {
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Want an extra username?</h2>
-              <span className="text-[11px] font-normal rounded-full px-2.5 py-0.5 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30">Alias</span>
+              <span className="text-[11px] font-normal rounded-full px-2.5 py-0.5 border text-white bg-[#f05e23]/20 border-[#f05e23]/30">Alias</span>
               {premium && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-normal rounded-full px-2.5 py-0.5 border text-[#e9d5ff] bg-[#c084fc]/12 border-[#c084fc]/25">
                   <svg width="10" height="10" viewBox="0 0 512 512" fill="#c084fc" aria-hidden="true">
@@ -55,7 +55,7 @@ export default function AliasPromo({ premium }: { premium: boolean }) {
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
           <Link
             href="/checkout/alias-token"
-            className="bg-[#5b6cf5] hover:bg-[#4b5ce4] border border-[#5b6cf5] text-white font-normal rounded-xl px-5 py-2.5 text-[13px] transition-colors cursor-pointer shadow-[0_0_20px_rgba(91,108,245,0.45)]"
+            className="bg-[#f05e23] hover:bg-[#d64e18] border border-[#f05e23] text-white font-normal rounded-xl px-5 py-2.5 text-[13px] transition-colors cursor-pointer shadow-[0_0_20px_rgba(240,94,35,0.45)]"
           >
             Buy alias token
           </Link>

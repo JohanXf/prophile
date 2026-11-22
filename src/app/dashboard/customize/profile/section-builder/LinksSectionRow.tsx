@@ -65,7 +65,7 @@ export default function LinksSectionRow({
   return (
     <div
       data-section="links"
-      className={`bg-[#0c0c0c] border rounded-[16px] transition-all duration-150 select-none ${hidden ? "opacity-40" : ""} ${isDragging ? "opacity-35 border-[#5b6cf5]/40 scale-[0.99]" : dropHighlight ? "border-[#5b6cf5] shadow-lg shadow-[#5b6cf5]/10" : "border-white/5"}`}
+      className={`bg-[#0c0c0c] border rounded-[16px] transition-all duration-150 select-none ${hidden ? "opacity-40" : ""} ${isDragging ? "opacity-35 border-[#f05e23]/40 scale-[0.99]" : dropHighlight ? "border-[#f05e23] shadow-lg shadow-[#f05e23]/10" : "border-white/5"}`}
     >
       <div className="flex items-center gap-3.5 px-4 py-3.5">
         <span
@@ -77,7 +77,7 @@ export default function LinksSectionRow({
           onPointerUp={dragHandleProps?.onPointerUp}
           onPointerCancel={dragHandleProps?.onPointerCancel}
           onKeyDown={dragHandleProps?.onKeyDown}
-          className={dragHandleProps ? "cursor-grab active:cursor-grabbing touch-none flex shrink-0 p-2 -m-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5b6cf5]/60" : "flex shrink-0"}
+          className={dragHandleProps ? "cursor-grab active:cursor-grabbing touch-none flex shrink-0 p-2 -m-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f05e23]/60" : "flex shrink-0"}
         >
           <svg className="text-white/20 shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="9" cy="5" r="1.6" />
@@ -89,7 +89,7 @@ export default function LinksSectionRow({
           </svg>
         </span>
 
-        <span className="text-[#5b6cf5] shrink-0">
+        <span className="text-[#f05e23] shrink-0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />

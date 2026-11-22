@@ -70,7 +70,7 @@ export default function PickUsernameModal() {
 
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] text-white/60">Username</span>
-          <span className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#5b6cf5]/40 transition-colors">
+          <span className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#f05e23]/40 transition-colors">
             <span className="flex items-center pl-3.5 text-[13px] text-white/35 select-none">prophile/</span>
             <input
               autoFocus
@@ -95,7 +95,7 @@ export default function PickUsernameModal() {
 
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] text-white/60">Password</span>
-          <span className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#5b6cf5]/40 transition-colors">
+          <span className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#f05e23]/40 transition-colors">
             <input
               type={showPw ? "text" : "password"}
               value={password}
@@ -128,7 +128,7 @@ export default function PickUsernameModal() {
           </span>
           <span className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
             {rules.map((r) => (
-              <span key={r.label} className={`flex items-center gap-1 text-[11px] ${r.ok ? "text-[#a5aef9]" : "text-white/30"}`}>
+              <span key={r.label} className={`flex items-center gap-1 text-[11px] ${r.ok ? "text-[#f8ab88]" : "text-white/30"}`}>
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
                   {r.ok ? <path d="M20 6 9 17l-5-5" /> : <circle cx="12" cy="12" r="4" />}
                 </svg>
@@ -141,7 +141,7 @@ export default function PickUsernameModal() {
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] text-white/60">Confirm password</span>
           <span
-            className={`flex items-stretch bg-[#161616] border rounded-xl overflow-hidden focus-within:border-[#5b6cf5]/40 transition-colors ${mismatch ? "border-red-500/30" : "border-white/5"}`}
+            className={`flex items-stretch bg-[#161616] border rounded-xl overflow-hidden focus-within:border-[#f05e23]/40 transition-colors ${mismatch ? "border-red-500/30" : "border-white/5"}`}
           >
             <input
               type={showConfirm ? "text" : "password"}
@@ -181,7 +181,7 @@ export default function PickUsernameModal() {
         <button
           type="submit"
           disabled={busy || !canSubmit}
-          className="h-10 rounded-xl text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
+          className="h-10 rounded-xl text-[13px] font-normal text-white bg-[#f05e23]/20 border border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
         >
           {busy ? "Saving…" : "Continue"}
         </button>

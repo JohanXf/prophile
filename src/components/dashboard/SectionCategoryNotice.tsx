@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-type SectionCategory = "widgets" | "music" | "links";
+type SectionCategory = "widgets" | "music" | "links" | "collection";
 
 const CATEGORY_COPY: Record<SectionCategory, { label: string; description: string }> = {
   widgets: {
@@ -14,6 +14,10 @@ const CATEGORY_COPY: Record<SectionCategory, { label: string; description: strin
   links: {
     label: "Links",
     description: "Add the Links category to a section — your big links only show where a section includes them.",
+  },
+  collection: {
+    label: "Collection",
+    description: "Add the Collection category to a section — your photo collection only shows where a section includes it.",
   },
 };
 

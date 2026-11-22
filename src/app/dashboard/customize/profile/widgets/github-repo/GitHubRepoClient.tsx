@@ -170,7 +170,7 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
   };
 
   const [ownerName] = cleanRepo.split("/");
-  const langColor = repoData?.language ? LANGUAGE_COLORS[repoData.language] || "#5b6cf5" : "#5b6cf5";
+  const langColor = repoData?.language ? LANGUAGE_COLORS[repoData.language] || "#f05e23" : "#f05e23";
 
   return (
     <>

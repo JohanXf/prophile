@@ -54,7 +54,7 @@ const tabs = [
     ),
   },
   {
-    label: "Section builder",
+    label: "Sections",
     href: "/dashboard/customize/profile/section-builder",
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="5" rx="1.5"/><rect x="3" y="11" width="18" height="5" rx="1.5"/><rect x="3" y="19" width="18" height="2" rx="1"/></svg>
@@ -64,30 +64,35 @@ const tabs = [
 
 const ProfileCustomizeNav = () => {
   const pathname = usePathname();
-  const hasActiveTab = tabs.some((tab) => tab.href === pathname);
+  const normalizedPath = pathname === "/dashboard/customize/profile" ? "/dashboard/customize/profile/general" : pathname;
+  const hasActiveTab = tabs.some((tab) => tab.href === normalizedPath);
 
   if (!hasActiveTab) return null;
 
   return (
-    <div className="bg-[#161616] border border-white/5 rounded-2xl p-1.5 flex items-center gap-1 w-full max-w-full overflow-x-auto custom-scrollbar shadow-sm">
+    <nav
+      aria-label="Profile customization tabs"
+      className="bg-[#141414] border border-white/[0.06] rounded-2xl p-1.5 flex items-center gap-1 w-full max-w-full overflow-x-auto no-scrollbar shadow-sm"
+    >
       {tabs.map((tab) => {
-        const isActive = pathname === tab.href;
+        const isActive = normalizedPath === tab.href;
         return (
           <Link
             key={tab.label}
             href={tab.href}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-normal transition-all shrink-0 whitespace-nowrap ${
+            aria-current={isActive ? "page" : undefined}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-[13px] font-normal transition-all shrink-0 whitespace-nowrap ${
               isActive
-                ? "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
-                : "text-white/40 hover:text-white/70 hover:bg-white/5 cursor-pointer"
+                ? "bg-[#f05e23]/20 hover:bg-[#f05e23]/28 text-white border border-[#f05e23]/25 shadow-[0_0_16px_rgba(240,94,35,0.12)] cursor-pointer"
+                : "text-white/45 hover:text-white/85 hover:bg-white/[0.05] border border-transparent cursor-pointer"
             }`}
           >
-            {tab.icon}
+            <span className={isActive ? "text-[#f05e23]" : "text-current opacity-80"}>{tab.icon}</span>
             {tab.label}
           </Link>
         );
       })}
-    </div>
+    </nav>
   );
 };
 

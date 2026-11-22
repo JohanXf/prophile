@@ -61,7 +61,7 @@ export default function TapToEnterSection({
             height="22"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#5b6cf5"
+            stroke="#f05e23"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -79,7 +79,7 @@ export default function TapToEnterSection({
           aria-checked={enterScreenEnabled}
           onClick={() => setEnterScreenEnabled(!enterScreenEnabled)}
           className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-            enterScreenEnabled ? "bg-[#5b6cf5]" : "bg-white/10"
+            enterScreenEnabled ? "bg-[#f05e23]" : "bg-white/10"
           }`}
         >
           <span
@@ -217,7 +217,7 @@ export default function TapToEnterSection({
           <div className="relative flex items-center h-5 group w-full">
             <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
               <div
-                className="absolute h-full bg-[#5b6cf5]"
+                className="absolute h-full bg-[#f05e23]"
                 style={{ width: `${((enterScreenOpacity - 10) / 90) * 100}%` }}
               />
             </div>
@@ -232,7 +232,7 @@ export default function TapToEnterSection({
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
             />
             <div
-              className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+              className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#f05e23] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
               style={{
                 left: `calc(${((enterScreenOpacity - 10) / 90) * 100}% - 8px)`
               }}
@@ -254,7 +254,7 @@ export default function TapToEnterSection({
             <div className="relative flex items-center h-5 group w-full">
               <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
                 <div
-                  className="absolute h-full bg-[#5b6cf5]"
+                  className="absolute h-full bg-[#f05e23]"
                   style={{ width: `${(Math.min(enterScreenBlur, 40) / 40) * 100}%` }}
                 />
               </div>
@@ -269,7 +269,7 @@ export default function TapToEnterSection({
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
               />
               <div
-                className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+                className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#f05e23] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
                 style={{
                   left: `calc(${(Math.min(enterScreenBlur, 40) / 40) * 100}% - 8px)`
                 }}

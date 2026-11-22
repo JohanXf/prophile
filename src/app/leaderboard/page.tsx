@@ -37,11 +37,11 @@ export default function LeaderboardPage() {
       <section className="relative w-full max-w-6xl mx-auto px-4 sm:px-6 pt-32 pb-14">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-[340px] bg-[radial-gradient(ellipse_at_top,rgba(91,108,245,0.16),rgba(91,108,245,0.05)_42%,transparent_72%)]"
+          className="pointer-events-none absolute inset-x-0 top-0 h-[340px] bg-[radial-gradient(ellipse_at_top,rgba(240,94,35,0.16),rgba(240,94,35,0.05)_42%,transparent_72%)]"
         />
         <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#8b93f0] font-medium">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-[#f47b47] font-medium">
               Top 100
             </p>
             <h1

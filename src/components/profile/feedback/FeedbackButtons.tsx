@@ -132,7 +132,7 @@ export default function FeedbackButtons({
       className={className}
       style={
         {
-          "--feedback-color": accentColor || "#5b6cf5",
+          "--feedback-color": accentColor || "#f05e23",
           "--feedback-color-muted": accentColor
             ? hexToRgba(accentColor, 60)
             : "rgba(255, 255, 255, 0.6)",

@@ -111,9 +111,9 @@ function OwnedRow({
       data-badge-row={badge.id}
       className={`group flex items-center gap-3 p-3.5 bg-[#141414]/70 hover:bg-[#161616] border rounded-2xl transition-all duration-150 select-none ${
         dragging
-          ? "opacity-35 border-[#5b6cf5]/40 scale-[0.99]"
+          ? "opacity-35 border-[#f05e23]/40 scale-[0.99]"
           : dropTarget
-            ? "border-[#5b6cf5] bg-[#161616] shadow-lg shadow-[#5b6cf5]/10"
+            ? "border-[#f05e23] bg-[#161616] shadow-lg shadow-[#f05e23]/10"
             : "border-white/5"
       }`}
     >
@@ -134,7 +134,7 @@ function OwnedRow({
             onMoveByKey(badge.id, 1);
           }
         }}
-        className="cursor-grab active:cursor-grabbing text-white/20 group-hover:text-white/60 transition-colors shrink-0 touch-none p-1.5 -m-1.5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5b6cf5]/50"
+        className="cursor-grab active:cursor-grabbing text-white/20 group-hover:text-white/60 transition-colors shrink-0 touch-none p-1.5 -m-1.5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f05e23]/50"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="9" cy="12" r="1" />
@@ -190,7 +190,7 @@ function BadgeCell({
     <div
       className={`px-5 py-4 flex flex-col gap-1 transition-all ${
         isLocked ? "saturate-50 opacity-70" : ""
-      } ${isEquipped ? "ring-1 ring-inset ring-[#5b6cf5]/40" : ""}`}
+      } ${isEquipped ? "ring-1 ring-inset ring-[#f05e23]/40" : ""}`}
     >
       <div className="flex items-center gap-3">
         <BadgeIcon badge={badge} />
@@ -222,7 +222,7 @@ function BadgeCell({
             <button
               type="button"
               onClick={() => onApply(badge.id)}
-              className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+              className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white bg-[#f05e23]/20 border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer"
             >
               Apply
             </button>
@@ -245,7 +245,7 @@ function BadgeCell({
             <button
               type="button"
               onClick={() => onToggle(badge.id)}
-              className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+              className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white bg-[#f05e23]/20 border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer"
             >
               Equip
             </button>
@@ -263,7 +263,7 @@ function BadgeCell({
                 else if (cta.action === "link" && cta.href) window.location.href = cta.href;
                 else toast.error("Coming soon.");
               }}
-              className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+              className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white bg-[#f05e23]/20 border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer"
             >
               {ctaLabel ?? CTA_BUTTONS[badge.id].label}
             </button>
@@ -363,7 +363,7 @@ function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: 
                     className={`text-[11px] font-normal rounded-lg px-2.5 py-1 border transition-colors cursor-pointer ${
                       isEquipped
                         ? "text-white/70 bg-white/[0.03] border-white/15 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20"
-                        : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+                        : "text-white bg-[#f05e23]/20 border-[#f05e23]/30 hover:bg-[#f05e23]/30"
                     }`}
                   >
                     {isEquipped ? "Unequip" : "Equip"}
@@ -435,7 +435,7 @@ function ViewsCard({ owned, equipped, totalViews, onToggle }: { owned: string[];
                     className={`text-[11px] font-normal rounded-lg px-2.5 py-1 border transition-colors cursor-pointer ${
                       isEquipped
                         ? "text-white/70 bg-white/[0.03] border-white/15 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20"
-                        : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+                        : "text-white bg-[#f05e23]/20 border-[#f05e23]/30 hover:bg-[#f05e23]/30"
                     }`}
                   >
                     {isEquipped ? "Unequip" : "Equip"}
@@ -503,7 +503,7 @@ function LikesCard({ owned, equipped, totalLikes, onToggle }: { owned: string[];
                     className={`text-[11px] font-normal rounded-lg px-2.5 py-1 border transition-colors cursor-pointer ${
                       isEquipped
                         ? "text-white/70 bg-white/[0.03] border-white/15 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20"
-                        : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+                        : "text-white bg-[#f05e23]/20 border-[#f05e23]/30 hover:bg-[#f05e23]/30"
                     }`}
                   >
                     {isEquipped ? "Unequip" : "Equip"}
@@ -537,12 +537,36 @@ export default function BadgesTabs({
   earlyEligible?: boolean;
   initialGlow?: { enabled: boolean; strength: number; size: number; mono: boolean; container: ContainerStyle; spacing: number; scroll: ScrollStyle; speed: number; show: number; shimmer: boolean };
 }) {
-  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("available");
+  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("yours");
   const [owned, setOwned] = useState<string[]>(initialOwned);
   const [equipped, setEquipped] = useState<string[]>(initialEquipped);
   const [savedEquipped, setSavedEquipped] = useState<string[]>(initialEquipped);
   const [custom, setCustom] = useState<CustomBadge[]>(initialCustom);
   const [tokens, setTokens] = useState(initialTokens);
+
+  const initialOwnedKey = initialOwned.join(",");
+  const initialEquippedKey = initialEquipped.join(",");
+  const initialCustomKey = initialCustom.map((c) => `${c.id}:${c.name}:${c.iconUrl}`).join(",");
+
+  useEffect(() => {
+    setOwned(initialOwned);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialOwnedKey]);
+
+  useEffect(() => {
+    setEquipped(initialEquipped);
+    setSavedEquipped(initialEquipped);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialEquippedKey]);
+
+  useEffect(() => {
+    setCustom(initialCustom);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialCustomKey]);
+
+  useEffect(() => {
+    setTokens(initialTokens);
+  }, [initialTokens]);
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [glowEnabled, setGlowEnabled] = useState(initialGlow.enabled);
@@ -653,7 +677,10 @@ export default function BadgesTabs({
     shimmerEnabled !== savedGlow.shimmer;
   const showSaveBar = dirty || glowDirty;
 
+  const isOwnerRole = user?.role === "admin";
+
   function isBadgeLocked(id: string): boolean {
+    if (isOwnerRole && id !== "halloween-2026") return false;
     if (id === "early") return !earlyEligible && !owned.includes(id);
     return !owned.includes(id);
   }
@@ -840,7 +867,7 @@ export default function BadgesTabs({
             {tab === t.id && (
               <motion.div
                 layoutId="badges-tab-bubble"
-                className="absolute inset-0 bg-[#5b6cf5]/20 shadow-[0_0_15px_rgba(91,108,245,0.1)] rounded-full"
+                className="absolute inset-0 bg-[#f05e23]/20 shadow-[0_0_15px_rgba(240,94,35,0.1)] rounded-full"
                 transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
               />
             )}
@@ -872,7 +899,7 @@ export default function BadgesTabs({
             <button
               type="button"
               onClick={() => setTab("available")}
-              className="shrink-0 flex items-center gap-1.5 bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/20 rounded-xl px-4 py-2 text-[13px] font-normal text-white transition-colors cursor-pointer"
+              className="shrink-0 flex items-center gap-1.5 bg-[#f05e23]/20 hover:bg-[#f05e23]/30 border border-[#f05e23]/20 rounded-xl px-4 py-2 text-[13px] font-normal text-white transition-colors cursor-pointer"
             >
               <span className="text-sm leading-none">+</span>
               Add badge
@@ -901,7 +928,7 @@ export default function BadgesTabs({
               <button
                 type="button"
                 onClick={() => setTab("available")}
-                className="mt-4 flex items-center gap-1.5 bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/20 rounded-xl px-4 py-2 text-[13px] font-normal text-white transition-colors cursor-pointer"
+                className="mt-4 flex items-center gap-1.5 bg-[#f05e23]/20 hover:bg-[#f05e23]/30 border border-[#f05e23]/20 rounded-xl px-4 py-2 text-[13px] font-normal text-white transition-colors cursor-pointer"
               >
                 Browse badges
               </button>
@@ -1000,7 +1027,7 @@ export default function BadgesTabs({
                     badge={badge}
                     isEquipped={equipped.includes(badge.id)}
                     isLocked={isBadgeLocked(badge.id)}
-                    showApply={APPLY_BADGE_IDS.includes(badge.id) && !owned.includes(badge.id)}
+                    showApply={APPLY_BADGE_IDS.includes(badge.id) && isBadgeLocked(badge.id)}
                     onToggle={toggleBadge}
                     onDiscord={openDiscordLink}
                     onInvite={() => openInviteModal(hasInvite)}
@@ -1038,7 +1065,7 @@ export default function BadgesTabs({
               <button
                 type="button"
                 onClick={() => setGlowEnabled(!glowEnabled)}
-                className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${glowEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}
+                className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${glowEnabled ? "bg-[#f05e23]" : "bg-white/10"}`}
               >
                 <div className={`w-3.5 h-3.5 rounded-full absolute shadow-sm bg-white transition-all ${glowEnabled ? "right-[3px]" : "left-[3px]"}`} />
               </button>
@@ -1052,7 +1079,7 @@ export default function BadgesTabs({
               <button
                 type="button"
                 onClick={() => setMonoEnabled(!monoEnabled)}
-                className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${monoEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}
+                className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${monoEnabled ? "bg-[#f05e23]" : "bg-white/10"}`}
               >
                 <div className={`w-3.5 h-3.5 rounded-full absolute shadow-sm bg-white transition-all ${monoEnabled ? "right-[3px]" : "left-[3px]"}`} />
               </button>
@@ -1066,7 +1093,7 @@ export default function BadgesTabs({
               <button
                 type="button"
                 onClick={() => setShimmerEnabled(!shimmerEnabled)}
-                className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${shimmerEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}
+                className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${shimmerEnabled ? "bg-[#f05e23]" : "bg-white/10"}`}
               >
                 <div className={`w-3.5 h-3.5 rounded-full absolute shadow-sm bg-white transition-all ${shimmerEnabled ? "right-[3px]" : "left-[3px]"}`} />
               </button>
@@ -1084,7 +1111,7 @@ export default function BadgesTabs({
               <div className="relative flex items-center h-5 group w-full">
                 <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
                   <div
-                    className="absolute h-full bg-[#5b6cf5]"
+                    className="absolute h-full bg-[#f05e23]"
                     style={{ width: `${glowStrength}%` }}
                   />
                 </div>
@@ -1099,7 +1126,7 @@ export default function BadgesTabs({
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
                 />
                 <div
-                  className={`absolute w-4 h-4 bg-[#050505] border-[2px] ${!glowEnabled ? "border-[#252a4a]" : "border-[#5b6cf5]"
+                  className={`absolute w-4 h-4 bg-[#050505] border-[2px] ${!glowEnabled ? "border-[#472213]" : "border-[#f05e23]"
                     } rounded-full pointer-events-none transition-transform shadow-lg`}
                   style={{
                     left: `calc(${glowStrength}% - 8px)`
@@ -1120,7 +1147,7 @@ export default function BadgesTabs({
               <div className="relative flex items-center h-5 group w-full">
                 <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
                   <div
-                    className="absolute h-full bg-[#5b6cf5]"
+                    className="absolute h-full bg-[#f05e23]"
                     style={{ width: `${((badgeSize - 12) / (32 - 12)) * 100}%` }}
                   />
                 </div>
@@ -1134,7 +1161,7 @@ export default function BadgesTabs({
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                 />
                 <div
-                  className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform shadow-lg"
+                  className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#f05e23] rounded-full pointer-events-none transition-transform shadow-lg"
                   style={{
                     left: `calc(${((badgeSize - 12) / (32 - 12)) * 100}% - 8px)`
                   }}
@@ -1154,7 +1181,7 @@ export default function BadgesTabs({
               <div className="relative flex items-center h-5 group w-full">
                 <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
                   <div
-                    className="absolute h-full bg-[#5b6cf5]"
+                    className="absolute h-full bg-[#f05e23]"
                     style={{ width: `${(badgeSpacing / 24) * 100}%` }}
                   />
                 </div>
@@ -1168,7 +1195,7 @@ export default function BadgesTabs({
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                 />
                 <div
-                  className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform shadow-lg"
+                  className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#f05e23] rounded-full pointer-events-none transition-transform shadow-lg"
                   style={{
                     left: `calc(${(badgeSpacing / 24) * 100}% - 8px)`
                   }}
@@ -1194,7 +1221,7 @@ export default function BadgesTabs({
                     onClick={() => setContainerStyle(opt.id)}
                     className={`rounded-lg px-4 py-1.5 text-[12.5px] font-normal transition-colors cursor-pointer ${
                       containerStyle === opt.id
-                        ? "bg-[#5b6cf5]/20 text-white"
+                        ? "bg-[#f05e23]/20 text-white"
                         : "text-white/40 hover:text-white/70"
                     }`}
                   >
@@ -1236,7 +1263,7 @@ export default function BadgesTabs({
                     onClick={() => setScrollStyle(opt.id)}
                     className={`rounded-lg px-2 sm:px-4 py-1.5 text-[12px] sm:text-[12.5px] font-normal whitespace-nowrap text-center transition-colors cursor-pointer ${
                       scrollStyle === opt.id
-                        ? "bg-[#5b6cf5]/20 text-white"
+                        ? "bg-[#f05e23]/20 text-white"
                         : "text-white/40 hover:text-white/70"
                     }`}
                   >
@@ -1264,7 +1291,7 @@ export default function BadgesTabs({
               <div className="relative flex items-center h-5 group w-full">
                 <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
                   <div
-                    className="absolute h-full bg-[#5b6cf5]"
+                    className="absolute h-full bg-[#f05e23]"
                     style={{ width: `${scrollSpeed}%` }}
                   />
                 </div>
@@ -1279,7 +1306,7 @@ export default function BadgesTabs({
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
                 />
                 <div
-                  className={`absolute w-4 h-4 bg-[#050505] border-[2px] ${scrollStyle === "none" ? "border-[#252a4a]" : "border-[#5b6cf5]"
+                  className={`absolute w-4 h-4 bg-[#050505] border-[2px] ${scrollStyle === "none" ? "border-[#472213]" : "border-[#f05e23]"
                     } rounded-full pointer-events-none transition-transform shadow-lg`}
                   style={{
                     left: `calc(${scrollSpeed}% - 8px)`
@@ -1300,7 +1327,7 @@ export default function BadgesTabs({
               <div className="relative flex items-center h-5 group w-full">
                 <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
                   <div
-                    className="absolute h-full bg-[#5b6cf5]"
+                    className="absolute h-full bg-[#f05e23]"
                     style={{ width: `${((visibleCount - 1) / 19) * 100}%` }}
                   />
                 </div>
@@ -1315,7 +1342,7 @@ export default function BadgesTabs({
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
                 />
                 <div
-                  className={`absolute w-4 h-4 bg-[#050505] border-[2px] ${scrollStyle === "none" ? "border-[#252a4a]" : "border-[#5b6cf5]"
+                  className={`absolute w-4 h-4 bg-[#050505] border-[2px] ${scrollStyle === "none" ? "border-[#472213]" : "border-[#f05e23]"
                     } rounded-full pointer-events-none transition-transform shadow-lg`}
                   style={{
                     left: `calc(${((visibleCount - 1) / 19) * 100}% - 8px)`
@@ -1394,9 +1421,9 @@ export default function BadgesTabs({
                 {applyFor.id === "verified" && (
                   <Link
                     href="/checkout/verified"
-                    className="w-full flex items-center gap-3 rounded-xl border border-[#5b6cf5]/30 bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/25 transition-colors px-4 py-3 cursor-pointer"
+                    className="w-full flex items-center gap-3 rounded-xl border border-[#f05e23]/30 bg-[#f05e23]/20 hover:bg-[#f05e23]/25 transition-colors px-4 py-3 cursor-pointer"
                   >
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c7cdfb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fcd3be" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                       <circle cx="9" cy="20" r="1.5" />
                       <circle cx="17" cy="20" r="1.5" />
                       <path d="M3 3h2l2.4 12.2a1 1 0 0 0 1 .8H17a1 1 0 0 0 1-.8L20 7H6" />
@@ -1407,12 +1434,12 @@ export default function BadgesTabs({
                 <button
                   type="button"
                   onClick={openDiscordApply}
-                  className="w-full flex items-center gap-3 rounded-xl border border-[#5b6cf5]/25 bg-[#5b6cf5]/10 hover:bg-[#5b6cf5]/15 transition-colors px-4 py-3 cursor-pointer"
+                  className="w-full flex items-center gap-3 rounded-xl border border-[#f05e23]/25 bg-[#f05e23]/10 hover:bg-[#f05e23]/15 transition-colors px-4 py-3 cursor-pointer"
                 >
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="#8f9bf5" className="shrink-0">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="#f47b47" className="shrink-0">
                     <path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.03ZM8.02 15.33c-1.182 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418Zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418Z" />
                   </svg>
-                  <span className="text-[13.5px] font-normal text-[#8f9bf5]">Apply via Discord</span>
+                  <span className="text-[13.5px] font-normal text-[#f47b47]">Apply via Discord</span>
                 </button>
               </div>
             </motion.div>
@@ -1477,7 +1504,7 @@ export default function BadgesTabs({
                     <button
                       type="button"
                       onClick={copyInviteLink}
-                      className="shrink-0 text-[12px] font-normal rounded-lg px-3 py-1.5 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+                      className="shrink-0 text-[12px] font-normal rounded-lg px-3 py-1.5 border text-white bg-[#f05e23]/20 border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer"
                     >
                       Copy
                     </button>
@@ -1491,7 +1518,7 @@ export default function BadgesTabs({
                     </div>
                     <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[#5b6cf5] rounded-full transition-all"
+                        className="h-full bg-[#f05e23] rounded-full transition-all"
                         style={{ width: `${Math.min(100, (inviteData.uses / inviteData.required) * 100)}%` }}
                       />
                     </div>
@@ -1500,7 +1527,7 @@ export default function BadgesTabs({
                     type="button"
                     onClick={handleInviteRefresh}
                     disabled={inviteRefreshing}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl border border-[#5b6cf5]/30 bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 transition-colors px-4 py-2.5 text-[13px] font-normal text-white cursor-pointer disabled:opacity-50 disabled:cursor-default"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl border border-[#f05e23]/30 bg-[#f05e23]/20 hover:bg-[#f05e23]/30 transition-colors px-4 py-2.5 text-[13px] font-normal text-white cursor-pointer disabled:opacity-50 disabled:cursor-default"
                   >
                     {inviteRefreshing ? "Checking…" : "Refresh progress"}
                   </button>

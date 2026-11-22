@@ -2,92 +2,120 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import ProfileBadges, { type CustomBadge } from "@/components/profile/layouts/ProfileBadges";
+import { getStore, subscribeStore, hydrateFullUser } from "@/lib/local-store";
 
 const FONT = "var(--font-comfortaa)";
 const MUTED = "#878a93";
-const ROTATE_MS = 4000;
 
-const Emoji = ({ src, alt }: { src: string; alt: string }) => (
-  <Image
-    src={src}
-    alt={alt}
-    width={18}
-    height={18}
-    unoptimized
-    draggable={false}
-    className="inline-block w-[18px] h-[18px] align-[-4px] mr-1 select-none"
-  />
-);
-
-type Showcase = {
+type ShowcaseData = {
   uid: number;
+  username: string;
   name: string;
-  dir: string;
-  banner: string;
+  avatarUrl: string;
+  bannerUrl: string;
   badges: string[];
   customBadges?: CustomBadge[];
-  location: string;
-  job?: string;
+  badgeMonoEnabled?: boolean;
+  badgeMonoColor?: string | null;
+  location?: string | null;
+  job?: string | null;
   joined: string;
   bio: ReactNode;
+  exists: boolean;
 };
 
-const PROFILES: Showcase[] = [
-  {
+function formatJoinDate(iso?: string | Date | null): string {
+  if (!iso) return "Nov 19, '26";
+  const d = iso instanceof Date ? iso : new Date(iso);
+  if (Number.isNaN(d.getTime())) return "Nov 19, '26";
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const yr = String(d.getFullYear()).slice(-2);
+  return `${months[d.getMonth()]} ${d.getDate()}, '${yr}`;
+}
+
+function isVideoUrl(url: string): boolean {
+  const clean = url.split("?")[0].toLowerCase();
+  return clean.endsWith(".mp4") || clean.endsWith(".webm") || clean.endsWith(".mov");
+}
+
+function buildFaizenShowcase(): ShowcaseData {
+  const store = getStore();
+  const rawUser = Object.values(store.users).find(
+    (u) => u.username.toLowerCase() === "faizen"
+  );
+  const liveUser = rawUser ? hydrateFullUser(rawUser) : null;
+
+  if (liveUser) {
+    const equipped = store.equippedBadges[liveUser.id] ?? ["early", "premium", "verified"];
+    const customBadges: CustomBadge[] = (store.customBadges[liveUser.id] ?? []).map((b) => ({
+      id: b.id,
+      name: b.name,
+      iconUrl: b.iconUrl,
+    }));
+    const backgrounds = store.backgrounds[liveUser.id] ?? [];
+    const bannerUrl =
+      liveUser.bannerImageUrl ||
+      backgrounds[0] ||
+      "/showcase/rio/banner.png";
+    const avatarUrl = liveUser.avatarUrl || "/showcase/saraansx.jpg";
+    const bioLines: string[] = (liveUser.bio || "Building cool things on prophile.")
+      .split("\n")
+      .filter((line: string) => line.trim().length > 0);
+
+    return {
+      uid: liveUser.id,
+      username: liveUser.username,
+      name: liveUser.displayName || liveUser.username,
+      avatarUrl,
+      bannerUrl,
+      badges: equipped,
+      customBadges,
+      badgeMonoEnabled: liveUser.badgeMonochromeEnabled ?? false,
+      badgeMonoColor: liveUser.badgeMonochromeColor ?? null,
+      location: liveUser.location || null,
+      job: liveUser.occupation || null,
+      joined: formatJoinDate(liveUser.createdAt),
+      bio: (
+        <>
+          {bioLines.map((line: string, idx: number) => (
+            <p key={idx}>{line}</p>
+          ))}
+        </>
+      ),
+      exists: true,
+    };
+  }
+
+  return {
     uid: 1,
-    name: "rio .",
-    dir: "rio",
-    banner: "banner.png",
-    badges: ["owner", "developer", "early", "premium", "image-host", "verified", "guild-tag"],
-    location: "cat :3",
-    job: "idk .",
-    joined: "Oct 15, '26",
+    username: "faizen",
+    name: "faizen",
+    avatarUrl: "/showcase/saraansx.jpg",
+    bannerUrl: "/showcase/rio/banner.png",
+    badges: ["owner", "developer", "early", "premium", "verified"],
+    location: "prophile/faizen",
+    job: "Creator",
+    joined: "Nov 19, '26",
     bio: (
       <>
         <p>
-          <Emoji src="/showcase/rio/emoji-code.gif" alt="code" />
-          <em>
-            Writing <u>code</u>{" nobody understand's"}
-          </em>
+          <em>One clean link for everything I build &amp; share.</em>
         </p>
-        <p>
-          <Emoji src="/showcase/rio/emoji-coffee.gif" alt="coffee" />
-          Coffee ohh yeahh
-        </p>
-        <p className="mt-5 pl-[45%]">
-          <Emoji src="/showcase/rio/emoji-iuno.png" alt="prophile" />
-          <em>
-            {"discord.gg/"}
-            <u>prophile</u>
-          </em>
+        <p className="mt-2 text-white/60">
+          prophile/<u>faizen</u>
         </p>
       </>
     ),
-  },
-  {
-    uid: 2,
-    name: "rex.",
-    dir: "rex",
-    banner: "banner.mp4",
-    badges: ["custom-aa196642e9fd", "owner", "developer"],
-    customBadges: [{ id: "custom-aa196642e9fd", name: "< 3", iconUrl: "/showcase/rex/badge-heart.gif" }],
-    location: "cat :3",
-    joined: "Oct 15, '26",
-    bio: (
-      <p>
-        <strong>
-          Hi. I own prophile <Emoji src="/showcase/rex/emoji-iuno.png" alt="prophile" />
-        </strong>
-      </p>
-    ),
-  },
-];
+    exists: false,
+  };
+}
 
-function Card({ p }: { p: Showcase }) {
-  return (
+function Card({ p }: { p: ShowcaseData }) {
+  const content = (
     <div
-      className="relative w-full max-w-[700px] overflow-hidden rounded-[24px] border border-white/[0.08] bg-black/10 backdrop-blur-[5px] shadow-[0_40px_120px_rgba(0,0,0,0.7)] select-none"
+      className="relative w-full max-w-[700px] overflow-hidden rounded-[24px] border border-white/[0.08] bg-black/10 backdrop-blur-[5px] shadow-[0_40px_120px_rgba(0,0,0,0.7)] select-none transition-colors hover:border-[#f05e23]/30"
       style={{ fontFamily: FONT }}
     >
       <div
@@ -97,9 +125,9 @@ function Card({ p }: { p: Showcase }) {
           WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 45%, rgba(0,0,0,0.6) 75%, transparent 100%)",
         }}
       >
-        {p.banner.endsWith(".mp4") ? (
+        {isVideoUrl(p.bannerUrl) ? (
           <video
-            src={`/showcase/${p.dir}/${p.banner}`}
+            src={p.bannerUrl}
             autoPlay
             muted
             loop
@@ -109,11 +137,12 @@ function Card({ p }: { p: Showcase }) {
           />
         ) : (
           <Image
-            src={`/showcase/${p.dir}/${p.banner}`}
+            src={p.bannerUrl}
             alt={`${p.name}'s banner`}
             fill
             sizes="700px"
             priority
+            unoptimized
             draggable={false}
             className="object-cover"
           />
@@ -124,11 +153,12 @@ function Card({ p }: { p: Showcase }) {
       <div className="flex items-start gap-5 px-6 mt-2.5">
         <div className="relative w-[88px] h-[88px] shrink-0 overflow-hidden rounded-full border border-white/5 bg-[#0a0a0a] shadow-xl">
           <Image
-            src={`/showcase/${p.dir}/avatar.png`}
+            src={p.avatarUrl}
             alt={`${p.name}'s avatar`}
             fill
             sizes="88px"
             priority
+            unoptimized
             draggable={false}
             className="object-cover"
           />
@@ -137,39 +167,45 @@ function Card({ p }: { p: Showcase }) {
         <div className="flex-1 min-w-0 flex flex-col items-start text-left -mt-1.5">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="text-[20px] text-white tracking-tight mb-2 truncate">{p.name}</h3>
-            <div className="mb-2">
-              <ProfileBadges
-                badgeIds={p.badges}
-                customBadges={p.customBadges}
-                glowEnabled
-                glowStrength={30}
-                badgeSize={19}
-                monoEnabled
-                monoColor="#393636"
-                containerStyle="none"
-                badgeSpacing={4}
-                shimmerEnabled
-              />
-            </div>
-          </div>
-
-          <div className="mt-1 flex items-center gap-3 text-[12px]" style={{ color: MUTED }}>
-            <span className="flex items-center gap-1.5">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="shrink-0" aria-hidden>
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-              </svg>
-              {p.location}
-            </span>
-            {p.job && (
-              <span className="flex items-center gap-1.5">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-80" aria-hidden>
-                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                </svg>
-                {p.job}
-              </span>
+            {p.badges.length > 0 && (
+              <div className="mb-2">
+                <ProfileBadges
+                  badgeIds={p.badges}
+                  customBadges={p.customBadges}
+                  glowEnabled
+                  glowStrength={35}
+                  badgeSize={19}
+                  monoEnabled={p.badgeMonoEnabled ?? false}
+                  monoColor={p.badgeMonoColor ?? null}
+                  containerStyle="pill"
+                  badgeSpacing={5}
+                  shimmerEnabled
+                />
+              </div>
             )}
           </div>
+
+          {(p.location || p.job) && (
+            <div className="mt-1 flex items-center gap-3 text-[12px]" style={{ color: MUTED }}>
+              {p.location && (
+                <span className="flex items-center gap-1.5">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="shrink-0" aria-hidden>
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                  </svg>
+                  {p.location}
+                </span>
+              )}
+              {p.job && (
+                <span className="flex items-center gap-1.5">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-80" aria-hidden>
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                  </svg>
+                  {p.job}
+                </span>
+              )}
+            </div>
+          )}
 
           <div className="mt-1.5 w-full text-[13px] leading-relaxed text-white">{p.bio}</div>
         </div>
@@ -194,37 +230,29 @@ function Card({ p }: { p: Showcase }) {
       </div>
     </div>
   );
+
+  if (p.exists) {
+    return (
+      <Link href={`/${p.username}`} className="block w-full max-w-[700px]">
+        {content}
+      </Link>
+    );
+  }
+  return content;
 }
 
 export default function ShowcaseProfileCard() {
-  const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [, setTick] = useState(0);
 
-  useEffect(() => {
-    if (paused) return;
-    const id = setInterval(() => setActive((i) => (i + 1) % PROFILES.length), ROTATE_MS);
-    return () => clearInterval(id);
-  }, [paused]);
+  useEffect(() => subscribeStore(() => setTick((t) => t + 1)), []);
+
+  const profile = buildFaizenShowcase();
 
   return (
-    <div
-      className="grid w-full max-w-[700px] place-items-center"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
-    >
-      {PROFILES.map((p, i) => (
-        <div
-          key={p.uid}
-          aria-hidden={i !== active}
-          className={`col-start-1 row-start-1 w-full flex justify-center transition-opacity duration-700 motion-reduce:transition-none ${
-            i === active ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
-        >
-          <Card p={p} />
-        </div>
-      ))}
+    <div className="grid w-full max-w-[700px] place-items-center">
+      <div className="w-full flex justify-center">
+        <Card p={profile} />
+      </div>
     </div>
   );
 }

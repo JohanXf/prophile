@@ -8,6 +8,7 @@ export interface MusicTrack {
   id: string;
   title: string;
   artist: string;
+  bio?: string | null;
   artwork: string | null;
   album?: string | null;
   duration?: number | null;

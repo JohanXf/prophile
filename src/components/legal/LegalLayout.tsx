@@ -18,7 +18,7 @@ export default function LegalLayout({
     <main className="min-h-screen bg-black relative">
       <TopFade />
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-36 pb-24">
-        <p className="text-[11px] font-medium tracking-[0.32em] text-[#8b93e8] uppercase mb-4">
+        <p className="text-[11px] font-medium tracking-[0.32em] text-[#f47b47] uppercase mb-4">
           {eyebrow}
         </p>
         <h1 className="text-4xl md:text-5xl font-medium tracking-tight text-white mb-3">

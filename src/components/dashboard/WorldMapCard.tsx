@@ -20,7 +20,7 @@ const geo = topoFeature(
 
 const WORLD_FEATURES = geo.features;
 
-const ACCENT = "91, 108, 245";
+const ACCENT = "240, 94, 35";
 
 function Flag({ code }: { code: string }) {
   return (
@@ -121,7 +121,7 @@ export default function WorldMapCard({ data }: { data: CountryViewStat[] }) {
                                       fill={fillFor(count)}
                                       stroke="rgba(255,255,255,0.08)"
                                       strokeWidth={0.5}
-                                      className="transition-[fill] duration-150 hover:[fill:rgba(91,108,245,0.9)]"
+                                      className="transition-[fill] duration-150 hover:[fill:rgba(240,94,35,0.9)]"
                                       onMouseMove={(e) => {
                                         if (zoom.isDragging) return;
                                         const box = (e.currentTarget.ownerSVGElement as SVGSVGElement).getBoundingClientRect();
@@ -181,7 +181,7 @@ export default function WorldMapCard({ data }: { data: CountryViewStat[] }) {
       {}
       <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-5 shadow-sm flex flex-col h-full min-h-0">
         <div className="flex items-center gap-2">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f05e23" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" /><path d="M2 12h20" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
           </svg>
           <h3 className="text-[13.5px] font-normal text-white/90 tracking-tight">Top countries</h3>
@@ -212,7 +212,7 @@ export default function WorldMapCard({ data }: { data: CountryViewStat[] }) {
             <button
               type="button"
               onClick={() => setAllOpen(true)}
-              className="mt-auto w-full h-9 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white text-[12.5px] font-normal transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(91,108,245,0.1)]"
+              className="mt-auto w-full h-9 rounded-xl bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white text-[12.5px] font-normal transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(240,94,35,0.1)]"
             >
               View all countries
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>

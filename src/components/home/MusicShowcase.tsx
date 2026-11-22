@@ -20,7 +20,7 @@ function Vinyl({ artwork }: { artwork: string }) {
       <div
         aria-hidden
         className="absolute -inset-10 rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(50% 50% at 50% 50%, rgba(91,108,245,0.28) 0%, transparent 70%)" }}
+        style={{ background: "radial-gradient(50% 50% at 50% 50%, rgba(240,94,35,0.28) 0%, transparent 70%)" }}
       />
       <motion.div
         animate={{ rotate: 360 }}
@@ -71,7 +71,7 @@ export default function MusicShowcase() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(55% 40% at 50% 30%, rgba(91,108,245,0.1) 0%, transparent 70%)",
+            "radial-gradient(55% 40% at 50% 30%, rgba(240,94,35,0.1) 0%, transparent 70%)",
         }}
       />
       <div className="relative max-w-7xl mx-auto px-5 sm:px-6 flex flex-col items-center text-center">
@@ -80,7 +80,7 @@ export default function MusicShowcase() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: EASE }}
-          className="text-[11px] font-medium tracking-[0.32em] text-[#8b93e8] uppercase mb-5"
+          className="text-[11px] font-medium tracking-[0.32em] text-[#f47b47] uppercase mb-5"
         >
           Music player
         </motion.span>
@@ -93,7 +93,7 @@ export default function MusicShowcase() {
           className="text-4xl md:text-5xl font-medium tracking-tight text-white mb-6"
         >
           Your soundtrack,{" "}
-          <span className="bg-gradient-to-r from-[#8b93e8] to-[#cdd2ff] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#f47b47] to-[#fcd3be] bg-clip-text text-transparent">
             built in
           </span>
           .

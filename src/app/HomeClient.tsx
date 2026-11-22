@@ -66,7 +66,7 @@ export default function Home({ featuredAvatars }: { featuredAvatars: FeaturedAva
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className="username-blur inline-block text-2xl md:text-4xl leading-[1.1] font-light tracking-tight bg-gradient-to-r from-white via-[#9aa2f2] to-white/40 bg-clip-text text-transparent"
+              className="username-blur inline-block text-2xl md:text-4xl leading-[1.1] font-light tracking-tight bg-gradient-to-r from-white via-[#f47b47] to-white/40 bg-clip-text text-transparent"
             >
               One Clean Link.
             </motion.h2>
@@ -94,7 +94,7 @@ export default function Home({ featuredAvatars }: { featuredAvatars: FeaturedAva
             initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.7, delay: 0.66, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-md bg-white/[0.04] sm:bg-white/2 sm:backdrop-blur-xl border border-white/8 rounded-2xl p-1.5 flex items-center gap-2 group focus-within:border-[#5b6cf5]/30 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4)] mx-auto lg:mx-0"
+            className="w-full max-w-md bg-white/[0.04] sm:bg-white/2 sm:backdrop-blur-xl border border-white/8 rounded-2xl p-1.5 flex items-center gap-2 group focus-within:border-[#f05e23]/30 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4)] mx-auto lg:mx-0"
           >
             <div className="flex-1 min-w-0 px-3 sm:px-4 py-2 flex items-center gap-1 text-sm" style={{ fontFamily: "var(--font-comfortaa)" }}>
               <span className="text-white/30 font-normal tracking-wide shrink-0">prophile/</span>
@@ -113,7 +113,7 @@ export default function Home({ featuredAvatars }: { featuredAvatars: FeaturedAva
             </div>
             <button
               onClick={handleClaim}
-              className="shrink-0 bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-6 sm:px-7 py-2.5 rounded-xl font-normal text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
+              className="shrink-0 bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white px-6 sm:px-7 py-2.5 rounded-xl font-normal text-sm transition-all shadow-[0_0_15px_rgba(240,94,35,0.1)] cursor-pointer"
               style={{ fontFamily: "var(--font-comfortaa)" }}
             >
               Claim
@@ -135,7 +135,7 @@ export default function Home({ featuredAvatars }: { featuredAvatars: FeaturedAva
               <div
                 aria-hidden
                 className="pointer-events-none absolute -inset-x-10 -top-16 -bottom-6 sm:-inset-x-24 sm:-top-24 sm:-bottom-10"
-                style={{ background: "radial-gradient(45% 45% at 50% 25%, rgba(91,108,245,0.35) 0%, rgba(91,108,245,0.08) 45%, transparent 72%)" }}
+                style={{ background: "radial-gradient(45% 45% at 50% 25%, rgba(240,94,35,0.35) 0%, rgba(240,94,35,0.08) 45%, transparent 72%)" }}
               />
               <div className="relative flex justify-center">
                 <ShowcaseProfileCard />

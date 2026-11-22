@@ -9,7 +9,7 @@ const pricingJsonLd = {
   "@type": "Product",
   name: "prophile Premium",
   description:
-    "Lifetime access to prophile Premium - unlimited backgrounds, tracks, widgets, every effect, aliases, tab customization and the Premium badge. One time payment, no subscription.",
+    "Monthly access to prophile Premium for $1/month — unlimited customization, backgrounds, tracks, widgets, every effect, aliases, tab customization, and the Premium badge. Cancel anytime.",
   brand: {
     "@type": "Brand",
     name: SITE_CONFIG.name,
@@ -18,7 +18,7 @@ const pricingJsonLd = {
   offers: (Object.keys(PREMIUM_PLAN) as (keyof typeof PREMIUM_PLAN)[]).map(
     (currency) => ({
       "@type": "Offer",
-      name: `prophile Premium lifetime (${currency})`,
+      name: `prophile Premium monthly (${currency})`,
       price: PREMIUM_PLAN[currency].display,
       priceCurrency: currency,
       url: `${SITE_CONFIG.url}/pricing`,

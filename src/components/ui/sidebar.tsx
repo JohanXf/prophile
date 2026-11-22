@@ -111,7 +111,7 @@ export const MobileSidebar = ({ children }: React.ComponentProps<"div">) => {
         <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
           <Image src="/Favicon.png" alt="prophile Logo" width={512} height={512} className="w-6 h-auto object-contain shrink-0" />
           <span className="font-normal text-white tracking-tight text-lg" style={{ fontFamily: "var(--font-comfortaa)" }}>
-            pro<span className="text-[#5b6cf5] lowercase">phile</span>
+            pro<span className="text-[#f05e23] lowercase">phile</span>
           </span>
         </Link>
         <button

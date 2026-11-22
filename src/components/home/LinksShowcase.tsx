@@ -62,7 +62,7 @@ function TrashIcon() {
   );
 }
 
-function CursorArrow({ color = "#5b6cf5" }: { color?: string }) {
+function CursorArrow({ color = "#f05e23" }: { color?: string }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" className="drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">
       <path d="M5.5 3.5 19.5 11.5l-7.8 1.3-3.4 7.2L5.5 3.5z" fill="#fff" stroke="#0a0a0c" strokeWidth="1.6" strokeLinejoin="round" />
@@ -189,7 +189,7 @@ function ManagerCard() {
                 transition={{ type: "spring", stiffness: 350, damping: 32 }}
                 className={`h-16 flex items-center gap-3 px-3 rounded-2xl border transition-colors duration-200 ${
                   dragging
-                    ? "border-[#5b6cf5]/40 bg-[#141419] shadow-[0_12px_32px_rgba(0,0,0,0.5)] z-10"
+                    ? "border-[#f05e23]/40 bg-[#141419] shadow-[0_12px_32px_rgba(0,0,0,0.5)] z-10"
                     : "border-white/[0.06] bg-white/[0.02]"
                 }`}
               >
@@ -220,8 +220,8 @@ function ManagerCard() {
           style={{ x: "-4px", y: "-4px" }}
         >
           <CursorArrow />
-          <span className="absolute left-5 top-5 px-1.5 py-0.5 rounded-md bg-[#5b6cf5] text-white text-[10px] font-medium leading-none whitespace-nowrap">
-            rio
+          <span className="absolute left-5 top-5 px-1.5 py-0.5 rounded-md bg-[#f05e23] text-white text-[10px] font-medium leading-none whitespace-nowrap">
+            faizen
           </span>
         </motion.div>
       </div>
@@ -239,13 +239,13 @@ function ShareCard() {
       <h3 className="text-[14px] font-normal text-white/90 tracking-tight">Share it once</h3>
 
       <div className="relative rounded-2xl border border-white/[0.07] bg-white/[0.03] pl-3 pr-1.5 py-1.5 flex items-center gap-2.5 overflow-visible">
-        <span className="w-8 h-8 rounded-xl bg-[#5b6cf5]/20 flex items-center justify-center shrink-0">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b93e8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <span className="w-8 h-8 rounded-xl bg-[#f05e23]/20 flex items-center justify-center shrink-0">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f47b47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
           </svg>
         </span>
-        <span className="flex-1 min-w-0 text-[13px] font-mono text-white/80 truncate">prophile/saraansx</span>
+        <span className="flex-1 min-w-0 text-[13px] font-mono text-white/80 truncate">prophile/faizen</span>
         <span className="relative w-9 h-9 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-white/70 shrink-0">
           {copied ? (
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -263,7 +263,7 @@ function ShareCard() {
               initial={{ scale: 0.4, opacity: 0.9 }}
               animate={{ scale: 1.9, opacity: 0 }}
               transition={{ duration: 0.55, ease: "easeOut" }}
-              className="absolute inset-0 rounded-xl border-2 border-[#8b93e8] pointer-events-none"
+              className="absolute inset-0 rounded-xl border-2 border-[#f47b47] pointer-events-none"
             />
           )}
         </span>
@@ -290,7 +290,7 @@ function ShareCard() {
         >
           <CursorArrow color="#e879a0" />
           <span className="absolute left-5 top-5 px-1.5 py-0.5 rounded-md bg-[#e879a0] text-white text-[10px] font-medium leading-none whitespace-nowrap">
-            rex
+            faizen
           </span>
         </motion.div>
       </div>
@@ -315,7 +315,7 @@ function ShareCard() {
             </span>
             <span className="flex-1 min-w-0">
               <span className="block text-[12.5px] font-normal text-white/85 leading-tight">{bio.label}</span>
-              <span className="block text-[11px] font-mono text-white/40 truncate">prophile/saraansx</span>
+              <span className="block text-[11px] font-mono text-white/40 truncate">prophile/faizen</span>
             </span>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
               <path d="M20 6 9 17l-5-5" />
@@ -337,7 +337,7 @@ export default function LinksShowcase() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(50% 38% at 50% 32%, rgba(91,108,245,0.1) 0%, transparent 70%)",
+            "radial-gradient(50% 38% at 50% 32%, rgba(240,94,35,0.1) 0%, transparent 70%)",
         }}
       />
       <div className="relative max-w-7xl mx-auto px-5 sm:px-6 flex flex-col items-center text-center">
@@ -346,7 +346,7 @@ export default function LinksShowcase() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: EASE }}
-          className="text-[11px] font-medium tracking-[0.32em] text-[#8b93e8] uppercase mb-5"
+          className="text-[11px] font-medium tracking-[0.32em] text-[#f47b47] uppercase mb-5"
         >
           Dashboard
         </motion.span>
@@ -359,7 +359,7 @@ export default function LinksShowcase() {
           className="text-4xl md:text-5xl font-medium tracking-tight text-white mb-6"
         >
           One dashboard{" "}
-          <span className="bg-gradient-to-r from-[#8b93e8] to-[#cdd2ff] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#f47b47] to-[#fcd3be] bg-clip-text text-transparent">
             for it all
           </span>
           .

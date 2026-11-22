@@ -27,15 +27,15 @@ export default function CommentsSection({
               height="22"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#5b6cf5"
+              stroke="#f05e23"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              <circle cx="12" cy="10" r="1" fill="#5b6cf5" stroke="none"/>
-              <circle cx="8" cy="10" r="1" fill="#5b6cf5" stroke="none"/>
-              <circle cx="16" cy="10" r="1" fill="#5b6cf5" stroke="none"/>
+              <circle cx="12" cy="10" r="1" fill="#f05e23" stroke="none"/>
+              <circle cx="8" cy="10" r="1" fill="#f05e23" stroke="none"/>
+              <circle cx="16" cy="10" r="1" fill="#f05e23" stroke="none"/>
             </svg>
             <h2 className="text-white font-normal text-[16px] tracking-tight">
               Comments
@@ -45,14 +45,14 @@ export default function CommentsSection({
             onClick={() => setIsCommentsEnabled(!isCommentsEnabled)}
             className={`flex items-center gap-2.5 px-3 py-1.5 rounded-full transition-all cursor-pointer focus:outline-none border ${
               isCommentsEnabled
-                ? "bg-[#111326] border-[#202442] hover:bg-[#161933] text-[#5b6cf5]"
+                ? "bg-[#1f0e08] border-[#3b1c10] hover:bg-[#29130b] text-[#f05e23]"
                 : "bg-[#161616] border-white/5 hover:bg-white/[0.03] text-white/40"
             }`}
           >
-            <div className={`w-8 h-5 rounded-full relative flex items-center transition-colors ${isCommentsEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}>
+            <div className={`w-8 h-5 rounded-full relative flex items-center transition-colors ${isCommentsEnabled ? "bg-[#f05e23]" : "bg-white/10"}`}>
               <div className={`w-3.5 h-3.5 bg-white rounded-full absolute shadow-sm transition-all ${isCommentsEnabled ? "right-[3px]" : "left-[3px]"}`}></div>
             </div>
-            <span className={`text-[13px] font-medium pr-1 ${isCommentsEnabled ? "text-[#5b6cf5]" : ""}`}>
+            <span className={`text-[13px] font-medium pr-1 ${isCommentsEnabled ? "text-[#f05e23]" : ""}`}>
               {isCommentsEnabled ? "Enabled" : "Disabled"}
             </span>
           </button>
@@ -75,7 +75,7 @@ export default function CommentsSection({
           </div>
           <button
             onClick={() => setIsShowCommentsPublicly(!isShowCommentsPublicly)}
-            className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none ${isShowCommentsPublicly ? "bg-[#5b6cf5]" : "bg-white/10"}`}
+            className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none ${isShowCommentsPublicly ? "bg-[#f05e23]" : "bg-white/10"}`}
           >
             <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${isShowCommentsPublicly ? "right-[4px]" : "left-[4px]"}`}></div>
           </button>
@@ -92,7 +92,7 @@ export default function CommentsSection({
           </div>
           <button
             onClick={() => setIsAllowNewComments(!isAllowNewComments)}
-            className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none ${isAllowNewComments ? "bg-[#5b6cf5]" : "bg-white/10"}`}
+            className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none ${isAllowNewComments ? "bg-[#f05e23]" : "bg-white/10"}`}
           >
             <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${isAllowNewComments ? "right-[4px]" : "left-[4px]"}`}></div>
           </button>

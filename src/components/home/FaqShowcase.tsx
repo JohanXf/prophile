@@ -46,7 +46,7 @@ function FaqRow({
           animate={{ rotate: open ? 45 : 0 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
           className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-colors ${
-            open ? "border-[#5b6cf5]/40 bg-[#5b6cf5]/15 text-white" : "border-white/10 bg-white/[0.03] text-white/50 group-hover:text-white"
+            open ? "border-[#f05e23]/40 bg-[#f05e23]/15 text-white" : "border-white/10 bg-white/[0.03] text-white/50 group-hover:text-white"
           }`}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -82,7 +82,7 @@ export default function FaqShowcase() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(45% 35% at 50% 30%, rgba(91,108,245,0.1) 0%, transparent 70%)",
+            "radial-gradient(45% 35% at 50% 30%, rgba(240,94,35,0.1) 0%, transparent 70%)",
         }}
       />
       <div className="relative max-w-7xl mx-auto px-5 sm:px-6 flex flex-col items-center">
@@ -91,7 +91,7 @@ export default function FaqShowcase() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: EASE }}
-          className="text-[11px] font-medium tracking-[0.32em] text-[#8b93e8] uppercase mb-5"
+          className="text-[11px] font-medium tracking-[0.32em] text-[#f47b47] uppercase mb-5"
         >
           FAQ
         </motion.span>
@@ -104,7 +104,7 @@ export default function FaqShowcase() {
           className="text-4xl md:text-5xl font-medium tracking-tight text-white mb-6 text-center"
         >
           Questions?{" "}
-          <span className="bg-gradient-to-r from-[#8b93e8] to-[#cdd2ff] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#f47b47] to-[#fcd3be] bg-clip-text text-transparent">
             Answers
           </span>
           .

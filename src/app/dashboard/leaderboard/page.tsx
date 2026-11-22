@@ -36,7 +36,7 @@ export default function LeaderboardPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="text-white/10" />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-[#5b6cf5] font-normal tracking-tight">Leaderboard</BreadcrumbPage>
+              <BreadcrumbPage className="text-[#f05e23] font-normal tracking-tight">Leaderboard</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

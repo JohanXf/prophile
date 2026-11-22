@@ -97,7 +97,7 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
               <span className="text-[#666666] font-mono text-[11px] font-medium">ray id: {rayId}</span>
             </div>
             
-            <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-blue-500/20 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#f05e23]/20 to-transparent" />
           </motion.div>
         </div>
       )}

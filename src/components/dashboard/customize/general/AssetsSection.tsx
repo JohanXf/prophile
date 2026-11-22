@@ -251,7 +251,7 @@ function SettingSlider({ label, value, min, max, step, onChange }: {
       <div className="relative flex items-center h-5 group w-full">
         <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
           <div
-            className="absolute h-full bg-[#5b6cf5]"
+            className="absolute h-full bg-[#f05e23]"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -265,7 +265,7 @@ function SettingSlider({ label, value, min, max, step, onChange }: {
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
         />
         <div
-          className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform shadow-lg"
+          className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#f05e23] rounded-full pointer-events-none transition-transform shadow-lg"
           style={{ left: `calc(${pct}% - 8px)` }}
         />
       </div>
@@ -507,8 +507,8 @@ export default function AssetsSection({
         <div className="relative w-10 h-10 flex items-center justify-center">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="absolute">
             <rect width="18" height="18" x="3" y="3" rx="2" stroke="white" strokeOpacity="0.15" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            <circle cx="9" cy="9" r="2" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="9" cy="9" r="2" stroke="#f05e23" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" stroke="#f05e23" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
         <div className="flex flex-col">
@@ -564,7 +564,7 @@ export default function AssetsSection({
               <div className="flex gap-2 w-full">
                 <button
                   onClick={() => setAvatarModalOpen(true)}
-                  className="flex-1 bg-[#5b6cf5] hover:bg-[#4b5ce5] text-white text-[13px] font-normal py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(91,108,245,0.25)] border border-[#5b6cf5]/50 cursor-pointer"
+                  className="flex-1 bg-[#f05e23] hover:bg-[#d64e18] text-white text-[13px] font-normal py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(240,94,35,0.25)] border border-[#f05e23]/50 cursor-pointer"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                   Change Image
@@ -587,7 +587,7 @@ export default function AssetsSection({
                   className="bg-[#161616] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] text-white/90 py-2.5 px-3 rounded-xl transition-all flex flex-col gap-1 items-start cursor-pointer min-w-0 overflow-hidden"
                 >
                   <div className="flex items-center gap-1.5 text-white/90 w-full">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#7284f6] shrink-0"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#f47b47] shrink-0"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
                     <span className="text-[12.5px] font-normal truncate">Deco</span>
                   </div>
                   <span className="text-white/35 text-[11px] font-normal truncate w-full text-left">
@@ -600,7 +600,7 @@ export default function AssetsSection({
                     className="bg-[#161616] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] text-white/90 py-2.5 px-3 rounded-xl transition-all flex flex-col gap-1 items-start cursor-pointer min-w-0 overflow-hidden"
                   >
                     <div className="flex items-center gap-1.5 text-white/90 w-full">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#7284f6] shrink-0"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#f47b47] shrink-0"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
                       <span className="text-[12.5px] font-normal truncate">Effect</span>
                     </div>
                     <span className="text-white/35 text-[11px] font-normal truncate w-full text-left">
@@ -616,26 +616,26 @@ export default function AssetsSection({
             <label className="text-[12.5px] font-medium text-white/90">Profile Picture Shape</label>
             <div className="flex flex-wrap gap-3">
               <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setAvatarShape("square")}>
-                <div className={`w-14 h-14 rounded-lg border flex items-center justify-center transition-colors ${avatarShape === "square" ? "border-[1.5px] border-[#5b6cf5] bg-[#5b6cf5]/5 shadow-[0_0_10px_rgba(91,108,245,0.15)]" : "border-white/10 border-dashed hover:border-white/20"}`}>
-                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={avatarShape === "square" ? "#5b6cf5" : "white"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <div className={`w-14 h-14 rounded-lg border flex items-center justify-center transition-colors ${avatarShape === "square" ? "border-[1.5px] border-[#f05e23] bg-[#f05e23]/5 shadow-[0_0_10px_rgba(240,94,35,0.15)]" : "border-white/10 border-dashed hover:border-white/20"}`}>
+                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={avatarShape === "square" ? "#f05e23" : "white"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
                 <span className={`text-[11px] ${avatarShape === "square" ? "text-white" : "text-white/40"}`}>Square</span>
               </div>
               <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setAvatarShape("soft")}>
-                <div className={`w-14 h-14 rounded-[14px] border flex items-center justify-center transition-colors ${avatarShape === "soft" ? "border-[1.5px] border-[#5b6cf5] bg-[#5b6cf5]/5 shadow-[0_0_10px_rgba(91,108,245,0.15)]" : "border-white/10 border-dashed hover:border-white/20"}`}>
-                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={avatarShape === "soft" ? "#5b6cf5" : "white"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <div className={`w-14 h-14 rounded-[14px] border flex items-center justify-center transition-colors ${avatarShape === "soft" ? "border-[1.5px] border-[#f05e23] bg-[#f05e23]/5 shadow-[0_0_10px_rgba(240,94,35,0.15)]" : "border-white/10 border-dashed hover:border-white/20"}`}>
+                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={avatarShape === "soft" ? "#f05e23" : "white"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
                 <span className={`text-[11px] ${avatarShape === "soft" ? "text-white" : "text-white/40"}`}>Soft</span>
               </div>
               <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setAvatarShape("rounded")}>
-                <div className={`w-14 h-14 rounded-[18px] border flex items-center justify-center transition-colors ${avatarShape === "rounded" ? "border-[1.5px] border-[#5b6cf5] bg-[#5b6cf5]/5 shadow-[0_0_10px_rgba(91,108,245,0.15)]" : "border-white/10 border-dashed hover:border-white/20"}`}>
-                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={avatarShape === "rounded" ? "#5b6cf5" : "white"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <div className={`w-14 h-14 rounded-[18px] border flex items-center justify-center transition-colors ${avatarShape === "rounded" ? "border-[1.5px] border-[#f05e23] bg-[#f05e23]/5 shadow-[0_0_10px_rgba(240,94,35,0.15)]" : "border-white/10 border-dashed hover:border-white/20"}`}>
+                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={avatarShape === "rounded" ? "#f05e23" : "white"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
                 <span className={`text-[11px] ${avatarShape === "rounded" ? "text-white" : "text-white/40"}`}>Rounded</span>
               </div>
               <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setAvatarShape("circle")}>
-                <div className={`w-14 h-14 rounded-full border flex items-center justify-center transition-colors ${avatarShape === "circle" ? "border-[1.5px] border-[#5b6cf5] bg-[#5b6cf5]/5 shadow-[0_0_10px_rgba(91,108,245,0.15)]" : "border-white/10 border-dashed hover:border-white/20"}`}>
-                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={avatarShape === "circle" ? "#5b6cf5" : "white"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <div className={`w-14 h-14 rounded-full border flex items-center justify-center transition-colors ${avatarShape === "circle" ? "border-[1.5px] border-[#f05e23] bg-[#f05e23]/5 shadow-[0_0_10px_rgba(240,94,35,0.15)]" : "border-white/10 border-dashed hover:border-white/20"}`}>
+                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={avatarShape === "circle" ? "#f05e23" : "white"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
                 <span className={`text-[11px] ${avatarShape === "circle" ? "text-white" : "text-white/40"}`}>Circle</span>
               </div>
@@ -673,7 +673,7 @@ export default function AssetsSection({
                             type="button"
                             onClick={() => setBannerBackgroundShuffle(!bannerBackgroundShuffle)}
                             className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
-                              bannerBackgroundShuffle ? "bg-[#5b6cf5]" : "bg-white/10"
+                              bannerBackgroundShuffle ? "bg-[#f05e23]" : "bg-white/10"
                             }`}
                           >
                             <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${bannerBackgroundShuffle ? "right-[4px]" : "left-[4px]"}`} />
@@ -688,10 +688,26 @@ export default function AssetsSection({
                             type="button"
                             onClick={() => setBannerBackgroundAutoplay(!bannerBackgroundAutoplay)}
                             className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
-                              bannerBackgroundAutoplay ? "bg-[#5b6cf5]" : "bg-white/10"
+                              bannerBackgroundAutoplay ? "bg-[#f05e23]" : "bg-white/10"
                             }`}
                           >
                             <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${bannerBackgroundAutoplay ? "right-[4px]" : "left-[4px]"}`} />
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between px-3 py-2 rounded-md border-t border-white/5 mt-1 pt-2.5">
+                          <div className="flex flex-col">
+                            <span className="text-[13px] text-white/90">Video sound</span>
+                            <span className="text-[11px] text-white/35">Play audio on video backgrounds</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setBannerBackgroundSound(!bannerBackgroundSound)}
+                            aria-pressed={bannerBackgroundSound}
+                            className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
+                              bannerBackgroundSound ? "bg-[#f05e23]" : "bg-white/10"
+                            }`}
+                          >
+                            <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${bannerBackgroundSound ? "right-[4px]" : "left-[4px]"}`} />
                           </button>
                         </div>
                       </div>
@@ -702,7 +718,7 @@ export default function AssetsSection({
                   <button
                     type="button"
                     onClick={() => onAddBackground()}
-                    className="shrink-0 flex items-center gap-1.5 bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/30 text-white text-[13px] font-normal py-2 px-3.5 rounded-xl transition-all cursor-pointer"
+                    className="shrink-0 flex items-center gap-1.5 bg-[#f05e23]/20 hover:bg-[#f05e23]/30 border border-[#f05e23]/30 text-white text-[13px] font-normal py-2 px-3.5 rounded-xl transition-all cursor-pointer"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                     Add background
@@ -743,11 +759,11 @@ export default function AssetsSection({
                       onDrop={(e) => handleDrop(e, i)}
                       onDragEnd={handleDragEnd}
                       className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors select-none ${draggedIdx === i
-                        ? "opacity-35 border-[#5b6cf5]/40 scale-[0.99]"
+                        ? "opacity-35 border-[#f05e23]/40 scale-[0.99]"
                         : dragOverIdx === i
-                        ? "border-[#5b6cf5] bg-[#161616] shadow-lg shadow-[#5b6cf5]/10"
+                        ? "border-[#f05e23] bg-[#161616] shadow-lg shadow-[#f05e23]/10"
                         : bgSelected === i
-                        ? "bg-white/[0.04] border-[#5b6cf5]/60"
+                        ? "bg-white/[0.04] border-[#f05e23]/60"
                         : "bg-[#161616] border-white/5"
                       }`}
                     >
@@ -780,12 +796,27 @@ export default function AssetsSection({
                         <button
                           type="button"
                           onClick={() => setBannerBackgroundSound(!bannerBackgroundSound)}
-                          title={bannerBackgroundSound ? "Mute background video" : "Play background video with sound"}
-                          className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
-                            bannerBackgroundSound ? "bg-[#5b6cf5]" : "bg-white/10"
+                          aria-pressed={bannerBackgroundSound}
+                          title={bannerBackgroundSound ? "Turn off background video sound" : "Turn on background video sound"}
+                          className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11.5px] font-medium transition-colors shrink-0 focus:outline-none cursor-pointer ${
+                            bannerBackgroundSound
+                              ? "bg-[#f05e23]/15 border-[#f05e23]/45 text-[#f47b47] hover:bg-[#f05e23]/25"
+                              : "bg-white/[0.05] border-white/10 text-white/60 hover:text-white hover:bg-white/10"
                           }`}
                         >
-                          <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${bannerBackgroundSound ? "right-[4px]" : "left-[4px]"}`} />
+                          {bannerBackgroundSound ? (
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
+                              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                            </svg>
+                          ) : (
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none" />
+                              <line x1="23" y1="9" x2="17" y2="15" />
+                              <line x1="17" y1="9" x2="23" y2="15" />
+                            </svg>
+                          )}
+                          <span className="whitespace-nowrap">{bannerBackgroundSound ? "Sound On" : "Sound Off"}</span>
                         </button>
                       )}
                       <div className="relative shrink-0">
@@ -833,7 +864,7 @@ export default function AssetsSection({
                   type="button"
                   onClick={() => setBannerBlend(!bannerBlend)}
                   className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
-                    bannerBlend ? "bg-[#5b6cf5]" : "bg-white/10"
+                    bannerBlend ? "bg-[#f05e23]" : "bg-white/10"
                   }`}
                 >
                   <div
@@ -939,7 +970,7 @@ export default function AssetsSection({
                   }}
                     className={`relative h-20 rounded-xl overflow-hidden border transition-colors cursor-pointer focus:outline-none ${
                       active
-                        ? "border-[#5b6cf5] ring-1 ring-[#5b6cf5]/60"
+                        ? "border-[#f05e23] ring-1 ring-[#f05e23]/60"
                         : "border-white/10 hover:border-white/25"
                     }`}
                   >
@@ -960,7 +991,7 @@ export default function AssetsSection({
                       {preset.name}
                     </span>
                   {active && (
-                    <span className="absolute top-1.5 right-1.5 w-[18px] h-[18px] rounded-full bg-[#5b6cf5] flex items-center justify-center shadow-[0_0_8px_rgba(91,108,245,0.8)]">
+                    <span className="absolute top-1.5 right-1.5 w-[18px] h-[18px] rounded-full bg-[#f05e23] flex items-center justify-center shadow-[0_0_8px_rgba(240,94,35,0.8)]">
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                     </span>
                   )}
@@ -1014,7 +1045,7 @@ export default function AssetsSection({
                 <div className="relative flex items-center h-5 group w-full">
                   <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
                     <div
-                      className="absolute h-full bg-[#5b6cf5]"
+                      className="absolute h-full bg-[#f05e23]"
                       style={{ width: `${(auroraSpeed / 3) * 100}%` }}
                     />
                   </div>
@@ -1028,7 +1059,7 @@ export default function AssetsSection({
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                   />
                   <div
-                    className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform shadow-lg"
+                    className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#f05e23] rounded-full pointer-events-none transition-transform shadow-lg"
                     style={{ left: `calc(${(auroraSpeed / 3) * 100}% - 8px)` }}
                   />
                 </div>
@@ -1041,7 +1072,7 @@ export default function AssetsSection({
                 <div className="relative flex items-center h-5 group w-full">
                   <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
                     <div
-                      className="absolute h-full bg-[#5b6cf5]"
+                      className="absolute h-full bg-[#f05e23]"
                       style={{ width: `${auroraBlend * 100}%` }}
                     />
                   </div>
@@ -1055,7 +1086,7 @@ export default function AssetsSection({
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                   />
                   <div
-                    className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform shadow-lg"
+                    className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#f05e23] rounded-full pointer-events-none transition-transform shadow-lg"
                     style={{ left: `calc(${auroraBlend * 100}% - 8px)` }}
                   />
                 </div>
@@ -1172,7 +1203,7 @@ export default function AssetsSection({
                   type="button"
                   onClick={() => setCrtwarpPointerWarp(!crtwarpPointerWarp)}
                   className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
-                    crtwarpPointerWarp ? "bg-[#5b6cf5]" : "bg-white/10"
+                    crtwarpPointerWarp ? "bg-[#f05e23]" : "bg-white/10"
                   }`}
                 >
                   <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${crtwarpPointerWarp ? "right-[4px]" : "left-[4px]"}`} />
@@ -1185,7 +1216,7 @@ export default function AssetsSection({
                   type="button"
                   onClick={() => setCrtwarpPaused(!crtwarpPaused)}
                   className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
-                    crtwarpPaused ? "bg-[#5b6cf5]" : "bg-white/10"
+                    crtwarpPaused ? "bg-[#f05e23]" : "bg-white/10"
                   }`}
                 >
                   <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${crtwarpPaused ? "right-[4px]" : "left-[4px]"}`} />
@@ -1214,7 +1245,7 @@ export default function AssetsSection({
                   type="button"
                   onClick={() => setLiquidchromeInteractive(!liquidchromeInteractive)}
                   className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
-                    liquidchromeInteractive ? "bg-[#5b6cf5]" : "bg-white/10"
+                    liquidchromeInteractive ? "bg-[#f05e23]" : "bg-white/10"
                   }`}
                 >
                   <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${liquidchromeInteractive ? "right-[4px]" : "left-[4px]"}`} />
@@ -1258,7 +1289,7 @@ export default function AssetsSection({
                   type="button"
                   onClick={() => setPixelblastRipples(!pixelblastRipples)}
                   className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
-                    pixelblastRipples ? "bg-[#5b6cf5]" : "bg-white/10"
+                    pixelblastRipples ? "bg-[#f05e23]" : "bg-white/10"
                   }`}
                 >
                   <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${pixelblastRipples ? "right-[4px]" : "left-[4px]"}`} />
@@ -1270,7 +1301,7 @@ export default function AssetsSection({
                   type="button"
                   onClick={() => setPixelblastLiquid(!pixelblastLiquid)}
                   className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
-                    pixelblastLiquid ? "bg-[#5b6cf5]" : "bg-white/10"
+                    pixelblastLiquid ? "bg-[#f05e23]" : "bg-white/10"
                   }`}
                 >
                   <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${pixelblastLiquid ? "right-[4px]" : "left-[4px]"}`} />

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { createCustomBadge, deleteCustomBadge, resetCustomBadges } from "@/actions/badges";
+import { uploadMediaFile } from "@/lib/media-upload";
 import ProfileBadges, { type CustomBadge } from "@/components/profile/layouts/ProfileBadges";
 import { toast } from "@/components/ui/toast";
 
@@ -78,7 +79,7 @@ export default function CustomBadgesSection({
           <div className="flex items-center gap-2">
             <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Custom badges</h2>
             <span
-              className="text-[11px] font-normal rounded-full px-2.5 py-0.5 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30"
+              className="text-[11px] font-normal rounded-full px-2.5 py-0.5 border text-white bg-[#f05e23]/20 border-[#f05e23]/30"
               title="Slots used / slots owned"
             >
               {used}/{tokens}
@@ -138,7 +139,7 @@ export default function CustomBadgesSection({
                   className={`text-[12px] font-normal rounded-lg px-3 py-1 border transition-colors cursor-pointer ${
                     isEquipped
                       ? "text-white/70 bg-white/[0.03] border-white/15 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20"
-                      : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+                      : "text-white bg-[#f05e23]/20 border-[#f05e23]/30 hover:bg-[#f05e23]/30"
                   }`}
                 >
                   {isEquipped ? "Unequip" : "Equip"}
@@ -279,7 +280,7 @@ function SmallButton({
 }) {
   const cls = `flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[12px] font-normal border transition-colors cursor-pointer ${
     accent
-      ? "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+      ? "text-white bg-[#f05e23]/20 border-[#f05e23]/30 hover:bg-[#f05e23]/30"
       : "text-white/60 bg-white/[0.03] border-white/10 hover:text-white/90 hover:bg-white/[0.06]"
   } ${disabled ? "opacity-50" : ""}`;
   const icon = (
@@ -348,13 +349,8 @@ function BadgeModal({
     if (!file) return toast.error("Pick an icon.");
     setBusy(true);
     try {
-      const form = new FormData();
-      form.append("fileToUpload", file);
-      form.append("assetType", "badge");
-      const res = await fetch("/api/upload", { method: "POST", body: form, signal: AbortSignal.timeout(30_000) });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.url) throw new Error(data?.error ?? "Upload failed.");
-      onCreated(await createCustomBadge({ name: trimmed, iconUrl: data.url as string }));
+      const uploaded = await uploadMediaFile(file, { category: "badge" });
+      onCreated(await createCustomBadge({ name: trimmed, iconUrl: uploaded.url }));
       toast.success("Badge created. Equip it and save.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
@@ -415,7 +411,7 @@ function BadgeModal({
             onChange={(e) => setName(e.target.value.slice(0, 32))}
             placeholder="Badge name"
             maxLength={32}
-            className="bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white placeholder:text-white/25 outline-none focus:border-[#5b6cf5]/40"
+            className="bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white placeholder:text-white/25 outline-none focus:border-[#f05e23]/40"
           />
         </label>
 
@@ -467,14 +463,14 @@ function BadgeModal({
             type="button"
             onClick={handleCreate}
             disabled={busy}
-            className="h-10 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/30 text-[13px] font-normal text-white transition-colors cursor-pointer disabled:opacity-50"
+            className="h-10 rounded-xl bg-[#f05e23]/20 hover:bg-[#f05e23]/30 border border-[#f05e23]/30 text-[13px] font-normal text-white transition-colors cursor-pointer disabled:opacity-50"
           >
             {busy ? "Creating…" : "Create badge"}
           </button>
         ) : (
           <Link
             href="/checkout/badge-token"
-            className="h-10 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/30 text-[13px] font-normal text-white transition-colors flex items-center justify-center"
+            className="h-10 rounded-xl bg-[#f05e23]/20 hover:bg-[#f05e23]/30 border border-[#f05e23]/30 text-[13px] font-normal text-white transition-colors flex items-center justify-center"
           >
             Buy badge token
           </Link>

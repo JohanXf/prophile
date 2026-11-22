@@ -93,7 +93,7 @@ export default function CategorySelect({ value, onChange, usedCategories }: Cate
               >
                 <span
                   className={`flex items-center justify-center w-4 h-4 rounded-[5px] border shrink-0 ${
-                    active ? "bg-[#5b6cf5] border-[#5b6cf5] text-white" : "border-white/15 text-transparent"
+                    active ? "bg-[#f05e23] border-[#f05e23] text-white" : "border-white/15 text-transparent"
                   }`}
                 >
                   <Check size={11} strokeWidth={3} />

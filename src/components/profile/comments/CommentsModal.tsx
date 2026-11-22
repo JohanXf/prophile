@@ -316,7 +316,7 @@ export function CommentsModal({
             </div>
           ) : isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="w-5 h-5 border-2 border-[#5b6cf5] border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-5 h-5 border-2 border-[#f05e23] border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : topLevelComments.length === 0 ? (
             <div className="flex items-center justify-center py-12">
@@ -343,7 +343,7 @@ export function CommentsModal({
               ))}
               {isLoadingMore && (
                 <div className="flex items-center justify-center py-4">
-                  <div className="w-4 h-4 border-2 border-[#5b6cf5] border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-[#f05e23] border-t-transparent rounded-full animate-spin"></div>
                 </div>
               )}
             </>
@@ -354,7 +354,7 @@ export function CommentsModal({
           {!viewerId ? (
             <button 
               onClick={() => window.location.href = "/signin"}
-              className="w-full py-3 bg-[#5b6cf5]/10 hover:bg-[#5b6cf5]/20 border border-[#5b6cf5]/20 text-[#5b6cf5] rounded-full text-[14px] font-medium transition-colors"
+              className="w-full py-3 bg-[#f05e23]/10 hover:bg-[#f05e23]/20 border border-[#f05e23]/20 text-[#f05e23] rounded-full text-[14px] font-medium transition-colors"
             >
               Log in to leave a comment
             </button>
@@ -367,8 +367,8 @@ export function CommentsModal({
               New comments are turned off for this profile.
             </div>
           ) : (
-            <div className="group relative flex items-center bg-[#161616] border border-white/5 rounded-full px-4 py-2 transition-colors focus-within:border-[#5b6cf5] focus-within:bg-[#1a1a1a]">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="text-white/40 group-focus-within:text-[#5b6cf5] transition-colors mr-3 shrink-0">
+            <div className="group relative flex items-center bg-[#161616] border border-white/5 rounded-full px-4 py-2 transition-colors focus-within:border-[#f05e23] focus-within:bg-[#1a1a1a]">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="text-white/40 group-focus-within:text-[#f05e23] transition-colors mr-3 shrink-0">
               <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
             </svg>
             <input 
@@ -389,7 +389,7 @@ export function CommentsModal({
               onClick={handlePostComment}
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors shrink-0 ml-2 focus:outline-none ${
                 commentText.trim().length > 0 
-                  ? "bg-[#5b6cf5] hover:bg-[#4a58c9] text-white" 
+                  ? "bg-[#f05e23] hover:bg-[#d64e18] text-white" 
                   : "bg-white/20 hover:bg-white/30 text-white/50"
               }`}
             >

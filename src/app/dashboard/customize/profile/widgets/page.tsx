@@ -1,4 +1,3 @@
-import ProfileCustomizeNav from "@/components/dashboard/ProfileCustomizeNav";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 import { getCurrentSessionDataSync } from "@/lib/features/users/db";
@@ -28,13 +27,7 @@ export default function Page() {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="text-white/10" />
             <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/dashboard/customize/profile/general" className="text-white/40 hover:text-white tracking-tight">Profile</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="text-white/10" />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="text-[#5b6cf5] font-normal tracking-tight">Widgets</BreadcrumbPage>
+              <BreadcrumbPage className="text-[#f05e23] font-normal tracking-tight">Widgets</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -48,7 +41,7 @@ export default function Page() {
               height="26"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#5b6cf5"
+              stroke="#f05e23"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -61,7 +54,6 @@ export default function Page() {
           <p className="text-white/40 text-[13px] mt-0.5">Customize widgets and integrations on your page</p>
         </div>
 
-        <ProfileCustomizeNav />
         {!hasWidgetsSection && <SectionCategoryNotice category="widgets" />}
       </div>
 

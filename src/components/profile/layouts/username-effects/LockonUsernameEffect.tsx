@@ -4,7 +4,7 @@ const cornerStyle = (pos: React.CSSProperties): React.CSSProperties => ({
   position: "absolute",
   width: "10px",
   height: "10px",
-  borderColor: "#5b6cf5",
+  borderColor: "#f05e23",
   borderStyle: "solid",
   borderWidth: 0,
   pointerEvents: "none",

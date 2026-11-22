@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileUpload } from "@/components/ui/file-upload";
 import MediaCropModal from "../MediaCropModal";
+import { uploadMediaFile } from "@/lib/media-upload";
 
 export interface MediaUploadModalProps {
   open: boolean;
@@ -183,63 +184,17 @@ export default function MediaUploadModal({
       setStatusText("Uploading");
       setErrorMsg(null);
       try {
-        const form = new FormData();
-        form.append("reqtype", "fileupload");
-        form.append("fileToUpload", rawSelectedFile);
-        form.append("assetType", assetType);
-        const url: string = await new Promise((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhr.open("POST", "/api/upload");
-          xhr.timeout = 300000;
-          const uploadStart = Date.now();
-          xhr.upload.onprogress = (e) => {
-            const elapsed = Math.max(0.5, (Date.now() - uploadStart) / 1000);
-            const mbps = ((e.loaded * 8) / elapsed / 1e6).toFixed(1);
-            if (e.lengthComputable && e.total > 0) {
-              const pct = Math.round((e.loaded / e.total) * 100);
-              if (pct >= 100) {
-                setUploadProgress(99);
-                setStatusText("Processing… saving to storage");
-              } else {
-                const eta = Math.max(1, Math.round((e.total - e.loaded) / (e.loaded / elapsed)));
-                setUploadProgress(Math.min(99, pct));
-                setStatusText(`Uploading ${pct}% · ${mbps} Mbps · ~${eta}s left`);
-              }
-            } else {
-              setStatusText(`Uploading ${(e.loaded / (1024 * 1024)).toFixed(1)}MB · ${mbps} Mbps`);
-            }
-          };
-          xhr.upload.onload = () => {
-            setUploadProgress(99);
-            setStatusText("Processing… saving to storage");
-          };
-          xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-              try {
-                const data = JSON.parse(xhr.responseText) as { url?: string };
-                if (data.url) resolve(data.url);
-                else reject(new Error("Upload failed"));
-              } catch {
-                reject(new Error("Upload failed"));
-              }
-            } else {
-              try {
-                const data = JSON.parse(xhr.responseText) as { error?: string };
-                reject(new Error(data.error || "Upload failed"));
-              } catch {
-                reject(new Error("Upload failed"));
-              }
-            }
-          };
-          xhr.onerror = () => reject(new Error("Upload failed"));
-          xhr.ontimeout = () =>
-            reject(new Error("Upload timed out. The file may already be in storage — wait a bit, then try again."));
-          xhr.send(form);
+        const result = await uploadMediaFile(rawSelectedFile, {
+          category: assetType,
+          onProgress: (pct) => {
+            setUploadProgress(pct);
+            setStatusText(pct >= 99 ? "Finalizing upload..." : `Uploading ${pct}%`);
+          },
         });
         setUploadProgress(100);
         setStatusText("Done");
         appliedUrls.current.add(resolvedUrl);
-        onApply?.(url);
+        onApply?.(result.url);
         closeAndReset();
       } catch (e) {
         console.error(e);
@@ -329,7 +284,7 @@ export default function MediaUploadModal({
                 <button
                   onClick={handleApply}
                   disabled={!resolvedUrl || isLoading}
-                  className="h-10 w-full cursor-pointer rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white font-normal text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] disabled:cursor-not-allowed disabled:opacity-35 disabled:grayscale-[0.5]"
+                  className="h-10 w-full cursor-pointer rounded-xl bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white font-normal text-sm transition-all shadow-[0_0_15px_rgba(240,94,35,0.1)] disabled:cursor-not-allowed disabled:opacity-35 disabled:grayscale-[0.5]"
                 >
                   {isLoading
                     ? "Uploading..."

@@ -113,7 +113,7 @@ export function CommentItem({
           </span>
           
           {comment.isPinned && (
-            <svg width="12" height="12" viewBox="0 0 384 512" fill="currentColor" className="text-[#5b6cf5] ml-1 shrink-0 -rotate-45 transform origin-center overflow-visible">
+            <svg width="12" height="12" viewBox="0 0 384 512" fill="currentColor" className="text-[#f05e23] ml-1 shrink-0 -rotate-45 transform origin-center overflow-visible">
               <path d="M32 32C32 14.3 46.3 0 64 0H320c17.7 0 32 14.3 32 32s-14.3 32-32 32H290.5l11.4 148.2c36.7 19.9 65.7 53.2 79.5 93l.2 1.4c2.2 11.2-1.2 22.8-9 31.1S355.6 352 344 352H208v128c0 17.7-14.3 32-32 32s-32-14.3-32-32V352H40c-11.6 0-22.5-5.3-30.2-14.3s-11.2-19.9-9-31.1l.2-1.4c13.8-39.8 42.8-73.1 79.5-93L93.5 64H64C46.3 64 32 49.7 32 32z"/>
             </svg>
           )}
@@ -175,7 +175,7 @@ export function CommentItem({
         )}
 
         {canPin && (
-          <button onClick={() => onPin(comment.id)} className={`w-4 h-4 flex items-center justify-center transition-colors focus:outline-none ${comment.isPinned ? "text-[#5b6cf5] hover:text-[#4a58c9]" : "text-white/40 hover:text-white"}`} title={comment.isPinned ? "Unpin" : "Pin"}>
+          <button onClick={() => onPin(comment.id)} className={`w-4 h-4 flex items-center justify-center transition-colors focus:outline-none ${comment.isPinned ? "text-[#f05e23] hover:text-[#d64e18]" : "text-white/40 hover:text-white"}`} title={comment.isPinned ? "Unpin" : "Pin"}>
             <svg width="12" height="12" viewBox="0 0 384 512" fill="currentColor" className="-rotate-45 transform origin-center overflow-visible">
               <path d="M32 32C32 14.3 46.3 0 64 0H320c17.7 0 32 14.3 32 32s-14.3 32-32 32H290.5l11.4 148.2c36.7 19.9 65.7 53.2 79.5 93l.2 1.4c2.2 11.2-1.2 22.8-9 31.1S355.6 352 344 352H208v128c0 17.7-14.3 32-32 32s-32-14.3-32-32V352H40c-11.6 0-22.5-5.3-30.2-14.3s-11.2-19.9-9-31.1l.2-1.4c13.8-39.8 42.8-73.1 79.5-93L93.5 64H64C46.3 64 32 49.7 32 32z"/>
             </svg>
@@ -212,7 +212,7 @@ export function CommentItem({
       {isReplying && (
         <div className="ml-[60px] mr-4 mb-2 relative mt-[-10px] z-10">
           <div className="absolute left-[-28px] top-0 bottom-0 w-[1px] bg-white/10" />
-          <div className="flex items-center bg-[#161616] border border-white/5 rounded-full px-4 py-2 focus-within:border-[#5b6cf5] focus-within:bg-[#1a1a1a] transition-colors">
+          <div className="flex items-center bg-[#161616] border border-white/5 rounded-full px-4 py-2 focus-within:border-[#f05e23] focus-within:bg-[#1a1a1a] transition-colors">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="text-white/40 mr-2 shrink-0">
               <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
             </svg>
@@ -229,7 +229,7 @@ export function CommentItem({
               className="flex-1 bg-transparent border-none outline-none text-[14px] text-white placeholder:text-white/30"
             />
             {replyContent.trim().length > 0 && (
-              <button onClick={handlePostReply} className="ml-2 w-6 h-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#5b6cf5] text-white transition-colors">
+              <button onClick={handlePostReply} className="ml-2 w-6 h-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#f05e23] text-white transition-colors">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="translate-x-[1px] translate-y-[1px]">
                   <line x1="22" y1="2" x2="11" y2="13"></line>
                   <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>

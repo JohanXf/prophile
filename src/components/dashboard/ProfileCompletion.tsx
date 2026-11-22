@@ -23,7 +23,7 @@ export default function ProfileCompletion({ steps }: { steps: CompletionStep[] }
         className="flex items-center justify-between gap-3 w-full text-left cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <span className="text-[11px] font-normal rounded-full px-2.5 py-0.5 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 shrink-0 tabular-nums">
+          <span className="text-[11px] font-normal rounded-full px-2.5 py-0.5 border text-white bg-[#f05e23]/20 border-[#f05e23]/30 shrink-0 tabular-nums">
             {done}/{steps.length}
           </span>
           <span className="min-w-0">
@@ -63,7 +63,7 @@ export default function ProfileCompletion({ steps }: { steps: CompletionStep[] }
                   cy="60"
                   r={RADIUS}
                   fill="none"
-                  stroke="#5b6cf5"
+                  stroke="#f05e23"
                   strokeWidth="8"
                   strokeLinecap="round"
                   strokeDasharray={CIRCUMFERENCE}
@@ -88,7 +88,7 @@ export default function ProfileCompletion({ steps }: { steps: CompletionStep[] }
                   >
                     <span
                       className={`w-4 h-4 shrink-0 rounded-full flex items-center justify-center border ${
-                        s.done ? "bg-[#5b6cf5] border-[#5b6cf5]" : "border-white/20 group-hover:border-[#5b6cf5]/60"
+                        s.done ? "bg-[#f05e23] border-[#f05e23]" : "border-white/20 group-hover:border-[#f05e23]/60"
                       }`}
                       aria-hidden="true"
                     >
@@ -109,7 +109,7 @@ export default function ProfileCompletion({ steps }: { steps: CompletionStep[] }
           {next && (
             <Link
               href={next.href}
-              className="mt-auto flex items-center justify-between gap-3 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/20 px-4 py-2.5 text-[13px] font-normal text-white transition-colors"
+              className="mt-auto flex items-center justify-between gap-3 rounded-xl bg-[#f05e23]/20 hover:bg-[#f05e23]/30 border border-[#f05e23]/20 px-4 py-2.5 text-[13px] font-normal text-white transition-colors"
             >
               <span className="truncate">Next: {next.label}</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

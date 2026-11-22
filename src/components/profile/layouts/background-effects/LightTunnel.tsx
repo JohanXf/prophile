@@ -145,7 +145,7 @@ type LightTunnelCtx = {
 };
 const ctxMap = new WeakMap<HTMLDivElement, LightTunnelCtx>();
 
-export function LightTunnelEffect({ intensity = 50, color = "#5b6cf5" }: { intensity?: number; color?: string }) {
+export function LightTunnelEffect({ intensity = 50, color = "#f05e23" }: { intensity?: number; color?: string }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const propsRef = useRef({ intensity, color });
 

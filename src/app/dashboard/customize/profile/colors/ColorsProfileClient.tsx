@@ -21,7 +21,7 @@ export default function ColorsProfileClient({ user, backgrounds }: { user: FullU
 
   const initialUsernameColor = user?.usernameColor ?? "#ffffff";
   const initialBioColor = user?.bioColor ?? "#ffffff";
-  const initialOtherColor = user?.otherColor ?? "#5b6cf5";
+  const initialOtherColor = user?.otherColor ?? "#f05e23";
   const initialPageBgColor = user?.pageBgColor ?? "#050505";
   const initialWidgetPrimaryTextColor = user?.widgetPrimaryTextColor ?? "#FFFFFF";
   const initialWidgetSecondaryTextColor = user?.widgetSecondaryTextColor ?? "#FFFFFF";

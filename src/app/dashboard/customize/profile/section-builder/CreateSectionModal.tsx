@@ -83,7 +83,7 @@ export default function CreateSectionModal({ open, onClose, onCreate, usedCatego
               onChange={(event) => setTitle(event.target.value.slice(0, 60))}
               maxLength={60}
               autoFocus
-              placeholder="e.g. Socials, About me, Setup"
+              placeholder="e.g. Collection, Socials, About me"
               className="bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white placeholder:text-white/25 focus:outline-none focus:border-white/10"
             />
           </div>
@@ -154,7 +154,7 @@ export default function CreateSectionModal({ open, onClose, onCreate, usedCatego
               });
               handleClose();
             }}
-            className="rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 px-4 py-2 text-[13px] font-normal text-white transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="rounded-xl bg-[#f05e23]/20 hover:bg-[#f05e23]/30 px-4 py-2 text-[13px] font-normal text-white transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Create section
           </button>

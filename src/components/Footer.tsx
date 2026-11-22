@@ -114,7 +114,7 @@ export default function Footer() {
             style={{ fontFamily: "var(--font-poppins)" }}
             aria-label="prophile"
           >
-            pro<span className="text-[#8b93e8]">phile</span>
+            pro<span className="text-[#f47b47]">phile</span>
           </motion.p>
           <div className="flex flex-col items-start md:items-end gap-4 shrink-0 md:pb-4">
             <div className="flex items-center gap-4">

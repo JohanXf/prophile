@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import { updateGeneralProfile, updateBackgrounds } from "@/actions/profile";
+import { uploadMediaFile } from "@/lib/media-upload";
 import { toast } from "@/components/ui/toast";
 
 import AssetsSection from "@/components/dashboard/customize/general/AssetsSection";
@@ -624,28 +625,9 @@ export default function GeneralProfileClient({ user, backgrounds = [] }: { user:
           try {
             const finalOverrides = { ...overrides };
 
-            const uploadPendingFile = async (file: File, type: "avatar" | "background" | "banner", attempt = 0): Promise<string> => {
-              const formData = new FormData();
-              formData.append("reqtype", "fileupload");
-              formData.append("fileToUpload", file);
-              formData.append("assetType", type);
-
-              const res = await fetch("/api/upload", {
-                method: "POST",
-                body: formData,
-              });
-
-              if (!res.ok) {
-                if (attempt === 0 && (res.status === 502 || res.status === 500)) {
-                  await res.body?.cancel().catch(() => {});
-                  await new Promise((r) => setTimeout(r, 1500));
-                  return uploadPendingFile(file, type, 1);
-                }
-                const err = await res.json().catch(() => null) as { error?: string } | null;
-                throw new Error(err?.error || `Failed to upload ${type}`);
-              }
-              const data = await res.json();
-              return data.url;
+            const uploadPendingFile = async (file: File, type: "avatar" | "background" | "banner"): Promise<string> => {
+              const result = await uploadMediaFile(file, { category: type });
+              return result.url;
             };
 
             if (pendingFiles.avatar) {

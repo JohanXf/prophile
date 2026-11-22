@@ -29,7 +29,7 @@ export default function Page() {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="text-white/10" />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-[#5b6cf5] font-normal tracking-tight">Appearance</BreadcrumbPage>
+              <BreadcrumbPage className="text-[#f05e23] font-normal tracking-tight">Appearance</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -43,15 +43,15 @@ export default function Page() {
               height="26"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#5b6cf5"
+              stroke="#f05e23"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
               <rect x="2" y="5" width="20" height="14" rx="2"/>
               <path d="M2 10h20"/>
-              <circle cx="6" cy="7.5" r=".5" fill="#5b6cf5" stroke="none"/>
-              <circle cx="9" cy="7.5" r=".5" fill="#5b6cf5" stroke="none"/>
+              <circle cx="6" cy="7.5" r=".5" fill="#f05e23" stroke="none"/>
+              <circle cx="9" cy="7.5" r=".5" fill="#f05e23" stroke="none"/>
             </svg>
             <h1 className="text-[20px] font-normal text-white tracking-tight">Appearance Customization</h1>
           </div>

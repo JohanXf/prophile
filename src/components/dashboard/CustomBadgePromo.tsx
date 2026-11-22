@@ -38,7 +38,7 @@ export default function CustomBadgePromo() {
       </div>
       {}
       <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/65 to-black/35" aria-hidden="true" />
-      <div className="absolute inset-0 bg-[#5b6cf5]/[0.06]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[#f05e23]/[0.06]" aria-hidden="true" />
 
       <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-5 p-6">
         <div className="flex items-start gap-4 flex-1 min-w-0">
@@ -56,7 +56,7 @@ export default function CustomBadgePromo() {
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">
                 Want your own badge?
               </h2>
-              <span className="text-[11px] font-normal rounded-full px-2.5 py-0.5 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30">
+              <span className="text-[11px] font-normal rounded-full px-2.5 py-0.5 border text-white bg-[#f05e23]/20 border-[#f05e23]/30">
                 Custom
               </span>
             </div>
@@ -69,7 +69,7 @@ export default function CustomBadgePromo() {
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
           <Link
             href="/checkout/badge-token"
-            className="bg-[#5b6cf5] hover:bg-[#4b5ce4] border border-[#5b6cf5] text-white font-normal rounded-xl px-5 py-2.5 text-[13px] transition-colors cursor-pointer shadow-[0_0_20px_rgba(91,108,245,0.45)]"
+            className="bg-[#f05e23] hover:bg-[#d64e18] border border-[#f05e23] text-white font-normal rounded-xl px-5 py-2.5 text-[13px] transition-colors cursor-pointer shadow-[0_0_20px_rgba(240,94,35,0.45)]"
           >
             Buy custom badge
           </Link>

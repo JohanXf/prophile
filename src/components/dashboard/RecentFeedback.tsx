@@ -119,7 +119,7 @@ export default function RecentFeedback({
               {activeTab === tab.id && (
                 <motion.div
                   layoutId="feedback-tab-bubble"
-                  className="absolute inset-0 bg-[#5b6cf5]/20 shadow-[0_0_15px_rgba(91,108,245,0.1)] rounded-full z-0"
+                  className="absolute inset-0 bg-[#f05e23]/20 shadow-[0_0_15px_rgba(240,94,35,0.1)] rounded-full z-0"
                   transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
                 />
               )}
@@ -158,7 +158,7 @@ export default function RecentFeedback({
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="text-[11px] text-white/30 tracking-wide">{format(new Date(item.createdAt), "MM/dd/yyyy, hh:mm a")}</span>
                         {item.type === 'like' ? (
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-[#5b6cf5]">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-[#f05e23]">
                             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                           </svg>
                         ) : (
@@ -189,7 +189,7 @@ export default function RecentFeedback({
             </svg>
           </button>
           <div className="flex items-center gap-2">
-            {isLoading && <div className="w-3.5 h-3.5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />}
+            {isLoading && <div className="w-3.5 h-3.5 border-2 border-white/10 border-t-[#f05e23] rounded-full animate-spin" />}
             <span className="text-[13px] text-white/40 tabular-nums">Page {page}</span>
           </div>
           <button

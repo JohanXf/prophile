@@ -40,7 +40,7 @@ export default function BadgeStyleCustomization({
                 height="22"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#5b6cf5"
+                stroke="#f05e23"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -61,7 +61,7 @@ export default function BadgeStyleCustomization({
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-all duration-200 shrink-0 ${
                 !monochromeEnabled
                   ? "bg-white/5 border border-white/5 text-white/30 cursor-not-allowed"
-                  : "bg-[#5b6cf5]/10 hover:bg-[#5b6cf5]/20 border border-[#5b6cf5]/25 hover:border-[#5b6cf5]/45 text-[#5b6cf5] hover:text-white cursor-pointer shadow-sm active:scale-95"
+                  : "bg-[#f05e23]/10 hover:bg-[#f05e23]/20 border border-[#f05e23]/25 hover:border-[#f05e23]/45 text-[#f05e23] hover:text-white cursor-pointer shadow-sm active:scale-95"
               }`}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -77,7 +77,7 @@ export default function BadgeStyleCustomization({
             <span className="text-[13px] font-medium text-white/70">Monochrome is off</span>
             <span className="text-[11px] text-white/40 leading-tight">
               First turn on Monochrome in the badge settings, then pick its color here.{" "}
-              <Link href="/dashboard/customize/badges" className="text-[#5b6cf5] hover:text-[#5b6cf5]/80 font-medium transition-colors">
+              <Link href="/dashboard/customize/badges" className="text-[#f05e23] hover:text-[#f05e23]/80 font-medium transition-colors">
                 Go to Badge settings →
               </Link>
             </span>

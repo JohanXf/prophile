@@ -6,6 +6,8 @@ import {
   IMAGE_HOST_MAX_FILE_BYTES as MAX_FILE_BYTES,
   IMAGE_HOST_QUOTA_BYTES as STORAGE_QUOTA_BYTES,
 } from "@/lib/image-host";
+import { authFetch } from "@/lib/auth-client";
+import { uploadMediaFile } from "@/lib/media-upload";
 
 type UploadStatus = "uploading" | "done" | "error";
 type MediaKind = "image" | "video";
@@ -100,12 +102,12 @@ export default function ImageHostUploadClient() {
   const [isDragging, setIsDragging] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const xhrsRef = useRef<Map<string, XMLHttpRequest>>(new Map());
+  const controllersRef = useRef<Map<string, AbortController>>(new Map());
   const dragDepth = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/image-host/stats")
+    authFetch("/api/image-host/stats")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!cancelled && data && typeof data.storageUsedBytes === "number") {
@@ -113,77 +115,65 @@ export default function ImageHostUploadClient() {
         }
       })
       .catch(() => {});
-    const xhrs = xhrsRef.current;
+    const controllers = controllersRef.current;
     return () => {
       cancelled = true;
-      xhrs.forEach((xhr) => xhr.abort());
-      xhrs.clear();
+      controllers.forEach((ctrl) => ctrl.abort());
+      controllers.clear();
     };
   }, []);
 
   const activeCount = useMemo(() => items.filter((it) => it.status === "uploading").length, [items]);
 
   const startUpload = (id: string, file: File) => {
-    const form = new FormData();
-    form.append("fileToUpload", file);
+    const controller = new AbortController();
+    controllersRef.current.set(id, controller);
+    const startedAt = performance.now();
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/image-host/upload");
-    xhr.timeout = 15 * 60_000;
-
-    let lastTime = 0;
-    let lastLoaded = 0;
-    let ema = 0;
-
-    xhr.upload.onprogress = (e) => {
-      if (!e.lengthComputable) return;
-      const now = performance.now();
-      if (lastTime === 0) {
-        lastTime = now;
-        lastLoaded = e.loaded;
-      } else {
-        const dt = (now - lastTime) / 1000;
-        if (dt >= 0.05) {
-          const instant = (e.loaded - lastLoaded) / dt;
-          ema = ema === 0 ? instant : ema * 0.75 + instant * 0.25;
-          lastTime = now;
-          lastLoaded = e.loaded;
-        }
-      }
-      const pct = Math.min(99, Math.round((e.loaded / e.total) * 100));
-      const eta = ema > 0 ? (e.total - e.loaded) / ema : null;
-      setItems((prev) => prev.map((it) => (it.id === id ? { ...it, progress: pct, loaded: e.loaded, speed: ema, eta } : it)));
-    };
-
-    const fail = (message: string) => {
-      xhrsRef.current.delete(id);
-      setItems((prev) => prev.map((it) => (it.id === id ? { ...it, status: "error", error: message } : it)));
-    };
-
-    xhr.onload = () => {
-      xhrsRef.current.delete(id);
-      let data: { usedBytes?: number; error?: string } = {};
-      try { data = JSON.parse(xhr.responseText); } catch {}
-      if (xhr.status >= 200 && xhr.status < 300) {
-        setItems((prev) => prev.map((it) => (it.id === id ? { ...it, progress: 100, status: "done", speed: 0, eta: null } : it)));
-        if (typeof data.usedBytes === "number") setUsedBytes(data.usedBytes);
-      } else {
+    uploadMediaFile(file, {
+      category: "image-host",
+      signal: controller.signal,
+      onProgress: (pct) => {
+        const elapsed = Math.max(0.2, (performance.now() - startedAt) / 1000);
+        const loaded = Math.round((pct / 100) * file.size);
+        const speed = loaded / elapsed;
+        const eta = speed > 0 ? Math.max(0, (file.size - loaded) / speed) : null;
         setItems((prev) =>
-          prev.map((it) => (it.id === id ? { ...it, status: "error", error: data.error || "Upload failed. Try again." } : it)),
+          prev.map((it) => (it.id === id ? { ...it, progress: pct, loaded, speed, eta } : it))
         );
-      }
-    };
-    xhr.onerror = () => fail("Upload failed. Check your connection.");
-    xhr.ontimeout = () => fail("Upload timed out. Try again.");
-
-    xhrsRef.current.set(id, xhr);
-    xhr.send(form);
+      },
+    })
+      .then(() => {
+        controllersRef.current.delete(id);
+        setItems((prev) =>
+          prev.map((it) =>
+            it.id === id
+              ? { ...it, progress: 100, loaded: file.size, status: "done", speed: 0, eta: null }
+              : it
+          )
+        );
+        setUsedBytes((prev) => prev + file.size);
+      })
+      .catch((err) => {
+        controllersRef.current.delete(id);
+        setItems((prev) =>
+          prev.map((it) =>
+            it.id === id
+              ? {
+                  ...it,
+                  status: "error",
+                  error: err instanceof Error ? err.message : "Upload failed. Try again.",
+                }
+              : it
+          )
+        );
+      });
   };
 
   const removeItem = (id: string) => {
-    const xhr = xhrsRef.current.get(id);
-    if (xhr) xhr.abort();
-    xhrsRef.current.delete(id);
+    const ctrl = controllersRef.current.get(id);
+    if (ctrl) ctrl.abort();
+    controllersRef.current.delete(id);
     setItems((prev) => prev.filter((it) => it.id !== id));
   };
 
@@ -255,10 +245,10 @@ export default function ImageHostUploadClient() {
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
           className={`mt-4 flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed px-4 py-10 sm:px-6 sm:py-16 text-center transition-colors ${
-            isDragging ? "border-[#5b6cf5]/60 bg-[#5b6cf5]/5" : "border-white/10 hover:border-white/20 hover:bg-white/[0.02]"
+            isDragging ? "border-[#f05e23]/60 bg-[#f05e23]/5" : "border-white/10 hover:border-white/20 hover:bg-white/[0.02]"
           }`}
         >
-          <span className={isDragging ? "text-[#5b6cf5]" : "text-white/30"}>
+          <span className={isDragging ? "text-[#f05e23]" : "text-white/30"}>
             <UploadTrayIcon />
           </span>
           <div>
@@ -282,7 +272,7 @@ export default function ImageHostUploadClient() {
             {items.map((it) => (
               <div key={it.id} className="flex items-center gap-3 sm:gap-4 rounded-xl border border-white/5 bg-[#111111] px-3 sm:px-4 py-3.5">
                 <span
-                  className={`shrink-0 ${it.status === "error" ? "text-red-400/70" : "text-[#5b6cf5]"}`}
+                  className={`shrink-0 ${it.status === "error" ? "text-red-400/70" : "text-[#f05e23]"}`}
                   aria-label={it.status === "error" ? "Failed" : it.status === "done" ? "Uploaded" : "Uploading"}
                 >
                   <RowIcon status={it.status} />
@@ -295,7 +285,7 @@ export default function ImageHostUploadClient() {
                     <>
                       <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-[#5b6cf5] to-[#7c8bff] shadow-[0_0_10px_rgba(91,108,245,0.5)] transition-all duration-200"
+                          className="h-full rounded-full bg-gradient-to-r from-[#f05e23] to-[#f47b47] shadow-[0_0_10px_rgba(240,94,35,0.5)] transition-all duration-200"
                           style={{ width: `${it.progress}%` }}
                         />
                       </div>
@@ -305,7 +295,7 @@ export default function ImageHostUploadClient() {
                             ? `${formatSize(it.loaded)} / ${formatSize(it.size)}`
                             : formatSize(it.size)}
                         </span>
-                        <span className={it.status === "done" ? "text-[#5b6cf5]/80" : undefined}>
+                        <span className={it.status === "done" ? "text-[#f05e23]/80" : undefined}>
                           {it.status === "uploading"
                             ? [formatSpeed(it.speed), formatEta(it.eta)].filter(Boolean).join(" · ")
                             : "Uploaded"}

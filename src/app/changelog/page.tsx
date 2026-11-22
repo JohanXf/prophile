@@ -120,7 +120,7 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
             key={key}
             href={href}
             {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-            className="text-[#8b93f0] underline decoration-[#8b93f0]/30 underline-offset-2 transition-colors hover:text-white hover:decoration-white/30"
+            className="text-[#f47b47] underline decoration-[#f47b47]/30 underline-offset-2 transition-colors hover:text-white hover:decoration-white/30"
           >
             {link[1]}
           </a>
@@ -156,7 +156,7 @@ export default function ChangelogPage() {
       <Navbar isAuthenticated={auth} />
 
       <section className="relative w-full max-w-3xl mx-auto px-6 pt-36 pb-10">
-        <p className="text-[11px] uppercase tracking-[0.2em] text-[#8b93f0] font-medium">Changelog</p>
+        <p className="text-[11px] uppercase tracking-[0.2em] text-[#f47b47] font-medium">Changelog</p>
         <h1
           className="mt-3 text-5xl md:text-6xl font-semibold text-white tracking-[-0.03em] leading-[0.95]"
           style={{ fontFamily: "var(--font-poppins)" }}

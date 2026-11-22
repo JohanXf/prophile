@@ -10,7 +10,7 @@ export default function ImageHostLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-[70vh] items-center justify-center">
       <div className="w-full max-w-md rounded-[20px] border border-white/5 bg-[#0c0c0c] p-6 text-center shadow-sm">
-        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-[#5b6cf5]/15 text-[#aab4ff]">
+        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-[#f05e23]/15 text-[#f8ab88]">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
           </svg>
@@ -18,12 +18,12 @@ export default function ImageHostLayout({ children }: { children: React.ReactNod
         <h1 className="mt-4 text-[14px] font-normal tracking-tight text-white/90">Image Host is locked</h1>
         <p className="mt-1.5 text-[12.5px] font-light leading-relaxed text-white/40">
           Unlock 50 GB of storage, short share links, password-protected files and the Image Host badge.
-          One-time payment of {USD.symbol}{USD.display} / {INR.symbol}{INR.display}.
+          Available for {USD.symbol}{USD.display}/month ({INR.symbol}{INR.display}/month).
         </p>
         <div className="mt-5 flex items-center justify-center gap-2">
           <Link
             href="/checkout/image-host"
-            className="rounded-xl bg-[#5b6cf5]/20 px-4 py-2 text-[13px] font-normal text-white transition-colors hover:bg-[#5b6cf5]/30"
+            className="rounded-xl bg-[#f05e23]/20 px-4 py-2 text-[13px] font-normal text-white transition-colors hover:bg-[#f05e23]/30"
           >
             Unlock Image Host
           </Link>

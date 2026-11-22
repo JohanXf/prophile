@@ -1,8 +1,6 @@
 import {
   getStore,
-  saveStore,
   hydrateFullUser,
-  createNewStoredUser,
   type FullUser,
 } from "@/lib/local-store";
 import type { CustomBadge } from "@/components/profile/layouts/ProfileBadges";
@@ -75,11 +73,13 @@ export function getCountryViewStatsSync(): CountryViewStat[] {
 
 export function getCurrentSessionDataSync() {
   const state = getStore();
-  const userId = state.currentUserId ?? 1;
-  const user = hydrateFullUser(state.users[userId] ?? state.users[1]);
-  const backgrounds = state.backgrounds[userId] ?? ["/showcase/rio/banner.png"];
-  const equippedBadges = state.equippedBadges[userId] ?? ["early", "premium"];
-  const ownedBadges = state.ownedBadges[userId] ?? ["early", "premium", "verified", "donator", "staff"];
+  const fallbackUser = Object.values(state.users)[0] ?? null;
+  const userId = state.currentUserId ?? fallbackUser?.id ?? 0;
+  const rawUser = state.currentUserId != null ? state.users[state.currentUserId] : null;
+  const user = hydrateFullUser(rawUser);
+  const backgrounds = state.backgrounds[userId] ?? [];
+  const equippedBadges = state.equippedBadges[userId] ?? [];
+  const ownedBadges = state.ownedBadges[userId] ?? [];
   const customBadges = state.customBadges[userId] ?? [];
   const aliases = (state.aliases[userId] ?? []).map((a) => ({
     id: a.id,
@@ -99,8 +99,8 @@ export function getCurrentSessionDataSync() {
     }));
 
   const domains: DomainState = {
-    username: user?.username ?? "rio",
-    tokens: user?.domainTokens ?? 2,
+    username: user?.username ?? "prophile",
+    tokens: user?.domainTokens ?? 1,
     domains: ownDomains.map((d) => ({
       id: d.id,
       hostname: d.hostname,
@@ -121,13 +121,13 @@ export function getCurrentSessionDataSync() {
 
   return {
     userId,
-    isAuthenticated: state.currentUserId != null,
+    isAuthenticated: state.currentUserId != null && Boolean(user),
     user,
     backgrounds,
     equippedBadges,
     ownedBadges,
     customBadges,
-    badgeTokens: user?.badgeTokens ?? 3,
+    badgeTokens: user?.badgeTokens ?? 1,
     rawViews: getAnalyticsDataSync(),
     hourlyViews: getHourlyViewsSync(),
     deviceStats: getDeviceStatsSync(),
@@ -140,16 +140,6 @@ export function getCurrentSessionDataSync() {
     feedbackReceived: [],
     feedbackGiven: [],
   };
-}
-
-export async function createUser(input: {
-  username: string;
-  email: string;
-  password: string;
-  ip?: string;
-}) {
-  const user = createNewStoredUser(input.username, input.email);
-  return { userId: user.id, username: user.username };
 }
 
 export async function getUserByEmail(email: string): Promise<FullUser | null> {
@@ -172,7 +162,7 @@ export async function getUserById(id: number): Promise<FullUser | null> {
 }
 
 export async function userHasPassword(_id: number): Promise<boolean> {
-  return true;
+  return false;
 }
 
 export async function getUserForSession(id: number) {
@@ -183,7 +173,7 @@ export async function getUserForSession(id: number) {
 
 export async function getUserBackgrounds(userId: number): Promise<string[]> {
   const state = getStore();
-  return state.backgrounds[userId] ?? ["/showcase/rio/banner.png"];
+  return state.backgrounds[userId] ?? [];
 }
 
 export async function getAnalyticsData(_userId: number): Promise<RawViewBin[]> {
@@ -232,14 +222,9 @@ export async function getUserAliases(userId: number) {
 
 export async function getEquippedBadgeIds(userId: number): Promise<string[]> {
   const state = getStore();
-  return state.equippedBadges[userId] ?? ["early", "premium"];
+  return state.equippedBadges[userId] ?? [];
 }
 
-export async function updatePassword(email: string, _passwordUnhashed: string) {
-  const state = getStore();
-  const user = Object.values(state.users).find((u) => (u.email ?? "").toLowerCase() === email.toLowerCase().trim());
-  if (user) {
-    user.passwordChangedAt = new Date();
-    saveStore(state);
-  }
+export async function updatePassword(_email: string, _passwordUnhashed: string) {
+  // Handled via Firebase Auth
 }

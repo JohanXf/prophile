@@ -206,6 +206,8 @@ export interface Layout1Props {
   linksSectionDescription?: string;
   linksSectionPosition?: string;
   profileSections?: import("@/lib/profile-sections").ProfileSection[];
+  photoCollection?: import("@/lib/photo-collection").CollectionPhoto[];
+  photoCollectionLayout?: import("@/lib/photo-collection").CollectionLayoutId;
   widgetsSectionEnabled?: boolean;
   contentAlignment?: string;
   avatarPlacement?: string;
@@ -280,6 +282,7 @@ export interface Layout1Props {
   musicPlayerVolume?: boolean | null;
   musicPlayerDefaultVolume?: number | null;
   musicPlayerVolumeFixed?: boolean;
+  volumePlacement?: string | null;
   musicPlayerShuffle?: boolean | null;
   musicCardColor?: string | null;
   musicCardOpacity?: number | null;

@@ -15,20 +15,13 @@ import { type FullUser } from "@/lib/features/users/db";
 import { normalizeEmbedColor } from "@/lib/og";
 import { isPremiumActive } from "@/lib/premium";
 import PremiumUpsellCard from "@/components/dashboard/PremiumUpsellCard";
+import { uploadMediaFile } from "@/lib/media-upload";
 
 async function uploadAsset(file: File, type: "favicon" | "cursor" | "embed"): Promise<string> {
-  const formData = new FormData();
-  formData.append("reqtype", "fileupload");
-  formData.append("fileToUpload", file);
-  formData.append("assetType", type);
-
-  const res = await fetch("/api/upload", { method: "POST", body: formData, signal: AbortSignal.timeout(30_000) });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || `Failed to upload ${type}`);
-  }
-  const data = await res.json();
-  return data.url;
+  const result = await uploadMediaFile(file, {
+    category: type === "favicon" ? "icon" : type,
+  });
+  return result.url;
 }
 
 export default function MetadataProfileClient({

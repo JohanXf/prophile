@@ -176,6 +176,7 @@ export const TEMPLATE_STYLE_KEYS = [
   "musicPlayerStyle",
   "musicPlayerArtBg",
   "musicPlayerVolume",
+  "volumePlacement",
   "musicPlayerDefaultVolume",
   "musicPlayerShuffle",
   "musicCardColor",

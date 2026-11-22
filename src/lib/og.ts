@@ -3,7 +3,7 @@ import { SITE_CONFIG } from "@/lib/config";
 export const OG_WIDTH = 1200;
 export const OG_HEIGHT = 630;
 
-export const DEFAULT_EMBED_COLOR = "#5b6cf5";
+export const DEFAULT_EMBED_COLOR = "#f05e23";
 
 export function normalizeEmbedColor(color: string | null | undefined): string {
   const val = color?.trim().toLowerCase();

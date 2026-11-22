@@ -26,7 +26,7 @@ export const BADGES = [
     id: "developer",
     name: "Developer",
     description: "Be a part of the prophile developer team.",
-    accent: "#5b6cf5",
+    accent: "#f05e23",
     filled: true,
     icon: (
       <>

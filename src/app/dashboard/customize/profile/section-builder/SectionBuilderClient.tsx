@@ -80,7 +80,7 @@ export default function SectionBuilderClient({
     <>
       <div className="bg-[#0c0c0c] border border-white/5 rounded-[16px] px-5 py-3.5 flex items-center gap-4 shadow-sm">
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f05e23" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
             <path d="M12 2v20" />
             <path d="m8 6 4-4 4 4" />
             <path d="m8 18 4 4 4-4" />
@@ -100,7 +100,7 @@ export default function SectionBuilderClient({
           aria-pressed={sectioned}
           aria-label="Sectioned scroll"
           className={`w-9 h-[22px] rounded-full relative flex items-center transition-colors shrink-0 cursor-pointer focus:outline-none ${
-            sectioned ? "bg-[#5b6cf5]" : "bg-white/10"
+            sectioned ? "bg-[#f05e23]" : "bg-white/10"
           }`}
         >
           <div className={`w-3.5 h-3.5 rounded-full absolute shadow-sm transition-all bg-white ${sectioned ? "right-[4px]" : "left-[4px]"}`} />
@@ -116,7 +116,7 @@ export default function SectionBuilderClient({
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
-          className="flex items-center gap-2 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 px-3.5 py-2 text-[13px] font-normal text-white transition-all cursor-pointer shrink-0 whitespace-nowrap"
+          className="flex items-center gap-2 rounded-xl bg-[#f05e23]/20 hover:bg-[#f05e23]/30 px-3.5 py-2 text-[13px] font-normal text-white transition-all cursor-pointer shrink-0 whitespace-nowrap"
         >
           <Plus size={15} strokeWidth={2.5} />
           Create section
@@ -131,7 +131,7 @@ export default function SectionBuilderClient({
         >
           <span className="text-[13px] text-white/60">No sections yet</span>
           <span className="text-[11.5px] text-white/30">
-            Create your first section — About, Socials, Links, Music or anything else.
+            Create your first section — Bio, Links, Widgets, Music or Collection.
           </span>
         </button>
       ) : (

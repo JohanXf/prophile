@@ -55,7 +55,7 @@ export default function UnlockForm({ name }: { name: string }) {
       onSubmit={submit}
       className="w-full max-w-sm rounded-[20px] border border-white/5 bg-[#0c0c0c] p-6 shadow-sm"
     >
-      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#5b6cf5]/15">
+      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#f05e23]/15">
         <Image src="/Favicon.png" alt="prophile" width={512} height={512} className="h-5 w-5 object-contain" priority />
       </div>
       <h1 className="text-[14px] font-normal tracking-tight text-white/90">This file is password protected</h1>
@@ -72,7 +72,7 @@ export default function UnlockForm({ name }: { name: string }) {
         placeholder="Password"
         aria-invalid={Boolean(error)}
         aria-describedby={error ? "file-password-error" : undefined}
-        className="mt-4 h-10 w-full rounded-xl border border-white/5 bg-[#161616] px-3.5 text-[13px] text-white placeholder:text-white/25 focus:border-[#5b6cf5]/40 focus:outline-none"
+        className="mt-4 h-10 w-full rounded-xl border border-white/5 bg-[#161616] px-3.5 text-[13px] text-white placeholder:text-white/25 focus:border-[#f05e23]/40 focus:outline-none"
       />
       {error && (
         <p id="file-password-error" role="alert" className="mt-2 text-[12px] text-red-400">{error}</p>
@@ -81,7 +81,7 @@ export default function UnlockForm({ name }: { name: string }) {
       <button
         type="submit"
         disabled={!password || loading}
-        className="mt-4 h-10 w-full rounded-xl bg-[#5b6cf5]/20 text-[13px] font-normal text-white transition-colors hover:bg-[#5b6cf5]/30 disabled:opacity-50"
+        className="mt-4 h-10 w-full rounded-xl bg-[#f05e23]/20 text-[13px] font-normal text-white transition-colors hover:bg-[#f05e23]/30 disabled:opacity-50"
       >
         {loading ? "Unlocking…" : "Unlock"}
       </button>

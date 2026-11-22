@@ -1,4 +1,5 @@
-import { getStore, saveStore } from "@/lib/local-store";
+import { authFetch } from "@/lib/auth-client";
+import { getStore, hydrateStoreFromServer } from "@/lib/local-store";
 import { domainState, type DomainState, type DomainType } from "@/lib/features/domains";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -8,43 +9,37 @@ export async function addDomain(
   type: DomainType,
   visibility: "private" | "public"
 ): Promise<Result<DomainState>> {
-  const state = getStore();
-  const uid = state.currentUserId ?? 1;
-  const clean = raw.toLowerCase().trim();
-  if (!clean) return { ok: false, error: "Enter a valid domain." };
-  state.domains.push({
-    id: Date.now(),
-    userId: uid,
-    hostname: clean,
-    type,
-    visibility,
-    status: "active",
-    dcvTarget: null,
+  const res = await authFetch("/api/domains", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ hostname: raw, type, visibility }),
   });
-  saveStore(state);
-  return { ok: true, data: await domainState(uid) };
+  const body = (await res.json().catch(() => ({}))) as { data?: DomainState; error?: string };
+  if (!res.ok) return { ok: false, error: body.error || "Failed to add domain." };
+  await hydrateStoreFromServer();
+  return { ok: true, data: body.data! };
 }
 
 export async function verifyDomain(id: number): Promise<Result<DomainState & { active: boolean }>> {
-  const state = getStore();
-  const uid = state.currentUserId ?? 1;
-  const d = state.domains.find((x) => x.id === id);
-  if (d) d.status = "active";
-  saveStore(state);
-  const ds = await domainState(uid);
-  return { ok: true, data: { ...ds, active: true } };
+  const res = await authFetch(`/api/domains/${id}/verify`, { method: "POST" });
+  const body = (await res.json().catch(() => ({}))) as {
+    data?: DomainState & { active: boolean };
+    error?: string;
+  };
+  if (!res.ok) return { ok: false, error: body.error || "Failed to verify domain." };
+  await hydrateStoreFromServer();
+  return { ok: true, data: body.data! };
 }
 
 export async function removeDomain(id: number): Promise<Result<DomainState>> {
-  const state = getStore();
-  const uid = state.currentUserId ?? 1;
-  state.domains = state.domains.filter((x) => x.id !== id);
-  saveStore(state);
-  return { ok: true, data: await domainState(uid) };
+  const res = await authFetch(`/api/domains/${id}`, { method: "DELETE" });
+  const body = (await res.json().catch(() => ({}))) as { data?: DomainState; error?: string };
+  if (!res.ok) return { ok: false, error: body.error || "Failed to remove domain." };
+  await hydrateStoreFromServer();
+  return { ok: true, data: body.data! };
 }
 
 export async function setDomainUse(_type: DomainType, _id: number | null): Promise<Result<DomainState>> {
   const state = getStore();
-  const uid = state.currentUserId ?? 1;
-  return { ok: true, data: await domainState(uid) };
+  return { ok: true, data: await domainState(state.currentUserId ?? 1) };
 }

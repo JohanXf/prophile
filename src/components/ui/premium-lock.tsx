@@ -9,7 +9,7 @@ export default function PremiumLock({ size = 12, className = "" }: PremiumLockPr
   return (
     <span
       title="Premium"
-      className={`inline-flex items-center justify-center shrink-0 text-[#5b6cf5]/80 ${className}`}
+      className={`inline-flex items-center justify-center shrink-0 text-[#f05e23]/80 ${className}`}
     >
       <svg
         width={size}

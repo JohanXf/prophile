@@ -59,7 +59,7 @@ export default function DescriptionEffectSection({
           height="22"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#5b6cf5"
+          stroke="#f05e23"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -147,7 +147,7 @@ export default function DescriptionEffectSection({
             role="switch"
             aria-checked={glowEnabled}
             onClick={() => setGlowEnabled(!glowEnabled)}
-            className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${glowEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}
+            className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${glowEnabled ? "bg-[#f05e23]" : "bg-white/10"}`}
           >
             <div className={`w-3.5 h-3.5 rounded-full absolute shadow-sm bg-white transition-all ${glowEnabled ? "right-[3px]" : "left-[3px]"}`} />
           </button>

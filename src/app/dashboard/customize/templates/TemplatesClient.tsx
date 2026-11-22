@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/components/ui/toast";
 import FilterSelect from "@/components/ui/filter-select";
+import { authFetch } from "@/lib/auth-client";
+import { hydrateStoreFromServer } from "@/lib/local-store";
 
 type Tab = "public" | "favorites" | "mine";
 
@@ -133,7 +135,7 @@ export default function TemplatesClient() {
       sp.set("tab", tab);
       sp.set("page", String(page));
       sp.set("limit", "24");
-      const r = await fetch(`/api/templates?${sp.toString()}`, { cache: "no-store", signal: AbortSignal.timeout(30_000) });
+      const r = await authFetch(`/api/templates?${sp.toString()}`, { cache: "no-store", signal: AbortSignal.timeout(30_000) });
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error ?? "Failed");
       setItems(j.items ?? []);
@@ -168,7 +170,7 @@ export default function TemplatesClient() {
     setAssets(null);
     setAssetsLoading(true);
     try {
-      const r = await fetch(`/api/templates/${t.id}`, { cache: "no-store" });
+      const r = await authFetch(`/api/templates/${t.id}`, { cache: "no-store" });
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error ?? "Failed");
       const list = extractAssets((j.config as Record<string, unknown>) ?? {});
@@ -211,9 +213,10 @@ export default function TemplatesClient() {
   const doUse = async (id: number) => {
     setUsingId(id);
     try {
-      const r = await fetch(`/api/templates/${id}/apply`, { method: "POST" });
+      const r = await authFetch(`/api/templates/${id}/apply`, { method: "POST" });
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error ?? "Failed");
+      await hydrateStoreFromServer();
       toast.success("Template applied!");
       setUseTarget(null);
       router.refresh();
@@ -229,7 +232,7 @@ export default function TemplatesClient() {
     setFavBusy(t.id);
     setItems((prev) => prev.map((x) => (x.id === t.id ? { ...x, favorited: next, favoriteCount: Math.max(0, (x.favoriteCount ?? 0) + (next ? 1 : -1)) } : x)));
     try {
-      const r = await fetch(`/api/templates/${t.id}/favorite`, { method: next ? "POST" : "DELETE" });
+      const r = await authFetch(`/api/templates/${t.id}/favorite`, { method: next ? "POST" : "DELETE" });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j?.error ?? "Failed");
       if (tab === "favorites" && !next) {
@@ -249,7 +252,7 @@ export default function TemplatesClient() {
     setVisBusy(t.id);
     setItems((prev) => prev.map((x) => (x.id === t.id ? { ...x, isPublic: next } : x)));
     try {
-      const r = await fetch(`/api/templates/${t.id}`, {
+      const r = await authFetch(`/api/templates/${t.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isPublic: next }),
@@ -273,7 +276,7 @@ export default function TemplatesClient() {
     if (!t || deleting) return;
     setDeleting(true);
     try {
-      const r = await fetch(`/api/templates/${t.id}`, { method: "DELETE" });
+      const r = await authFetch(`/api/templates/${t.id}`, { method: "DELETE" });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j?.error ?? "Failed");
       toast.success("Deleted");
@@ -295,7 +298,7 @@ export default function TemplatesClient() {
     }
     setSharing(true);
     try {
-      const r = await fetch("/api/templates", {
+      const r = await authFetch("/api/templates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, isPublic: sharePublic }),
@@ -340,7 +343,7 @@ export default function TemplatesClient() {
               {tab === t.id && (
                 <motion.div
                   layoutId="templates-tab-bubble"
-                  className="absolute inset-0 bg-[#5b6cf5]/20 rounded-full z-0"
+                  className="absolute inset-0 bg-[#f05e23]/20 rounded-full z-0"
                   transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
                 />
               )}
@@ -355,7 +358,7 @@ export default function TemplatesClient() {
             setSharePublic(true);
             setShareOpen(true);
           }}
-          className="w-full sm:w-auto sm:ml-auto shrink-0 h-9 px-5 rounded-xl sm:rounded-full bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white text-[13px] font-normal whitespace-nowrap transition border border-white/10 cursor-pointer"
+          className="w-full sm:w-auto sm:ml-auto shrink-0 h-9 px-5 rounded-xl sm:rounded-full bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white text-[13px] font-normal whitespace-nowrap transition border border-white/10 cursor-pointer"
           style={{ fontFamily: "var(--font-comfortaa)" }}
         >
           Share Your Template
@@ -475,7 +478,7 @@ export default function TemplatesClient() {
                         setUseTarget(t);
                       }}
                       disabled={usingId === t.id}
-                      className="flex-1 min-w-[120px] h-9 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 disabled:opacity-50 text-white text-[12px] font-normal transition cursor-pointer border border-white/10"
+                      className="flex-1 min-w-[120px] h-9 rounded-xl bg-[#f05e23]/20 hover:bg-[#f05e23]/30 disabled:opacity-50 text-white text-[12px] font-normal transition cursor-pointer border border-white/10"
                       style={{ fontFamily: "var(--font-comfortaa)" }}
                     >
                       {usingId === t.id ? "Applying…" : "Use template"}
@@ -485,7 +488,7 @@ export default function TemplatesClient() {
                         type="button"
                         onClick={() => setMenuId((cur) => (cur === t.id ? null : t.id))}
                         aria-label="More options"
-                        className="h-9 w-9 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-white/10 text-white/80 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                        className="h-9 w-9 rounded-xl bg-[#f05e23]/20 hover:bg-[#f05e23]/30 border border-white/10 text-white/80 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                           <circle cx="12" cy="5" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="12" cy="19" r="1.6" />
@@ -591,7 +594,7 @@ export default function TemplatesClient() {
               <button type="button" onClick={() => setShareOpen(false)} disabled={sharing} className="h-10 px-5 rounded-xl bg-white/[0.06] border border-white/10 text-white text-[13px] disabled:opacity-40 cursor-pointer">
                 Cancel
               </button>
-              <button type="button" onClick={doShare} disabled={sharing} className="h-10 px-6 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-white/10 text-white text-[13px] font-normal disabled:opacity-40 cursor-pointer" style={{ fontFamily: "var(--font-comfortaa)" }}>
+              <button type="button" onClick={doShare} disabled={sharing} className="h-10 px-6 rounded-xl bg-[#f05e23]/20 hover:bg-[#f05e23]/30 border border-white/10 text-white text-[13px] font-normal disabled:opacity-40 cursor-pointer" style={{ fontFamily: "var(--font-comfortaa)" }}>
                 {sharing ? "Sharing…" : "Share"}
               </button>
             </div>
@@ -626,7 +629,7 @@ export default function TemplatesClient() {
               <ul className="mt-2 rounded-xl bg-white/[0.02] border border-white/5 p-3 flex flex-col gap-1.5 max-h-[220px] overflow-y-auto">
                 {AFFECTED_SECTIONS.map((s) => (
                   <li key={s} className="flex items-center gap-2 text-[12px] text-white/55">
-                    <span className="w-1 h-1 rounded-full bg-[#5b6cf5] shrink-0" />
+                    <span className="w-1 h-1 rounded-full bg-[#f05e23] shrink-0" />
                     {s}
                   </li>
                 ))}
@@ -667,7 +670,7 @@ export default function TemplatesClient() {
                 type="button"
                 onClick={() => doUse(useTarget.id)}
                 disabled={usingId !== null}
-                className="h-9 rounded-xl px-5 text-[13px] font-normal text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-white/10 transition-colors cursor-pointer disabled:opacity-50"
+                className="h-9 rounded-xl px-5 text-[13px] font-normal text-white bg-[#f05e23]/20 hover:bg-[#f05e23]/30 border border-white/10 transition-colors cursor-pointer disabled:opacity-50"
                 style={{ fontFamily: "var(--font-comfortaa)" }}
               >
                 {usingId === useTarget.id ? "Applying…" : "Apply template"}
@@ -713,7 +716,7 @@ export default function TemplatesClient() {
                       type="button"
                       onClick={() => downloadAsset(a)}
                       aria-label="Download"
-                      className="shrink-0 w-9 h-9 rounded-full bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/35 border border-[#5b6cf5]/25 text-white/80 hover:text-white flex items-center justify-center transition cursor-pointer"
+                      className="shrink-0 w-9 h-9 rounded-full bg-[#f05e23]/20 hover:bg-[#f05e23]/35 border border-[#f05e23]/25 text-white/80 hover:text-white flex items-center justify-center transition cursor-pointer"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="m8 11 4 4 4-4" /><path d="M4 21h16" /></svg>
                     </button>

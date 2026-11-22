@@ -82,13 +82,13 @@ export default function IconsGlowSection({
               height="22"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#5b6cf5"
+              stroke="#f05e23"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
               <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-              <circle cx="12" cy="12" r="2" fill="#5b6cf5" stroke="none" opacity="0.5" />
+              <circle cx="12" cy="12" r="2" fill="#f05e23" stroke="none" opacity="0.5" />
             </svg>
             <h2 className="text-white font-normal text-[16px] tracking-tight">
               Icons glow
@@ -98,14 +98,14 @@ export default function IconsGlowSection({
             onClick={() => setIsIconsGlowEnabled(!isIconsGlowEnabled)}
             className={`flex items-center gap-2.5 px-3 py-1.5 rounded-full transition-all cursor-pointer focus:outline-none border ${
               isIconsGlowEnabled
-                ? "bg-[#111326] border-[#202442] hover:bg-[#161933] text-[#5b6cf5]"
+                ? "bg-[#1f0e08] border-[#3b1c10] hover:bg-[#29130b] text-[#f05e23]"
                 : "bg-[#161616] border-white/5 hover:bg-white/[0.03] text-white/40"
             }`}
           >
-            <div className={`w-8 h-5 rounded-full relative flex items-center transition-colors ${isIconsGlowEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}>
+            <div className={`w-8 h-5 rounded-full relative flex items-center transition-colors ${isIconsGlowEnabled ? "bg-[#f05e23]" : "bg-white/10"}`}>
               <div className={`w-3.5 h-3.5 bg-white rounded-full absolute shadow-sm transition-all ${isIconsGlowEnabled ? "right-[3px]" : "left-[3px]"}`}></div>
             </div>
-            <span className={`text-[13px] font-medium pr-1 ${isIconsGlowEnabled ? "text-[#5b6cf5]" : ""}`}>
+            <span className={`text-[13px] font-medium pr-1 ${isIconsGlowEnabled ? "text-[#f05e23]" : ""}`}>
               {isIconsGlowEnabled ? "Enabled" : "Disabled"}
             </span>
           </button>
@@ -127,7 +127,7 @@ export default function IconsGlowSection({
               <button
                 type="button"
                 onClick={item.toggle}
-                className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${item.active ? "bg-[#5b6cf5]" : "bg-white/10"}`}
+                className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${item.active ? "bg-[#f05e23]" : "bg-white/10"}`}
               >
                 <div className={`w-3.5 h-3.5 rounded-full absolute shadow-sm bg-white transition-all ${item.active ? "right-[3px]" : "left-[3px]"}`} />
               </button>

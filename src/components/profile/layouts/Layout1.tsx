@@ -1,6 +1,7 @@
 "use client";
 
 import React, {  useEffect, useRef, useState, useSyncExternalStore  } from "react";
+import { authFetch } from "@/lib/auth-client";
 import Image from "next/image";
 import { isVideoUrl } from "@/lib/utils/media";
 import { animatedBackgroundId } from "@/lib/animated-background";
@@ -26,6 +27,8 @@ import CompactMusicPlayer from "../music/CompactMusicPlayer";
 import ViewsCounterAnimation from "./ViewsCounterAnimation";
 import LyricsMusicPlayer from "../music/LyricsMusicPlayer";
 import WaveformMusicPlayer from "../music/WaveformMusicPlayer";
+import ProfilePhotoCollection from "../photos/ProfilePhotoCollection";
+import { normalizeVolumePlacement, type VolumePlacement } from "../music/volume";
 import {
   BADGE_CLASSES,
   DEFAULT_DETAILS,
@@ -221,7 +224,7 @@ const Layout1 = ({
   otherFontSize = 14,
   otherFontWeight = 400,
   otherLetterSpacing = 0,
-  otherColor = "#5b6cf5",
+  otherColor = "#f05e23",
   highlightFont = "Inter",
   highlightFontSize = 11,
   highlightFontWeight = 500,
@@ -253,6 +256,8 @@ const Layout1 = ({
   linksSectionTitle,
   linksSectionPosition,
   profileSections,
+  photoCollection,
+  photoCollectionLayout = "editorial",
   widgetsSectionEnabled = true,
   contentAlignment,
   avatarPlacement,
@@ -314,6 +319,7 @@ const Layout1 = ({
   musicPlayerVolume = true,
   musicPlayerDefaultVolume = 100,
   musicPlayerVolumeFixed = true,
+  volumePlacement = "top-left",
   musicPlayerShuffle = false,
   musicCardColor = null,
   musicCardOpacity = 100,
@@ -333,6 +339,9 @@ const Layout1 = ({
   const [bgSoundOn, setBgSoundOn] = useState(false);
   const bgVideoRef = useRef<HTMLVideoElement>(null);
   const [entered, setEntered] = useState(!enterScreenEnabled);
+  const [volumeOverlayEl, setVolumeOverlayEl] = useState<HTMLDivElement | null>(null);
+  const isPreviewMode = viewerIdProp === -1;
+  const effectiveVolumePlacement: VolumePlacement = normalizeVolumePlacement(volumePlacement);
 
   const locked = bgPreviewUrl !== undefined && bgPreviewUrl !== null;
   const [bgIdx, setBgIdx] = useState<number>(() => {
@@ -376,7 +385,16 @@ const Layout1 = ({
     if (bannerBackgroundSound) setBgSoundOn(true);
   };
   useEffect(() => {
-    if (!bannerBackgroundSound || bgSoundOn) return;
+    if (!bannerBackgroundSound) {
+      const el = bgVideoRef.current;
+      if (el) {
+        el.muted = true;
+        el.defaultMuted = true;
+      }
+      setBgSoundOn(false);
+      return;
+    }
+    if (bgSoundOn) return;
     if (enterScreenEnabled && !entered) return;
     const enable = () => {
       const el = bgVideoRef.current;
@@ -408,8 +426,7 @@ const Layout1 = ({
     if (viewerIdProp === -1) return;
 
     const controller = new AbortController();
-    fetch(`/api/profile/me?profileId=${profileId}`, {
-      credentials: 'include',
+    authFetch(`/api/profile/me?profileId=${profileId}`, {
       signal: controller.signal,
     })
       .then(res => res.json())
@@ -529,9 +546,13 @@ const Layout1 = ({
     !bgSoundBlocksMusic &&
     (musicPlayerStyle === "compact" || musicPlayerStyle === "lyrics" || musicPlayerStyle === "waveform") &&
     musicTracks.length > 0;
-  const customSections = (profileSections ?? []).filter(
-    (section) => section && section.title.trim().length > 0 && section.categories.length > 0
-  );
+  const collectionPhotos = photoCollection ?? [];
+  const customSections = (profileSections ?? []).filter((section) => {
+    if (!section || section.title.trim().length === 0 || section.categories.length === 0) return false;
+    const onlyCollection = section.categories.every((category) => category === "collection");
+    if (onlyCollection && collectionPhotos.length === 0) return false;
+    return true;
+  });
   const linksInSections = customSections.some((section) => section.categories.includes("links"));
   const widgetsInSections = customSections.some((section) => section.categories.includes("widgets"));
   const aboutVisible = false;
@@ -632,10 +653,10 @@ useEffect(() => {
     fontSize: `${otherFontSize}px`,
     fontWeight: otherFontWeight,
     letterSpacing: `${otherLetterSpacing}px`,
-    color: otherColor ?? "#5b6cf5",
+    color: otherColor ?? "#f05e23",
   };
 
-  const detailGlowColor = otherColor ?? "#5b6cf5";
+  const detailGlowColor = otherColor ?? "#f05e23";
   const detailIconGlow = {
     location: iconsGlowEnabled && (locationIconGlow ?? false),
     occupation: iconsGlowEnabled && (occupationIconGlow ?? false),
@@ -786,11 +807,11 @@ useEffect(() => {
   const musicPlayer = showMusicPlayer ? (
     <div className="w-full mt-3">
       {musicPlayerStyle === "lyrics" ? (
-        <LyricsMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} defaultVolume={musicPlayerDefaultVolumeOn} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} lyricStyle={musicLyricStyle} lyricColor={musicLyricColor} shuffle={musicPlayerShuffleOn} cardColor={musicCardColor} cardOpacity={musicCardOpacity} />
+        <LyricsMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumePlacement={effectiveVolumePlacement} volumePortalTarget={isPreviewMode ? volumeOverlayEl : null} volumeContained={isPreviewMode} volumeColor={otherColor} defaultVolume={musicPlayerDefaultVolumeOn} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} lyricStyle={musicLyricStyle} lyricColor={musicLyricColor} shuffle={musicPlayerShuffleOn} cardColor={musicCardColor} cardOpacity={musicCardOpacity} />
       ) : musicPlayerStyle === "waveform" ? (
-        <WaveformMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} defaultVolume={musicPlayerDefaultVolumeOn} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} shuffle={musicPlayerShuffleOn} cardColor={musicCardColor} cardOpacity={musicCardOpacity} />
+        <WaveformMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumePlacement={effectiveVolumePlacement} volumePortalTarget={isPreviewMode ? volumeOverlayEl : null} volumeContained={isPreviewMode} volumeColor={otherColor} defaultVolume={musicPlayerDefaultVolumeOn} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} shuffle={musicPlayerShuffleOn} cardColor={musicCardColor} cardOpacity={musicCardOpacity} />
       ) : (
-        <CompactMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} defaultVolume={musicPlayerDefaultVolumeOn} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} shuffle={musicPlayerShuffleOn} cardColor={musicCardColor} cardOpacity={musicCardOpacity} />
+        <CompactMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumePlacement={effectiveVolumePlacement} volumePortalTarget={isPreviewMode ? volumeOverlayEl : null} volumeContained={isPreviewMode} volumeColor={otherColor} defaultVolume={musicPlayerDefaultVolumeOn} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} shuffle={musicPlayerShuffleOn} cardColor={musicCardColor} cardOpacity={musicCardOpacity} />
       )}
     </div>
   ) : null;
@@ -884,6 +905,10 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
           : "min-h-screen overflow-x-clip"
       }`}
     >
+        <div
+          ref={setVolumeOverlayEl}
+          className={`${isPreviewMode ? "absolute" : "fixed"} inset-0 z-[70] pointer-events-none`}
+        />
         <EntryTransition
           transition={entryTransition}
           enabled={enterScreenEnabled}
@@ -1209,34 +1234,6 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
                 className="w-[var(--card-w)] max-w-full shrink-0 flex flex-col z-10"
                 style={{ "--card-w": cardWidth } as React.CSSProperties}
               >
-                <div className="mb-3 text-left">
-                  <h2
-                    style={{
-                      fontFamily: fontClassMap[sectionTitleFont] || "var(--font-inter)",
-                      fontSize: `${sectionTitleFontSize}px`,
-                      fontWeight: sectionTitleFontWeight,
-                      letterSpacing: `${sectionTitleLetterSpacing}px`,
-                      color: sectionTitleColor ?? "#FFFFFF",
-                    }}
-                  >
-                    {section.title}
-                  </h2>
-                  {section.description?.trim() && (
-                    <p
-                      className="mt-0.5 opacity-50"
-                      style={{
-                        fontFamily: fontClassMap[sectionDescFont] || "var(--font-inter)",
-                        fontSize: `${sectionDescFontSize}px`,
-                        fontWeight: sectionDescFontWeight,
-                        letterSpacing: `${sectionDescLetterSpacing}px`,
-                        color: sectionDescColor,
-                      }}
-                    >
-                      {renderFormattedText(section.description)}
-                    </p>
-                  )}
-                </div>
-
                 <div className="flex flex-col gap-6">
                   {section.categories.includes("bio") && section.bio?.trim() && (
                     <p
@@ -1253,6 +1250,15 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
                     </p>
                   )}
 
+                  {section.categories.includes("collection") && collectionPhotos.length > 0 && (
+                    <ProfilePhotoCollection
+                      photos={collectionPhotos}
+                      layoutId={photoCollectionLayout}
+                      borderRadius={profileBorderRadius}
+                      borderColor={profileBorderColor}
+                      borderOpacity={profileBorderOpacity}
+                    />
+                  )}
                   {section.categories.includes("links") && bigLinksSection}
                   {section.categories.includes("widgets") && outsideWidgets}
                   {section.categories.includes("music") && musicPlayer}
@@ -1342,34 +1348,6 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
               className="w-[var(--card-w)] max-w-full shrink-0 flex flex-col z-10"
               style={{ "--card-w": cardWidth } as React.CSSProperties}
             >
-              <div className="mb-3 text-left">
-                <h2
-                  style={{
-                    fontFamily: fontClassMap[sectionTitleFont] || "var(--font-inter)",
-                    fontSize: `${sectionTitleFontSize}px`,
-                    fontWeight: sectionTitleFontWeight,
-                    letterSpacing: `${sectionTitleLetterSpacing}px`,
-                    color: sectionTitleColor ?? "#FFFFFF",
-                  }}
-                >
-                  {section.title}
-                </h2>
-                {section.description?.trim() && (
-                  <p
-                    className="mt-0.5 opacity-50"
-                    style={{
-                      fontFamily: fontClassMap[sectionDescFont] || "var(--font-inter)",
-                      fontSize: `${sectionDescFontSize}px`,
-                      fontWeight: sectionDescFontWeight,
-                      letterSpacing: `${sectionDescLetterSpacing}px`,
-                      color: sectionDescColor,
-                    }}
-                  >
-                    {renderFormattedText(section.description)}
-                  </p>
-                )}
-              </div>
-
               <div className="flex flex-col gap-6">
                 {section.categories.includes("bio") && section.bio?.trim() && (
                   <p
@@ -1386,6 +1364,15 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
                   </p>
                 )}
 
+                {section.categories.includes("collection") && collectionPhotos.length > 0 && (
+                  <ProfilePhotoCollection
+                    photos={collectionPhotos}
+                    layoutId={photoCollectionLayout}
+                    borderRadius={profileBorderRadius}
+                    borderColor={profileBorderColor}
+                    borderOpacity={profileBorderOpacity}
+                  />
+                )}
                 {section.categories.includes("links") && bigLinksSection}
                 {section.categories.includes("widgets") && outsideWidgets}
                 {section.categories.includes("music") && musicPlayer}

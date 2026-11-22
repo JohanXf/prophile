@@ -9,7 +9,7 @@ const SharedBackground = () => {
       style={{ height: "100lvh" }}
     >
       <ColorBends
-        colors={["#5b6cf5", "#000000", "#8b93e8"]}
+        colors={["#f05e23", "#000000", "#f47b47"]}
         rotation={90}
         speed={0.15}
         scale={1}

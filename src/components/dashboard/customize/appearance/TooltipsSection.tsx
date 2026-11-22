@@ -106,7 +106,7 @@ export default function TooltipsSection({
               height="22"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#5b6cf5"
+              stroke="#f05e23"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -114,7 +114,7 @@ export default function TooltipsSection({
               <circle cx="12" cy="12" r="10"/>
               <path d="M12 16v-4"/>
               <path d="M12 8h.01"/>
-              <circle cx="12" cy="12" r="2" fill="#5b6cf5" stroke="none" opacity="0.3"/>
+              <circle cx="12" cy="12" r="2" fill="#f05e23" stroke="none" opacity="0.3"/>
             </svg>
             <h2 className="text-white font-normal text-[16px] tracking-tight">
               Tooltips
@@ -136,7 +136,7 @@ export default function TooltipsSection({
             <button
               type="button"
               onClick={item.toggle}
-              className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${item.active ? "bg-[#5b6cf5]" : "bg-white/10"}`}
+              className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${item.active ? "bg-[#f05e23]" : "bg-white/10"}`}
             >
               <div className={`w-3.5 h-3.5 rounded-full absolute shadow-sm bg-white transition-all ${item.active ? "right-[3px]" : "left-[3px]"}`} />
             </button>

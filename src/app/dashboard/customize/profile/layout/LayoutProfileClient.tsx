@@ -10,6 +10,7 @@ import HeaderSection from "@/components/dashboard/customize/layout/HeaderSection
 import ProfileDetailsSection, {
   type DetailPlacementMap,
 } from "@/components/dashboard/customize/layout/ProfileDetailsSection";
+import { normalizeVolumePlacement, type VolumePlacement } from "@/components/profile/music/volume";
 import {
   type AvatarPlacement,
   type ContentAlignment,
@@ -124,6 +125,25 @@ export default function LayoutProfileClient({ user, backgrounds }: { user: FullU
       detailLayout: JSON.stringify(val) === JSON.stringify(initialDetailLayout) ? undefined : val,
     });
 
+  const initialVolumeEnabled = user?.musicPlayerVolume ?? true;
+  const volumeEnabled =
+    overrides.musicPlayerVolume !== undefined
+      ? Boolean(overrides.musicPlayerVolume)
+      : initialVolumeEnabled;
+  const setVolumeEnabled = (val: boolean) =>
+    updateOverrides({
+      musicPlayerVolume: val === initialVolumeEnabled ? undefined : val,
+    });
+
+  const initialVolumePlacement = normalizeVolumePlacement(user?.volumePlacement);
+  const volumePlacement = normalizeVolumePlacement(
+    (overrides.volumePlacement as string | undefined) ?? initialVolumePlacement
+  );
+  const setVolumePlacement = (val: VolumePlacement) =>
+    updateOverrides({
+      volumePlacement: val === initialVolumePlacement ? undefined : val,
+    });
+
   const presetDefaults = getDetailDefaults(preset);
   const presetFrame = getFrameDefaults(preset);
   const isCustom =
@@ -163,6 +183,10 @@ export default function LayoutProfileClient({ user, backgrounds }: { user: FullU
           setPlacement={setPlacement}
           layout={detailLayout}
           setLayout={setDetailLayout}
+          volumeEnabled={volumeEnabled}
+          setVolumeEnabled={setVolumeEnabled}
+          volumePlacement={volumePlacement}
+          setVolumePlacement={setVolumePlacement}
         />
       </div>
 
@@ -182,6 +206,8 @@ export default function LayoutProfileClient({ user, backgrounds }: { user: FullU
           viewsPlacement: placements.views,
           feedbackPlacement: placements.feedback,
           detailLayout,
+          musicPlayerVolume: volumeEnabled,
+          volumePlacement,
         }}
       />
 
@@ -204,6 +230,8 @@ export default function LayoutProfileClient({ user, backgrounds }: { user: FullU
               viewsPlacement: placements.views,
               feedbackPlacement: placements.feedback,
               detailLayout,
+              musicPlayerVolume: volumeEnabled,
+              volumePlacement,
             });
             toast.success("Profile Saved Sucessfully");
             scheduleClear();

@@ -10,7 +10,7 @@ export default function CustomDomainPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-4 text-center">
       <h1 className="text-[22px] sm:text-[28px] font-normal tracking-tight text-white">
-        This domain is part of the <span className="text-[#5b6cf5]">prophile</span> {type === "image_host" ? "image hosting" : "profile"} service.
+        This domain is part of the <span className="text-[#f05e23]">prophile</span> {type === "image_host" ? "image hosting" : "profile"} service.
       </h1>
     </main>
   );

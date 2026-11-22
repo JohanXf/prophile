@@ -28,7 +28,7 @@ export default function JoinDateSection({
               width="20"
               height="20"
               viewBox="0 0 512 512"
-              fill="#5b6cf5"
+              fill="#f05e23"
               stroke="none"
             >
               <path d="M480 128a64 64 0 0 0-64-64h-16V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 368 48v16H144V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 112 48v16H96a64 64 0 0 0-64 64v12a4 4 0 0 0 4 4h440a4 4 0 0 0 4-4zM32 416a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64V180a4 4 0 0 0-4-4H36a4 4 0 0 0-4 4z" />
@@ -41,14 +41,14 @@ export default function JoinDateSection({
             onClick={() => setIsJoinDateEnabled(!isJoinDateEnabled)}
             className={`flex items-center gap-2.5 px-3 py-1.5 rounded-full transition-all cursor-pointer focus:outline-none border ${
               isJoinDateEnabled
-                ? "bg-[#111326] border-[#202442] hover:bg-[#161933] text-[#5b6cf5]"
+                ? "bg-[#1f0e08] border-[#3b1c10] hover:bg-[#29130b] text-[#f05e23]"
                 : "bg-[#161616] border-white/5 hover:bg-white/[0.03] text-white/40"
             }`}
           >
-            <div className={`w-8 h-5 rounded-full relative flex items-center transition-colors ${isJoinDateEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}>
+            <div className={`w-8 h-5 rounded-full relative flex items-center transition-colors ${isJoinDateEnabled ? "bg-[#f05e23]" : "bg-white/10"}`}>
               <div className={`w-3.5 h-3.5 bg-white rounded-full absolute shadow-sm transition-all ${isJoinDateEnabled ? "right-[3px]" : "left-[3px]"}`}></div>
             </div>
-            <span className={`text-[13px] font-medium pr-1 ${isJoinDateEnabled ? "text-[#5b6cf5]" : ""}`}>
+            <span className={`text-[13px] font-medium pr-1 ${isJoinDateEnabled ? "text-[#f05e23]" : ""}`}>
               {isJoinDateEnabled ? "Enabled" : "Disabled"}
             </span>
           </button>

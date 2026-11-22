@@ -10,7 +10,7 @@ export default function BackToHome() {
       href="/"
       className="fixed top-6 left-6 z-50 group flex items-center gap-2.5 hover:opacity-80 transition-all duration-200 cursor-pointer select-none"
     >
-      <ArrowLeft className="w-4 h-4 text-[#5b6cf5] group-hover:-translate-x-1 transition-transform duration-200" />
+      <ArrowLeft className="w-4 h-4 text-[#f05e23] group-hover:-translate-x-1 transition-transform duration-200" />
       <Image
         src="/Favicon.png"
         alt="prophile Logo"
@@ -20,7 +20,7 @@ export default function BackToHome() {
         priority
       />
       <span className="font-light text-white tracking-tight text-base" style={{ fontFamily: "var(--font-comfortaa)" }}>
-        pro<span className="text-[#5b6cf5] lowercase">phile</span>
+        pro<span className="text-[#f05e23] lowercase">phile</span>
       </span>
     </Link>
   );

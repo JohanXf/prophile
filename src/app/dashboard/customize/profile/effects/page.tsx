@@ -29,7 +29,7 @@ export default function Page() {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="text-white/10" />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-[#5b6cf5] font-normal tracking-tight">Effects</BreadcrumbPage>
+              <BreadcrumbPage className="text-[#f05e23] font-normal tracking-tight">Effects</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -43,7 +43,7 @@ export default function Page() {
               height="26"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#5b6cf5"
+              stroke="#f05e23"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"

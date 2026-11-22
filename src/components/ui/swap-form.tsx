@@ -36,7 +36,7 @@ const swapVariants = {
 };
 
 const toggleClassName =
-  "text-[#5b6cf5] hover:text-[#5b6cf5]/90 font-medium relative inline-block cursor-pointer after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-[#5b6cf5] hover:after:w-full after:transition-all after:duration-300";
+  "text-[#f05e23] hover:text-[#f05e23]/90 font-medium relative inline-block cursor-pointer after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-[#f05e23] hover:after:w-full after:transition-all after:duration-300";
 
 export default function SwapForm({
   initialMode = "signin",

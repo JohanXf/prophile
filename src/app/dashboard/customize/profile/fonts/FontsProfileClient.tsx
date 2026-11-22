@@ -221,7 +221,7 @@ export default function FontsProfileClient({ user, backgrounds }: { user: FullUs
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-3">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <path d="M4 7V4h16v3M9 20h6M12 4v16" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M4 7V4h16v3M9 20h6M12 4v16" stroke="#f05e23" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <h2 className="text-white font-normal text-[16px] tracking-tight flex-1">Font</h2>
               <ResetButton onClick={resetFontCard} />
@@ -299,7 +299,7 @@ export default function FontsProfileClient({ user, backgrounds }: { user: FullUs
         <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-8 shadow-sm">
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-3">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#5b6cf5]">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#f05e23]">
                 <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
               </svg>
               <h2 className="text-white font-normal text-[16px] tracking-tight flex-1">Links</h2>
@@ -330,7 +330,7 @@ export default function FontsProfileClient({ user, backgrounds }: { user: FullUs
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-3">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <path d="M6 4v16M18 4v16M6 12h12" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M6 4v16M18 4v16M6 12h12" stroke="#f05e23" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <h2 className="text-white font-normal text-[16px] tracking-tight flex-1">Sections</h2>
               <ResetButton onClick={resetSectionsCard} />
@@ -376,7 +376,7 @@ export default function FontsProfileClient({ user, backgrounds }: { user: FullUs
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-3">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <path d="M9 18V5l12-2v13" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><circle cx="6" cy="18" r="3" stroke="#5b6cf5" strokeWidth="1.5" /><circle cx="18" cy="16" r="3" stroke="#5b6cf5" strokeWidth="1.5" />
+                <path d="M9 18V5l12-2v13" stroke="#f05e23" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><circle cx="6" cy="18" r="3" stroke="#f05e23" strokeWidth="1.5" /><circle cx="18" cy="16" r="3" stroke="#f05e23" strokeWidth="1.5" />
               </svg>
               <h2 className="text-white font-normal text-[16px] tracking-tight flex-1">Music</h2>
               <ResetButton onClick={resetMusicCard} />
@@ -438,7 +438,7 @@ export default function FontsProfileClient({ user, backgrounds }: { user: FullUs
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-3">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <rect width="7" height="7" x="14" y="3" rx="1" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <rect width="7" height="7" x="14" y="3" rx="1" stroke="#f05e23" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3" stroke="#f05e23" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <h2 className="text-white font-normal text-[16px] tracking-tight flex-1">Widgets</h2>
               <ResetButton onClick={resetWidgetsCard} />

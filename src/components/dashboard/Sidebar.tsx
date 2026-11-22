@@ -7,6 +7,8 @@ import { usePathname } from "next/navigation";
 import { logout } from "@/actions/logout";
 import { Sidebar as AceSidebar, SidebarBody, useSidebar } from "@/components/ui/sidebar";
 import { useUnsavedChanges } from "@/components/dashboard/UnsavedChangesProvider";
+import ShareProfileModal from "@/components/dashboard/ShareProfileModal";
+import { Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SidebarProps {
@@ -46,12 +48,13 @@ interface SidebarContentProps {
   pathname: string;
   expandedItems: Record<string, boolean>;
   toggleExpanded: (label: string) => void;
+  onOpenShare: () => void;
 }
 
 const SIDEBAR_MIN_WIDTH = 200;
 const SIDEBAR_MAX_WIDTH = 260;
 
-const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decorationHue, navItems, pathname, expandedItems, toggleExpanded }: SidebarContentProps) => {
+const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decorationHue, navItems, pathname, expandedItems, toggleExpanded, onOpenShare }: SidebarContentProps) => {
   const { open, setOpen, animate } = useSidebar();
   const unsavedChanges = useUnsavedChanges();
   const [width, setWidth] = useState(SIDEBAR_MAX_WIDTH);
@@ -101,13 +104,13 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
           >
             <Image src="/Favicon.png" alt="prophile Logo" width={512} height={512} className="w-6 h-auto object-contain shrink-0 my-auto" priority />
             <span className="font-normal text-white tracking-tight text-xl whitespace-nowrap overflow-hidden my-auto" style={{ fontFamily: "var(--font-comfortaa)" }}>
-              pro<span className="text-[#5b6cf5] lowercase">phile</span>
+              pro<span className="text-[#f05e23] lowercase">phile</span>
             </span>
           </Link>
 
           <button 
             onClick={() => setOpen(!open)}
-            className={`absolute transition-all duration-300 p-1.5 rounded-lg hidden md:flex items-center justify-center shrink-0 z-20 ${open ? 'right-4 text-white/30 hover:text-white/80 hover:bg-white/5' : 'left-[15px] bg-[#5b6cf5]/10 text-[#5b6cf5] border border-[#5b6cf5]/20 hover:bg-[#5b6cf5]/20'}`}
+            className={`absolute transition-all duration-300 p-1.5 rounded-lg hidden md:flex items-center justify-center shrink-0 z-20 ${open ? 'right-4 text-white/30 hover:text-white/80 hover:bg-white/5' : 'left-[15px] bg-[#f05e23]/10 text-[#f05e23] border border-[#f05e23]/20 hover:bg-[#f05e23]/20'}`}
             title="Toggle Sidebar"
           >
             {open ? (
@@ -145,21 +148,31 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                 {group.items.map((item: NavItem) => {
                   if (item.subItems) {
                     const isExpanded = !!expandedItems[item.label];
-                    const isGroupActive = item.subItems.some((sub: SubItem) => pathname === sub.href) || (item.matchPrefix ? pathname.startsWith(item.matchPrefix) : false);
+                    const isGroupActive =
+                      item.subItems.some((sub: SubItem) => pathname === sub.href) ||
+                      (item.label === "Profile" && pathname === "/dashboard/customize/profile") ||
+                      (item.matchPrefix ? pathname.startsWith(item.matchPrefix) : false);
                     return (
                       <div key={item.label} className="flex flex-col">
                         <button
+                          type="button"
+                          title={item.label}
                           onClick={() => {
-                             if (open) toggleExpanded(item.label);
+                            if (!open) {
+                              setOpen(true);
+                              if (!isExpanded) toggleExpanded(item.label);
+                              return;
+                            }
+                            toggleExpanded(item.label);
                           }}
-                          className={`relative flex items-center w-full transition-all duration-300 ${open ? 'px-3' : 'px-[9px]'} py-2.5 rounded-xl text-[13.5px] font-normal group overflow-hidden ${
+                          className={`relative flex items-center w-full transition-all duration-300 cursor-pointer ${open ? 'px-3' : 'px-[9px]'} py-2.5 rounded-xl text-[13.5px] font-normal group overflow-hidden ${
                             isGroupActive
-                              ? (open ? "text-white" : "bg-[#5b6cf5]/20 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)]")
-                              : "text-white/30 hover:text-white/80 hover:bg-white/[0.06]"
+                              ? (open ? "text-white" : "bg-[#f05e23]/20 text-white shadow-[0_0_15px_rgba(240,94,35,0.1)]")
+                              : "text-white/40 hover:text-white/85 hover:bg-white/[0.06]"
                           }`}
                         >
                           <span className={`relative z-10 flex items-center ${open ? 'gap-3' : ''}`}>
-                            {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: `shrink-0 transition-colors ${isGroupActive ? 'text-[#5b6cf5]' : 'text-white/40 group-hover:text-white/80'}` })}
+                            {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: `shrink-0 transition-colors ${isGroupActive ? 'text-[#f05e23]' : 'text-white/40 group-hover:text-white/80'}` })}
                             
                             <motion.span
                               animate={{
@@ -200,7 +213,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                                     href={subItem.href}
                                     className={`px-4 py-2 rounded-[10px] text-[13px] font-normal transition-all whitespace-nowrap ${
                                       isSubActive
-                                        ? "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)]"
+                                        ? "bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white shadow-[0_0_15px_rgba(240,94,35,0.1)]"
                                         : "text-white/40 hover:text-white/80 hover:bg-white/[0.06]"
                                     }`}
                                   >
@@ -220,16 +233,17 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                     <Link
                       key={item.label}
                       href={item.href!}
+                      title={item.label}
                       target={item.external ? "_blank" : undefined}
                       rel={item.external ? "noopener noreferrer" : undefined}
                       className={`relative flex items-center w-full transition-all duration-300 overflow-hidden ${open ? 'px-3' : 'px-[9px]'} py-2.5 rounded-xl text-[13.5px] font-normal group ${
                         isActive
-                          ? "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)]"
-                          : "text-white/30 hover:text-white/80 hover:bg-white/[0.06]"
+                          ? "bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white shadow-[0_0_15px_rgba(240,94,35,0.1)]"
+                          : "text-white/40 hover:text-white/85 hover:bg-white/[0.06]"
                       }`}
                     >
                       <span className={`relative z-10 flex items-center ${open ? 'gap-3' : ''}`}>
-                        {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: `shrink-0 transition-colors ${isActive ? 'text-[#5b6cf5]' : 'text-white/40 group-hover:text-white/80'}` })}
+                        {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: `shrink-0 transition-colors ${isActive ? 'text-[#f05e23]' : 'text-white/40 group-hover:text-white/80'}` })}
                         <motion.span
                           animate={{
                             width: animate ? (open ? "auto" : 0) : "auto",
@@ -253,58 +267,32 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
       <div className={`pt-2 pb-3 shrink-0 transition-all ${open ? 'px-3' : 'px-2'}`}>
         <div className="flex flex-col gap-2">
         {username && (
-          <Link
-            href={`/${username}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`rounded-xl border border-white/[0.07] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/10 flex items-center transition-colors ${open ? 'gap-2.5 px-3 py-2.5' : 'p-[9px]'} overflow-hidden relative w-full group`}
+          <button
+            type="button"
+            onClick={onOpenShare}
+            title="Share Your Profile"
+            className={`rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-[#f05e23]/12 hover:border-[#f05e23]/30 flex items-center ${open ? 'justify-center gap-2.5 px-3 py-2.5' : 'justify-center p-[9px]'} transition-all overflow-hidden relative w-full group cursor-pointer`}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-white/35 group-hover:text-[#5b6cf5] transition-colors">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              <polyline points="15 3 21 3 21 9" />
-              <line x1="10" y1="14" x2="21" y2="3" />
-            </svg>
+            <Share2
+              size={15}
+              className="shrink-0 text-white/75 group-hover:text-[#f05e23] transition-colors"
+              aria-hidden="true"
+            />
             <motion.span
               animate={{
                 width: animate ? (open ? "auto" : 0) : "auto",
                 opacity: animate ? (open ? 1 : 0) : 1,
-                marginLeft: animate ? (open ? "10px" : "0px") : "10px",
               }}
-              className="text-[13px] text-white/60 group-hover:text-white transition-colors font-normal tracking-tight whitespace-nowrap overflow-hidden"
+              className="text-[13px] text-white/90 group-hover:text-white transition-colors font-medium tracking-tight whitespace-nowrap overflow-hidden"
             >
-              My Page
+              Share Your Profile
             </motion.span>
-          </Link>
+          </button>
         )}
 
-        <Link
-          href="/dashboard/settings"
-          aria-current={pathname.startsWith("/dashboard/settings") ? "page" : undefined}
-          className={`rounded-xl border flex items-center transition-colors ${open ? 'gap-2.5 px-3 py-2.5' : 'p-[9px]'} overflow-hidden relative w-full group ${
-            pathname.startsWith("/dashboard/settings")
-              ? "border-[#5b6cf5]/25 bg-[#5b6cf5]/10"
-              : "border-white/[0.07] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/10"
-          }`}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 transition-colors ${pathname.startsWith("/dashboard/settings") ? "text-[#5b6cf5]" : "text-white/35 group-hover:text-[#5b6cf5]"}`} aria-hidden="true">
-            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-          <motion.span
-            animate={{
-              width: animate ? (open ? "auto" : 0) : "auto",
-              opacity: animate ? (open ? 1 : 0) : 1,
-              marginLeft: animate ? (open ? "10px" : "0px") : "10px",
-            }}
-            className={`text-[13px] transition-colors font-normal tracking-tight whitespace-nowrap overflow-hidden ${pathname.startsWith("/dashboard/settings") ? "text-white" : "text-white/60 group-hover:text-white"}`}
-          >
-            Settings
-          </motion.span>
-        </Link>
-
-        <div className={`rounded-xl border border-white/[0.07] bg-white/[0.03] flex items-center transition-all duration-300 ${open ? 'gap-3 p-2' : 'p-[6px]'} overflow-hidden relative w-full`}>
+        <div className={`rounded-xl border border-white/[0.07] bg-white/[0.03] flex items-center transition-all duration-300 ${open ? 'gap-2.5 p-2' : 'p-[6px]'} overflow-hidden relative w-full`}>
           <div className="relative w-8 h-8 shrink-0">
-            <div className="absolute inset-0 rounded-full bg-[#5b6cf5]/10 border border-[#5b6cf5]/20 flex items-center justify-center text-[#5b6cf5] text-xs font-bold uppercase overflow-hidden shrink-0">
+            <div className="absolute inset-0 rounded-full bg-[#f05e23]/10 border border-[#f05e23]/20 flex items-center justify-center text-[#f05e23] text-xs font-bold uppercase overflow-hidden shrink-0">
               {avatarUrl ? (
                 <Image src={avatarUrl} alt="Profile picture" fill sizes="32px" className="object-cover" />
               ) : (
@@ -329,7 +317,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
             animate={{
               width: animate ? (open ? "auto" : 0) : "auto",
               opacity: animate ? (open ? 1 : 0) : 1,
-              marginLeft: animate ? (open ? "12px" : "0px") : "12px",
+              marginLeft: animate ? (open ? "4px" : "0px") : "4px",
             }}
             className="flex-col flex-1 min-w-0 overflow-hidden"
           >
@@ -340,26 +328,49 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
               UID {userId ?? "--"}
             </p>
           </motion.div>
-          
-          <motion.button 
+
+          <motion.div
             animate={{
               display: animate ? (open ? "flex" : "none") : "flex",
               opacity: animate ? (open ? 1 : 0) : 1,
             }}
-            onClick={() => {
-              if (unsavedChanges?.isDirty) {
-                unsavedChanges.block();
-                return;
-              }
-              logout();
-            }}
-            className="h-8 w-8 items-center justify-center rounded-lg border border-transparent text-white/20 hover:border-red-400/25 hover:bg-red-400/8 hover:text-red-400/60 transition-all cursor-pointer shrink-0"
-            title="Sign out"
+            className="items-center gap-1 shrink-0"
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>
-          </motion.button>
+            <Link
+              href="/dashboard/settings"
+              aria-label="Settings"
+              aria-current={pathname.startsWith("/dashboard/settings") ? "page" : undefined}
+              title="Settings"
+              className={`h-8 w-8 flex items-center justify-center rounded-lg border transition-all cursor-pointer shrink-0 ${
+                pathname.startsWith("/dashboard/settings")
+                  ? "border-[#f05e23]/30 bg-[#f05e23]/15 text-[#f05e23]"
+                  : "border-transparent text-white/30 hover:border-white/10 hover:bg-white/[0.06] hover:text-[#f05e23]"
+              }`}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (unsavedChanges?.isDirty) {
+                  unsavedChanges.block();
+                  return;
+                }
+                logout();
+              }}
+              aria-label="Sign out"
+              className="h-8 w-8 flex items-center justify-center rounded-lg border border-transparent text-white/30 hover:border-red-400/25 hover:bg-red-400/8 hover:text-red-400/80 transition-all cursor-pointer shrink-0"
+              title="Sign out"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+            </button>
+          </motion.div>
         </div>
         </div>
       </div>
@@ -383,18 +394,31 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
 const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0 }: SidebarProps) => {
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(() => ({
-    Profile:
-      pathname.startsWith("/dashboard/customize/profile") ||
-      pathname === "/dashboard/customize/links",
+    Profile: true,
     "Image Host": pathname.startsWith("/dashboard/image-host"),
   }));
   const [open, setOpen] = useState(true);
+  const [shareOpen, setShareOpen] = useState(false);
+
+  useEffect(() => {
+    const isProfileSubRoute =
+      pathname === "/dashboard/customize/profile" ||
+      (pathname.startsWith("/dashboard/customize/profile/") &&
+        !pathname.startsWith("/dashboard/customize/profile/widgets")) ||
+      pathname === "/dashboard/customize/links";
+
+    setExpandedItems((prev) => ({
+      ...prev,
+      ...(isProfileSubRoute ? { Profile: true } : {}),
+      ...(pathname.startsWith("/dashboard/image-host") ? { "Image Host": true } : {}),
+    }));
+  }, [pathname]);
 
   const toggleExpanded = (label: string) => {
     setExpandedItems((prev) => ({ ...prev, [label]: !prev[label] }));
   };
 
-  const navItems = [
+  const navItems: NavGroup[] = [
     {
       section: "MAIN",
       items: [
@@ -403,7 +427,7 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
       ],
     },
     {
-      section: "CUSTOMIZE",
+      section: "PROFILE",
       items: [
         {
           label: "Profile",
@@ -415,7 +439,6 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
               <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
             </svg>
           ),
-          matchPrefix: "/dashboard/customize/profile",
           subItems: [
             { label: "General", href: "/dashboard/customize/profile/general" },
             { label: "Appearance", href: "/dashboard/customize/profile/appearance" },
@@ -427,10 +450,16 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
             { label: "Section builder", href: "/dashboard/customize/profile/section-builder" },
           ]
         },
+      ],
+    },
+    {
+      section: "EXTRAS",
+      items: [
         { label: "Music", href: "/dashboard/customize/music", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> },
-        { label: "Metadata", href: "/dashboard/customize/metadata", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> },
         { label: "Widgets", href: "/dashboard/customize/profile/widgets", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="7" x="14" y="3" rx="1"/><path d="M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3"/></svg> },
+        { label: "Collection", href: "/dashboard/customize/collection", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="8" height="11" rx="2"/><rect x="14" y="3" width="7" height="6" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="17" width="8" height="4" rx="1.5"/></svg> },
         { label: "Badges", href: "/dashboard/customize/badges", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
+        { label: "Metadata", href: "/dashboard/customize/metadata", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> },
         { label: "Templates", href: "/dashboard/customize/templates", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2.5" fill="currentColor"/><path d="M3 9h18" stroke="#0a0a0a" strokeWidth="2"/><path d="M9 21V9" stroke="#0a0a0a" strokeWidth="2"/></svg> },
         {
           label: "Image Host",
@@ -453,19 +482,29 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
   ];
 
   return (
-    <AceSidebar open={open} setOpen={setOpen}>
-      <SidebarContent
-        username={username}
-        userId={userId}
-        avatarUrl={avatarUrl}
-        decorationUrl={decorationUrl}
-        decorationHue={decorationHue}
-        navItems={navItems}
-        pathname={pathname}
-        expandedItems={expandedItems}
-        toggleExpanded={toggleExpanded}
-      />
-    </AceSidebar>
+    <>
+      <AceSidebar open={open} setOpen={setOpen}>
+        <SidebarContent
+          username={username}
+          userId={userId}
+          avatarUrl={avatarUrl}
+          decorationUrl={decorationUrl}
+          decorationHue={decorationHue}
+          navItems={navItems}
+          pathname={pathname}
+          expandedItems={expandedItems}
+          toggleExpanded={toggleExpanded}
+          onOpenShare={() => setShareOpen(true)}
+        />
+      </AceSidebar>
+      {username && (
+        <ShareProfileModal
+          open={shareOpen}
+          onClose={() => setShareOpen(false)}
+          username={username}
+        />
+      )}
+    </>
   );
 };
 

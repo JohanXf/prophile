@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "@/components/ui/toast";
+import { authFetch } from "@/lib/auth-client";
+import { hydrateStoreFromServer } from "@/lib/local-store";
 
 export type PublicTemplateView = {
   id: number;
@@ -86,7 +88,7 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
     setFavorited(next);
     setFavoriteCount((c) => Math.max(0, c + (next ? 1 : -1)));
     try {
-      const r = await fetch(`/api/templates/${template.id}/favorite`, { method: next ? "POST" : "DELETE", signal: AbortSignal.timeout(30_000) });
+      const r = await authFetch(`/api/templates/${template.id}/favorite`, { method: next ? "POST" : "DELETE", signal: AbortSignal.timeout(30_000) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j?.error ?? "Failed");
     } catch (e) {
@@ -117,9 +119,10 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
   const doApply = async () => {
     setBusy("apply");
     try {
-      const r = await fetch(`/api/templates/${template.id}/apply`, { method: "POST" });
+      const r = await authFetch(`/api/templates/${template.id}/apply`, { method: "POST" });
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error ?? "Failed");
+      await hydrateStoreFromServer();
       setUseCount((c) => c + 1);
       setConfirmOpen(false);
       toast.success("Template applied!");
@@ -215,7 +218,7 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
                     <button
                       type="button"
                       onClick={handleApply}
-                      className="h-11 rounded-xl bg-[#5b6cf5]/25 hover:bg-[#5b6cf5]/35 border border-[#5b6cf5]/30 text-white text-[13.5px] font-normal transition cursor-pointer"
+                      className="h-11 rounded-xl bg-[#f05e23]/25 hover:bg-[#f05e23]/35 border border-[#f05e23]/30 text-white text-[13.5px] font-normal transition cursor-pointer"
                       style={{ fontFamily: "var(--font-comfortaa)" }}
                     >
                       {isAuthenticated ? "Apply template" : "Sign in to apply"}
@@ -319,7 +322,7 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
                 <ul className="mt-2 rounded-xl bg-white/[0.02] border border-white/5 p-3 flex flex-col gap-1.5 max-h-[220px] overflow-y-auto">
                   {AFFECTED_SECTIONS.map((s) => (
                     <li key={s} className="flex items-center gap-2 text-[12px] text-white/55">
-                      <span className="w-1 h-1 rounded-full bg-[#5b6cf5] shrink-0" />
+                      <span className="w-1 h-1 rounded-full bg-[#f05e23] shrink-0" />
                       {s}
                     </li>
                   ))}
@@ -339,7 +342,7 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
                   type="button"
                   onClick={doApply}
                   disabled={busy !== null}
-                  className="h-9 rounded-xl px-5 text-[13px] font-normal text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-white/10 transition-colors cursor-pointer disabled:opacity-50"
+                  className="h-9 rounded-xl px-5 text-[13px] font-normal text-white bg-[#f05e23]/20 hover:bg-[#f05e23]/30 border border-white/10 transition-colors cursor-pointer disabled:opacity-50"
                   style={{ fontFamily: "var(--font-comfortaa)" }}
                 >
                   {busy === "apply" ? "Applying…" : "Apply template"}

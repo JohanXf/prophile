@@ -125,7 +125,7 @@ function DeleteAccountModal({ onClose, onDeleted }: { onClose: () => void; onDel
     onClose();
   }
 
-  const inputCls = "w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#5b6cf5]/40 transition-colors";
+  const inputCls = "w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#f05e23]/40 transition-colors";
   const primaryCls = "h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-red-500/15 border border-red-500/25 hover:bg-red-500/20 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default";
 
   return (
@@ -137,7 +137,7 @@ function DeleteAccountModal({ onClose, onDeleted }: { onClose: () => void; onDel
           <form onSubmit={submitPassword} className="mt-4 flex flex-col gap-3">
             <label className="flex flex-col gap-1.5">
               <span className="text-[12px] text-white/60">Current password</span>
-              <div className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#5b6cf5]/40">
+              <div className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#f05e23]/40">
                 <input autoFocus type={showPw ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoComplete="current-password" maxLength={128} className="flex-1 min-w-0 bg-transparent h-10 px-3.5 text-[13px] text-white outline-none placeholder:text-white/25" />
                 <button type="button" onClick={() => setShowPw((v) => !v)} className="shrink-0 w-10 flex items-center justify-center text-white/40 hover:text-white border-l border-white/5 cursor-pointer">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d={showPw ? "M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6" : "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"} /><circle cx="12" cy="12" r={showPw ? "0" : "3"} /></svg>
@@ -146,7 +146,7 @@ function DeleteAccountModal({ onClose, onDeleted }: { onClose: () => void; onDel
             </label>
             <div className="flex flex-wrap items-center justify-end gap-2">
               <button type="button" onClick={handleCancel} className="h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer">Cancel</button>
-              <button type="submit" disabled={busy} className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50">{busy ? "Sending…" : "Send code"}</button>
+              <button type="submit" disabled={busy} className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#f05e23]/20 border border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer disabled:opacity-50">{busy ? "Sending…" : "Send code"}</button>
             </div>
           </form>
         </>

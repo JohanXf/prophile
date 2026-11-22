@@ -127,11 +127,11 @@ export const FileUpload = ({
                   <div className="flex flex-col gap-1.5 w-full pt-1">
                     <div className="flex justify-between items-center text-[11px]">
                       <span className="text-white/50 font-normal">{statusText || "Uploading..."}</span>
-                      <span className="text-[#5b6cf5] font-normal">{uploadProgress}%</span>
+                      <span className="text-[#f05e23] font-normal">{uploadProgress}%</span>
                     </div>
                     <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
                       <motion.div
-                        className="h-full rounded-full transition-all duration-200 bg-gradient-to-r from-[#5b6cf5] to-[#5b6cf5] shadow-[0_0_10px_rgba(91,108,245,0.6)]"
+                        className="h-full rounded-full transition-all duration-200 bg-gradient-to-r from-[#f05e23] to-[#f05e23] shadow-[0_0_10px_rgba(240,94,35,0.6)]"
                         initial={{ width: "0%" }}
                         animate={{ width: `${uploadProgress}%` }}
                         transition={{ ease: "easeOut", duration: 0.2 }}
@@ -193,7 +193,7 @@ export const FileUpload = ({
                       {isLoading ? (
                         <>
                           <span className="text-white/50 font-normal">{statusText || "Uploading..."}</span>
-                          <span className="text-[#5b6cf5] font-normal">{uploadProgress}%</span>
+                          <span className="text-[#f05e23] font-normal">{uploadProgress}%</span>
                         </>
                       ) : (
                         <>
@@ -238,7 +238,7 @@ export const FileUpload = ({
             {!files.length && (
               <motion.div
                 variants={secondaryVariant}
-                className="absolute inset-0 z-30 mx-auto mt-2 flex h-24 w-24 items-center justify-center rounded-2xl border border-dashed border-[#5b6cf5]/40 bg-transparent opacity-0"
+                className="absolute inset-0 z-30 mx-auto mt-2 flex h-24 w-24 items-center justify-center rounded-2xl border border-dashed border-[#f05e23]/40 bg-transparent opacity-0"
               ></motion.div>
             )}
           </div>

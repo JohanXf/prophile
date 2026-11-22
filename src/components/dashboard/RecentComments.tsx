@@ -183,7 +183,7 @@ export default function RecentComments({
               {activeTab === tab.id && (
                 <motion.div
                   layoutId="comments-tab-bubble"
-                  className="absolute inset-0 bg-[#5b6cf5]/20 shadow-[0_0_15px_rgba(91,108,245,0.1)] rounded-full z-0"
+                  className="absolute inset-0 bg-[#f05e23]/20 shadow-[0_0_15px_rgba(240,94,35,0.1)] rounded-full z-0"
                   transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
                 />
               )}
@@ -239,7 +239,7 @@ export default function RecentComments({
                         {activeTab === "received" ? (
                           <button
                             onClick={() => handlePin(comment.id)}
-                            className={`flex items-center justify-center transition-colors focus:outline-none ${comment.isPinned ? "text-[#5b6cf5] hover:text-[#4a58c9]" : "text-white/40 hover:text-white"}`}
+                            className={`flex items-center justify-center transition-colors focus:outline-none ${comment.isPinned ? "text-[#f05e23] hover:text-[#d64e18]" : "text-white/40 hover:text-white"}`}
                             title={comment.isPinned ? "Unpin" : "Pin"}
                           >
                             <svg width="12" height="12" viewBox="0 0 384 512" fill="currentColor" className="-rotate-45 transform origin-center overflow-visible">
@@ -247,7 +247,7 @@ export default function RecentComments({
                             </svg>
                           </button>
                         ) : comment.isPinned ? (
-                          <div className="flex items-center justify-center text-[#5b6cf5]" title="Pinned">
+                          <div className="flex items-center justify-center text-[#f05e23]" title="Pinned">
                             <svg width="12" height="12" viewBox="0 0 384 512" fill="currentColor" className="-rotate-45 transform origin-center overflow-visible">
                               <path d="M32 32C32 14.3 46.3 0 64 0H320c17.7 0 32 14.3 32 32s-14.3 32-32 32H290.5l11.4 148.2c36.7 19.9 65.7 53.2 79.5 93l.2 1.4c2.2 11.2-1.2 22.8-9 31.1S355.6 352 344 352H208v128c0 17.7-14.3 32-32 32s-32-14.3-32-32V352H40c-11.6 0-22.5-5.3-30.2-14.3s-11.2-19.9-9-31.1l.2-1.4c13.8-39.8 42.8-73.1 79.5-93L93.5 64H64C46.3 64 32 49.7 32 32z" />
                             </svg>
@@ -289,7 +289,7 @@ export default function RecentComments({
             </svg>
           </button>
           <div className="flex items-center gap-2">
-            {isLoading && <div className="w-3.5 h-3.5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />}
+            {isLoading && <div className="w-3.5 h-3.5 border-2 border-white/10 border-t-[#f05e23] rounded-full animate-spin" />}
             <span className="text-[13px] text-white/40 tabular-nums">Page {page}</span>
           </div>
           <button

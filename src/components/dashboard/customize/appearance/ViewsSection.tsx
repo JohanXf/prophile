@@ -62,14 +62,14 @@ export default function ViewsSection({
               height="22"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#5b6cf5"
+              stroke="#f05e23"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
               <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
               <circle cx="12" cy="12" r="3"/>
-              <circle cx="12" cy="12" r="1" fill="#5b6cf5" stroke="none"/>
+              <circle cx="12" cy="12" r="1" fill="#f05e23" stroke="none"/>
             </svg>
             <h2 className="text-white font-normal text-[16px] tracking-tight">
               Views
@@ -79,14 +79,14 @@ export default function ViewsSection({
             onClick={() => setIsViewsEnabled(!isViewsEnabled)}
             className={`flex items-center gap-2.5 px-3 py-1.5 rounded-full transition-all cursor-pointer focus:outline-none border ${
               isViewsEnabled
-                ? "bg-[#111326] border-[#202442] hover:bg-[#161933] text-[#5b6cf5]"
+                ? "bg-[#1f0e08] border-[#3b1c10] hover:bg-[#29130b] text-[#f05e23]"
                 : "bg-[#161616] border-white/5 hover:bg-white/[0.03] text-white/40"
             }`}
           >
-            <div className={`w-8 h-5 rounded-full relative flex items-center transition-colors ${isViewsEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}>
+            <div className={`w-8 h-5 rounded-full relative flex items-center transition-colors ${isViewsEnabled ? "bg-[#f05e23]" : "bg-white/10"}`}>
               <div className={`w-3.5 h-3.5 bg-white rounded-full absolute shadow-sm transition-all ${isViewsEnabled ? "right-[3px]" : "left-[3px]"}`}></div>
             </div>
-            <span className={`text-[13px] font-medium pr-1 ${isViewsEnabled ? "text-[#5b6cf5]" : ""}`}>
+            <span className={`text-[13px] font-medium pr-1 ${isViewsEnabled ? "text-[#f05e23]" : ""}`}>
               {isViewsEnabled ? "Enabled" : "Disabled"}
             </span>
           </button>
@@ -110,7 +110,7 @@ export default function ViewsSection({
           <button
             onClick={() => setIsViewsAnimationEnabled(!isViewsAnimationEnabled)}
             disabled={!isViewsEnabled}
-            className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none ${isViewsAnimationEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}
+            className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none ${isViewsAnimationEnabled ? "bg-[#f05e23]" : "bg-white/10"}`}
           >
             <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${isViewsAnimationEnabled ? "right-[4px]" : "left-[4px]"}`}></div>
           </button>
@@ -193,7 +193,7 @@ export default function ViewsSection({
           <div className="relative flex items-center h-5 group w-full">
             <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
               <div
-                className="absolute h-full bg-[#5b6cf5]"
+                className="absolute h-full bg-[#f05e23]"
                 style={{ width: `${((Number(viewsAnimationDuration) || 0) / 5000) * 100}%` }}
               />
             </div>
@@ -208,7 +208,7 @@ export default function ViewsSection({
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 disabled:cursor-default"
             />
             <div
-              className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+              className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#f05e23] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
               style={{
                 left: `calc(${((Number(viewsAnimationDuration) || 0) / 5000) * 100}% - 8px)`
               }}

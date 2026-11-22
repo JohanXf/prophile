@@ -27,7 +27,7 @@ export default function Page() {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="text-white/10" />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-[#5b6cf5] font-normal tracking-tight">Music</BreadcrumbPage>
+              <BreadcrumbPage className="text-[#f05e23] font-normal tracking-tight">Music</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -41,7 +41,7 @@ export default function Page() {
               height="26"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#5b6cf5"
+              stroke="#f05e23"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -50,8 +50,9 @@ export default function Page() {
             </svg>
             <h1 className="text-[20px] font-normal text-white tracking-tight">Music</h1>
           </div>
-          <p className="text-white/40 text-[13px] mt-0.5">Add songs to your profile playlist</p>
+          <p className="text-white/40 text-[13px] mt-0.5">Upload, edit, and manage songs for your profile player</p>
         </div>
+
         {!hasMusicSection && <SectionCategoryNotice category="music" />}
       </div>
 

@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { toast } from "@/components/ui/toast";
+import { authFetch } from "@/lib/auth-client";
 import dynamic from "next/dynamic";
 
 const AuroraEffect = dynamic(
@@ -126,14 +127,14 @@ const VERIFIED_FEATURES = [
   "Verified checkmark beside your name",
   "Exclusive Verified badge",
   "Special Discord server role",
-  "One-time payment, yours forever",
+  "Included in your monthly plan",
 ];
 
 const DONATOR_FEATURES = [
   "Exclusive Donator badge",
   "Special Discord server role",
-  "Support iuno.lol's development",
-  "One-time payment, yours forever",
+  "Support prophile's development",
+  "Cancel anytime",
 ];
 
 const ALIAS_TOKEN_FEATURES = [
@@ -162,52 +163,52 @@ const PRODUCT_COPY = {
     prices: PREMIUM_PLAN,
     name: "Premium",
     path: "/checkout",
-    blurb: "A single, one-time payment unlocks every Premium feature on your account. No renewals, no surprises — yours forever.",
+    blurb: "Simple monthly pricing at $1/month unlocks every Premium feature on your account. Cancel anytime.",
     features: PREMIUM_FEATURES,
     successTitle: "Premium",
-    successText: "Every Premium feature is now unlocked on your account, forever.",
+    successText: "Every Premium feature is now active on your account.",
     successHref: "/dashboard",
     successCta: "Go to Dashboard",
-    razorpayDesc: "Premium — lifetime access",
+    razorpayDesc: "Premium — $1/month",
     allowGift: true,
   },
   [IMAGE_HOST_PLAN_TAG]: {
     prices: IMAGE_HOST_PLAN,
     name: "Image Host",
     path: "/checkout/image-host",
-    blurb: "A single, one-time payment unlocks the Image Host on your account. Upload, share and manage your files — yours forever.",
+    blurb: "Monthly plan at $1/month unlocks the Image Host on your account. Upload, share and manage your files.",
     features: IMAGE_HOST_FEATURES,
     successTitle: "Image Host",
     successText: "Your Image Host is now unlocked. Start uploading right away.",
     successHref: "/dashboard/image-host/upload",
     successCta: "Open Image Host",
-    razorpayDesc: "Image Host — lifetime access",
+    razorpayDesc: "Image Host — $1/month",
     allowGift: true,
   },
   [VERIFIED_PLAN_TAG]: {
     prices: VERIFIED_PLAN,
     name: "Verified",
     path: "/checkout/verified",
-    blurb: "A single, one-time payment adds the Verified checkmark to your profile. No renewals — yours forever.",
+    blurb: "Monthly plan at $1/month adds the Verified checkmark to your profile. Cancel anytime.",
     features: VERIFIED_FEATURES,
     successTitle: "Verified",
     successText: "Your Verified badge is unlocked. Equip it from the badges page.",
     successHref: "/dashboard/customize/badges",
     successCta: "Go to Badges",
-    razorpayDesc: "Verified badge — lifetime",
+    razorpayDesc: "Verified badge — $1/month",
     allowGift: true,
   },
   [DONATOR_PLAN_TAG]: {
     prices: DONATOR_PLAN,
     name: "Donator",
     path: "/checkout/donator",
-    blurb: "A single, one-time donation unlocks the Donator badge on your account. Support iuno.lol — yours forever.",
+    blurb: "Monthly supporter plan at $1/month unlocks the Donator badge on your account. Support prophile — cancel anytime.",
     features: DONATOR_FEATURES,
     successTitle: "Donator",
     successText: "Your Donator badge is unlocked. Equip it from the badges page.",
     successHref: "/dashboard/customize/badges",
     successCta: "Go to Badges",
-    razorpayDesc: "Donator badge — lifetime",
+    razorpayDesc: "Donator badge — $1/month",
     allowGift: true,
   },
   [BADGE_TOKEN_PLAN_TAG]: {
@@ -316,7 +317,7 @@ export default function CheckoutClient({
     if (cardLoading) return;
     setCardLoading(true);
     try {
-      const res = await fetch("/api/checkout/polar", {
+      const res = await authFetch("/api/checkout/polar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currency, plan: product }),
@@ -347,7 +348,7 @@ export default function CheckoutClient({
     }
     setPaying(true);
     try {
-      const orderRes = await fetch("/api/checkout/order", {
+      const orderRes = await authFetch("/api/checkout/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currency, plan: product }),
@@ -370,14 +371,14 @@ export default function CheckoutClient({
         order_id: orderData.orderId,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: "iuno.lol",
+        name: "prophile",
         description: copy.razorpayDesc,
         prefill: { email: email || undefined },
-        theme: { color: "#5b6cf5" },
+        theme: { color: "#f05e23" },
         handler: async (response) => {
           setVerifying(true);
           try {
-            const verifyRes = await fetch("/api/checkout/verify", {
+            const verifyRes = await authFetch("/api/checkout/verify", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(response),
@@ -421,7 +422,7 @@ export default function CheckoutClient({
           maskImage: "radial-gradient(90% 70% at 50% 25%, #000 0%, rgba(0,0,0,0.55) 55%, transparent 85%)",
         }}
       >
-        {heavyFxAllowed && <AuroraEffect colors={["#5b6cf5", "#5b6cf5", "#5b6cf5"]} intensity={48} blend={0.7} />}
+        {heavyFxAllowed && <AuroraEffect colors={["#f05e23", "#f05e23", "#f05e23"]} intensity={48} blend={0.7} />}
       </div>
     </div>
   );
@@ -440,11 +441,11 @@ export default function CheckoutClient({
           >
             <div className="flex items-center gap-4">
               {}
-              <Image src="/Favicon.png" alt="iuno.lol" width={512} height={512} className="h-9 w-9 shrink-0 object-contain" priority />
+              <Image src="/Favicon.png" alt="prophile" width={512} height={512} className="h-9 w-9 shrink-0 object-contain" priority />
               <div>
                 <h1 className="text-[19px] font-medium tracking-tight text-white">
                   {product === PREMIUM_PLAN_TAG ? "You're " : "You've got "}
-                  <span className="text-[#5b6cf5]">{copy.successTitle}</span>
+                  <span className="text-[#f05e23]">{copy.successTitle}</span>
                 </h1>
                 <p className="mt-1 text-[12.5px] font-light leading-relaxed text-white/40">
                   {copy.successText}
@@ -455,15 +456,15 @@ export default function CheckoutClient({
             {}
             <div className="mt-6 flex items-center justify-between border-t border-white/[0.06] pt-5">
               <div>
-                <p className="text-[12.5px] font-normal text-white/85">iuno.lol {copy.name}</p>
-                <p className="mt-0.5 text-[10.5px] font-light text-white/35">Lifetime access · paid</p>
+                <p className="text-[12.5px] font-normal text-white/85">prophile {copy.name}</p>
+                <p className="mt-0.5 text-[10.5px] font-light text-white/35">Monthly plan · active</p>
               </div>
-              <p className="text-sm font-medium text-white">{plan.symbol}{plan.display}</p>
+              <p className="text-sm font-medium text-white tabular-nums">{plan.symbol}{plan.display}/month</p>
             </div>
 
             <button
               onClick={() => { router.push(copy.successHref); router.refresh(); }}
-              className="mt-5 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#5b6cf5]/15 py-2.5 text-[13px] font-normal text-white transition-colors hover:bg-[#5b6cf5]/25"
+              className="mt-5 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#f05e23]/15 py-2.5 text-[13px] font-normal text-white transition-colors hover:bg-[#f05e23]/25"
             >
               {copy.successCta}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
@@ -488,7 +489,7 @@ export default function CheckoutClient({
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-black/80 px-6 text-center backdrop-blur-md"
           >
-            <span className="h-11 w-11 animate-spin rounded-full border-2 border-white/15 border-t-[#5b6cf5]" />
+            <span className="h-11 w-11 animate-spin rounded-full border-2 border-white/15 border-t-[#f05e23]" />
             <div>
               <p className="text-[15px] font-normal text-white">Confirming your payment…</p>
               <p className="mt-1.5 text-[12.5px] font-light text-white/45">
@@ -507,18 +508,18 @@ export default function CheckoutClient({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            <span className="text-[11px] font-normal uppercase tracking-[0.2em] text-[#5b6cf5]/80">
-              Lifetime upgrade
+            <span className="text-[11px] font-normal uppercase tracking-[0.2em] text-[#f05e23]/80">
+              Monthly plan
             </span>
             <h1 className="mt-3 text-4xl font-medium tracking-tight text-white sm:text-5xl">
-              iuno.lol <span className="text-[#5b6cf5]">{copy.name}</span>
+              prophile <span className="text-[#f05e23]">{copy.name}</span>
             </h1>
             <p className="mt-3 max-w-md text-[14px] font-light leading-relaxed text-white/45">
               {copy.blurb}
             </p>
             <div className="mt-5 flex items-baseline gap-1.5">
-              <span className="text-3xl font-medium text-white">{plan.symbol}{plan.display}</span>
-              <span className="text-[13px] font-light text-white/40">one-time</span>
+              <span className="text-3xl font-medium text-white tabular-nums">{plan.symbol}{plan.display}</span>
+              <span className="text-[13px] font-light text-white/40">/ month</span>
             </div>
 
             <div className="my-7 h-px w-full bg-white/[0.06]" />
@@ -527,7 +528,7 @@ export default function CheckoutClient({
             <ul className="flex flex-col gap-2.5">
               {copy.features.map((feature) => (
                 <li key={feature} className="flex items-start gap-3 text-[13px] font-light text-white/60">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-[3px] shrink-0"><path d="M20 6 9 17l-5-5" /></svg>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f05e23" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-[3px] shrink-0"><path d="M20 6 9 17l-5-5" /></svg>
                   {feature}
                 </li>
               ))}
@@ -559,16 +560,16 @@ export default function CheckoutClient({
                     }}
                     aria-pressed={selected}
                     title={opt.sub.replace("Premium", copy.name)}
-                    className={`flex flex-col items-center gap-1.5 rounded-xl py-3 transition-colors cursor-pointer ${selected ? "bg-[#5b6cf5]/15 text-white" : "bg-white/[0.03] text-white/45 hover:text-white/70"}`}
+                    className={`flex flex-col items-center gap-1.5 rounded-xl py-3 transition-colors cursor-pointer ${selected ? "bg-[#f05e23]/15 text-white" : "bg-white/[0.03] text-white/45 hover:text-white/70"}`}
                   >
-                    <span className={selected ? "text-[#5b6cf5]" : "text-white/40"}>{opt.icon}</span>
+                    <span className={selected ? "text-[#f05e23]" : "text-white/40"}>{opt.icon}</span>
                     <span className="text-[11.5px] font-light">{opt.label}</span>
                   </button>
                 );
               })}
             </div>
             {buyFor !== "personal" && (
-              <p className="mt-2 text-[11px] font-light text-[#a5aef9]/70">Gifting is coming soon — pick Personal to buy now.</p>
+              <p className="mt-2 text-[11px] font-light text-[#f8ab88]/70">Gifting is coming soon — pick Personal to buy now.</p>
             )}
             </>)}
 
@@ -586,7 +587,7 @@ export default function CheckoutClient({
                   {currency === c && (
                     <motion.div
                       layoutId="checkout-currency-bubble"
-                      className="absolute inset-0 z-0 rounded-lg bg-[#5b6cf5]/15"
+                      className="absolute inset-0 z-0 rounded-lg bg-[#f05e23]/15"
                       transition={{ type: "spring", bounce: 0.3, duration: 0.5 }}
                     />
                   )}
@@ -607,9 +608,9 @@ export default function CheckoutClient({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
                   transition={{ duration: 0.18 }}
-                  className="text-xl font-medium text-white"
+                  className="text-xl font-medium text-white tabular-nums"
                 >
-                  {plan.symbol}{plan.display}
+                  {plan.symbol}{plan.display}<span className="text-[12px] font-light text-white/40">/mo</span>
                 </motion.span>
               </AnimatePresence>
             </div>
@@ -617,7 +618,7 @@ export default function CheckoutClient({
             {!canBuy ? (
               <button
                 disabled
-                className="mt-5 w-full cursor-not-allowed rounded-xl bg-[#5b6cf5] py-3 text-sm font-normal text-white opacity-50"
+                className="mt-5 w-full cursor-not-allowed rounded-xl bg-[#f05e23] py-3 text-sm font-normal text-white opacity-50"
               >
                 Gifting coming soon
               </button>
@@ -626,10 +627,10 @@ export default function CheckoutClient({
                 <button
                   ref={ctaRef}
                   onClick={() => setPayOpen(true)}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#f05e23]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(240,94,35,0.1)] transition-all hover:bg-[#f05e23]/30 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                  Checkout - {plan.symbol}{plan.display}
+                  Subscribe - {plan.symbol}{plan.display}/month
                 </button>
 
                 {}
@@ -676,7 +677,7 @@ export default function CheckoutClient({
                         aria-pressed={payMethod !== "card"}
                         className={`flex min-h-[88px] flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-all cursor-pointer ${
                           payMethod !== "card"
-                            ? "border-[#5b6cf5]/40 bg-[#5b6cf5]/10 text-white"
+                            ? "border-[#f05e23]/40 bg-[#f05e23]/10 text-white"
                             : "border-white/5 bg-[#161616] text-white/50 hover:bg-white/[0.06]"
                         }`}
                       >
@@ -691,7 +692,7 @@ export default function CheckoutClient({
                         aria-pressed={payMethod === "card"}
                         className={`flex min-h-[88px] flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-all cursor-pointer ${
                           payMethod === "card"
-                            ? "border-[#5b6cf5]/40 bg-[#5b6cf5]/10 text-white"
+                            ? "border-[#f05e23]/40 bg-[#f05e23]/10 text-white"
                             : "border-white/5 bg-[#161616] text-white/50 hover:bg-white/[0.06]"
                         }`}
                       >
@@ -707,7 +708,7 @@ export default function CheckoutClient({
                         type="button"
                         onClick={startPolarCheckout}
                         disabled={cardLoading}
-                        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#f05e23]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(240,94,35,0.1)] transition-all hover:bg-[#f05e23]/30 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {cardLoading ? "Redirecting…" : `Pay ${plan.symbol}${plan.display} with Card`}
                       </button>
@@ -716,7 +717,7 @@ export default function CheckoutClient({
                         type="button"
                         onClick={handlePay}
                         disabled={paying}
-                        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#f05e23]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(240,94,35,0.1)] transition-all hover:bg-[#f05e23]/30 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {paying ? "Processing…" : `Pay ${plan.symbol}${plan.display} with Razorpay`}
                       </button>
@@ -754,7 +755,7 @@ export default function CheckoutClient({
             <button
               type="button"
               onClick={() => setPayOpen(true)}
-              className="ml-auto flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/25 px-5 text-[13.5px] font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-colors hover:bg-[#5b6cf5]/35"
+              className="ml-auto flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#f05e23]/25 px-5 text-[13.5px] font-normal text-white shadow-[0_0_15px_rgba(240,94,35,0.1)] transition-colors hover:bg-[#f05e23]/35"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
               Checkout

@@ -88,7 +88,7 @@ export default function SettingsClient({
             {tab === t.id && (
               <motion.div
                 layoutId="settings-tab-bubble"
-                className="absolute inset-0 bg-[#5b6cf5]/20 shadow-[0_0_15px_rgba(91,108,245,0.1)] rounded-full"
+                className="absolute inset-0 bg-[#f05e23]/20 shadow-[0_0_15px_rgba(240,94,35,0.1)] rounded-full"
                 transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
               />
             )}
@@ -256,7 +256,7 @@ function ConnectionsCard({ initial, savedUsername }: { initial: DiscordConnectio
         </div>
 
         <div className="flex items-center gap-3 bg-[#161616] border border-white/5 rounded-xl px-3.5 py-3">
-          <span className="w-8 h-8 rounded-xl bg-[#5b6cf5]/15 border border-[#5b6cf5]/20 flex items-center justify-center text-[#5b6cf5] shrink-0" aria-hidden="true">
+          <span className="w-8 h-8 rounded-xl bg-[#f05e23]/15 border border-[#f05e23]/20 flex items-center justify-center text-[#f05e23] shrink-0" aria-hidden="true">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 9.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 18.159a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 2.98.078.078 0 0 0 .084-.027 14.09 14.09 0 0 0 1.226-1.963.076.076 0 0 0-.041-.104 13.2 13.2 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.291a.074.074 0 0 1 .078-.01c3.927 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .079.009c.12.102.245.198.372.292a.075.075 0 0 1-.006.125 12.3 12.3 0 0 1-1.873.877.077.077 0 0 0-.041.105c.36.687.772 1.348 1.225 1.962a.077.077 0 0 0 .083.028 19.84 19.84 0 0 0 6.002-2.981.078.078 0 0 0 .031-.055c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028ZM8.02 15.331c-1.183 0-2.157-1.068-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.947 2.38-2.157 2.38Zm7.974 0c-1.183 0-2.157-1.068-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.947 2.38-2.157 2.38Z" />
             </svg>
@@ -284,7 +284,7 @@ function ConnectionsCard({ initial, savedUsername }: { initial: DiscordConnectio
             <button
               type="button"
               onClick={() => (window.location.href = "/api/auth/discord")}
-              className="shrink-0 h-9 rounded-xl px-4 text-[12.5px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+              className="shrink-0 h-9 rounded-xl px-4 text-[12.5px] font-normal text-white bg-[#f05e23]/20 border border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer"
             >
               Connect
             </button>
@@ -348,7 +348,7 @@ function SecurityTab({ info }: { info: SecurityInfo }) {
         {email && (
           <span
             className={`text-[10.5px] rounded-full px-2 py-0.5 border ${
-              verified ? "text-[#c7cdfb] bg-[#5b6cf5]/15 border-[#5b6cf5]/25" : "text-white/40 bg-white/[0.03] border-white/10"
+              verified ? "text-[#fcd3be] bg-[#f05e23]/15 border-[#f05e23]/25" : "text-white/40 bg-white/[0.03] border-white/10"
             }`}
           >
             {verified ? "Verified" : "Not verified"}
@@ -358,7 +358,7 @@ function SecurityTab({ info }: { info: SecurityInfo }) {
       <p className="text-[12px] text-white/40 mt-1">Used for login and account notifications.</p>
       <span className="text-[12px] text-white/60 mt-5 mb-1.5">Email</span>
       <div className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden">
-        <span className="flex items-center pl-3.5 pr-2.5 text-[#5b6cf5]" aria-hidden="true">
+        <span className="flex items-center pl-3.5 pr-2.5 text-[#f05e23]" aria-hidden="true">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="4" width="20" height="16" rx="2" />
             <path d="m22 7-10 6L2 7" />
@@ -370,7 +370,7 @@ function SecurityTab({ info }: { info: SecurityInfo }) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="shrink-0 px-3.5 sm:px-4 text-[12.5px] border-l border-white/5 transition-colors text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 cursor-pointer"
+          className="shrink-0 px-3.5 sm:px-4 text-[12.5px] border-l border-white/5 transition-colors text-white bg-[#f05e23]/20 hover:bg-[#f05e23]/30 cursor-pointer"
         >
           {email ? (
             <>
@@ -428,7 +428,7 @@ function PasskeysCard({ initial }: { initial: PasskeyRow[] }) {
         <button
           type="button"
           onClick={() => setAdding(true)}
-          className="shrink-0 flex items-center justify-center sm:justify-start gap-1.5 h-9 rounded-xl px-4 text-[13px] font-normal border transition-colors text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 cursor-pointer"
+          className="shrink-0 flex items-center justify-center sm:justify-start gap-1.5 h-9 rounded-xl px-4 text-[13px] font-normal border transition-colors text-white bg-[#f05e23]/20 border-[#f05e23]/30 hover:bg-[#f05e23]/30 cursor-pointer"
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
             <path d="M12 5v14M5 12h14" />
@@ -445,7 +445,7 @@ function PasskeysCard({ initial }: { initial: PasskeyRow[] }) {
         <ul className="mt-5 flex flex-col gap-2">
           {rows.map((r) => (
             <li key={r.id} className="flex items-center gap-3 bg-[#161616] border border-white/5 rounded-xl px-3.5 py-2.5">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#5b6cf5] shrink-0" aria-hidden="true">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#f05e23] shrink-0" aria-hidden="true">
                 <circle cx="9" cy="8" r="4" />
                 <path d="M2 21v-1a6 6 0 0 1 9-5.2" />
                 <circle cx="18" cy="14" r="2.5" />
@@ -546,7 +546,7 @@ function AddPasskeyModal({ onClose, onDone }: { onClose: () => void; onDone: (ro
             onChange={(e) => setName(e.target.value.slice(0, 64))}
             placeholder="e.g. MacBook, iPhone, Windows Hello"
             maxLength={64}
-            className="w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#5b6cf5]/40 transition-colors"
+            className="w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#f05e23]/40 transition-colors"
           />
         </label>
         <div className="flex items-center justify-end gap-2">
@@ -560,7 +560,7 @@ function AddPasskeyModal({ onClose, onDone }: { onClose: () => void; onDone: (ro
           <button
             type="submit"
             disabled={busy}
-            className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
+            className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#f05e23]/20 border border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
           >
             {busy ? "Waiting for device…" : "Continue"}
           </button>
@@ -582,7 +582,7 @@ function TwoFactorCard({ enabled: initialEnabled }: { enabled: boolean }) {
             <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Authenticator app</h2>
             <span
               className={`text-[10.5px] rounded-full px-2 py-0.5 border ${
-                enabled ? "text-[#c7cdfb] bg-[#5b6cf5]/15 border-[#5b6cf5]/25" : "text-white/40 bg-white/[0.03] border-white/10"
+                enabled ? "text-[#fcd3be] bg-[#f05e23]/15 border-[#f05e23]/25" : "text-white/40 bg-white/[0.03] border-white/10"
               }`}
             >
               {enabled ? "On" : "Off"}
@@ -598,7 +598,7 @@ function TwoFactorCard({ enabled: initialEnabled }: { enabled: boolean }) {
           type="button"
           onClick={() => setModal(enabled ? "disable" : "setup")}
           className={`shrink-0 h-9 rounded-xl px-4 text-[13px] font-normal border transition-colors cursor-pointer ${
-            enabled ? "text-red-300 bg-red-500/10 border-red-500/20 hover:bg-red-500/20" : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+            enabled ? "text-red-300 bg-red-500/10 border-red-500/20 hover:bg-red-500/20" : "text-white bg-[#f05e23]/20 border-[#f05e23]/30 hover:bg-[#f05e23]/30"
           }`}
         >
           {enabled ? "Turn off" : "Set up authenticator app"}
@@ -606,7 +606,7 @@ function TwoFactorCard({ enabled: initialEnabled }: { enabled: boolean }) {
       </div>
 
       <div className="mt-5 flex items-center gap-3 bg-[#161616] border border-white/5 rounded-xl px-3.5 h-10">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#5b6cf5] shrink-0" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#f05e23] shrink-0" aria-hidden="true">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
         </svg>
         <span className="text-[13px] text-white/85">{enabled ? "Two-factor authentication is on" : "Two-factor authentication is off"}</span>
@@ -646,7 +646,7 @@ function CodeInput({ value, onChange, id }: { value: string; onChange: (v: strin
       value={value}
       onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 6))}
       placeholder="123456"
-      className="w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#5b6cf5]/40 transition-colors tracking-[0.4em] text-center"
+      className="w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#f05e23]/40 transition-colors tracking-[0.4em] text-center"
     />
   );
 }
@@ -705,7 +705,7 @@ function TwoFactorSetupModal({ onClose, onDone }: { onClose: () => void; onDone:
         <p className="mt-5 text-[12.5px] text-red-400/80">{loadError}</p>
       ) : !data ? (
         <div className="mt-5 h-[220px] flex items-center justify-center">
-          <div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" aria-label="Loading" />
+          <div className="w-5 h-5 border-2 border-white/10 border-t-[#f05e23] rounded-full animate-spin" aria-label="Loading" />
         </div>
       ) : (
         <form onSubmit={submit} className="mt-5 flex flex-col gap-4">
@@ -743,7 +743,7 @@ function TwoFactorSetupModal({ onClose, onDone }: { onClose: () => void; onDone:
             <button
               type="submit"
               disabled={busy || code.length !== 6}
-              className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
+              className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#f05e23]/20 border border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
             >
               {busy ? "Checking…" : "Turn on"}
             </button>
@@ -812,7 +812,7 @@ function UsernameLoginCard({ controlledEnabled, onToggle }: { controlledEnabled:
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Username login</h2>
-            <span className={`text-[10.5px] rounded-full px-2 py-0.5 border ${enabled ? "text-[#c7cdfb] bg-[#5b6cf5]/15 border-[#5b6cf5]/25" : "text-white/40 bg-white/[0.03] border-white/10"}`}>
+            <span className={`text-[10.5px] rounded-full px-2 py-0.5 border ${enabled ? "text-[#fcd3be] bg-[#f05e23]/15 border-[#f05e23]/25" : "text-white/40 bg-white/[0.03] border-white/10"}`}>
               {enabled ? "On" : "Off"}
             </span>
           </div>
@@ -824,7 +824,7 @@ function UsernameLoginCard({ controlledEnabled, onToggle }: { controlledEnabled:
           aria-checked={enabled}
           aria-label="Username login"
           onClick={() => onToggle(!enabled)}
-          className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors cursor-pointer ${enabled ? "bg-[#5b6cf5] border-[#5b6cf5]" : "bg-white/[0.08] border-white/10"}`}
+          className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors cursor-pointer ${enabled ? "bg-[#f05e23] border-[#f05e23]" : "bg-white/[0.08] border-white/10"}`}
         >
           <span className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${enabled ? "translate-x-6" : "translate-x-1"}`} />
         </button>
@@ -883,7 +883,7 @@ function PasswordCard({ hasPassword: initialHasPassword }: { hasPassword: boolea
         <PasswordField id="pw-new" label="New password" value={next} onChange={setNext} autoComplete="new-password" describedBy="pw-rules" />
         <ul id="pw-rules" className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
           {rules.map((r) => (
-            <li key={r.label} className={`flex items-center gap-1.5 text-[11.5px] ${r.ok ? "text-[#a5aef9]" : "text-white/30"}`}>
+            <li key={r.label} className={`flex items-center gap-1.5 text-[11.5px] ${r.ok ? "text-[#f8ab88]" : "text-white/30"}`}>
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 {r.ok ? <path d="M20 6 9 17l-5-5" /> : <circle cx="12" cy="12" r="4" />}
               </svg>
@@ -902,7 +902,7 @@ function PasswordCard({ hasPassword: initialHasPassword }: { hasPassword: boolea
             <button
               type="submit"
               disabled={!canSubmit}
-              className="shrink-0 px-4 text-[12.5px] border-l border-white/5 transition-colors cursor-pointer text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 disabled:bg-transparent disabled:text-white/30 disabled:cursor-default"
+              className="shrink-0 px-4 text-[12.5px] border-l border-white/5 transition-colors cursor-pointer text-white bg-[#f05e23]/20 hover:bg-[#f05e23]/30 disabled:bg-transparent disabled:text-white/30 disabled:cursor-default"
             >
               {busy ? "Saving…" : hasPassword ? "Update password" : "Set password"}
             </button>
@@ -937,8 +937,8 @@ function PasswordField({
       <label htmlFor={id} className="text-[12px] text-white/60 mt-5 mb-1.5">
         {label}
       </label>
-      <div className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#5b6cf5]/40 transition-colors">
-        <span className="flex items-center pl-3.5 pr-2.5 text-[#5b6cf5]" aria-hidden="true">
+      <div className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#f05e23]/40 transition-colors">
+        <span className="flex items-center pl-3.5 pr-2.5 text-[#f05e23]" aria-hidden="true">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="4" y="11" width="16" height="10" rx="2" />
             <path d="M8 11V7a4 4 0 0 1 8 0v4" />
@@ -1048,9 +1048,9 @@ function ChangeEmailModal({ current, onClose, onDone }: { current: string | null
   }
 
   const inputCls =
-    "w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#5b6cf5]/40 transition-colors";
+    "w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#f05e23]/40 transition-colors";
   const primaryCls =
-    "h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default";
+    "h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#f05e23]/20 border border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default";
   const secondaryCls =
     "h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer disabled:opacity-50";
 
@@ -1068,7 +1068,7 @@ function ChangeEmailModal({ current, onClose, onDone }: { current: string | null
           <form onSubmit={submitPassword} className="mt-4 flex flex-col gap-3">
             <label className="flex flex-col gap-1.5">
               <span className="text-[12px] text-white/60">Current password</span>
-              <div className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#5b6cf5]/40">
+              <div className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#f05e23]/40">
                 <input
                   autoFocus
                   type={showPw ? "text" : "password"}
@@ -1195,9 +1195,9 @@ function FieldCard({
           e.preventDefault();
           onSave();
         }}
-        className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#5b6cf5]/40 transition-colors"
+        className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#f05e23]/40 transition-colors"
       >
-        <span className="flex items-center pl-3.5 pr-2 text-[#5b6cf5]">{icon}</span>
+        <span className="flex items-center pl-3.5 pr-2 text-[#f05e23]">{icon}</span>
         <input
           id={id}
           value={value}
@@ -1210,7 +1210,7 @@ function FieldCard({
         <button
           type="submit"
           disabled={!dirty || busy}
-          className="shrink-0 px-3.5 sm:px-4 text-[12.5px] border-l border-white/5 transition-colors cursor-pointer text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 disabled:bg-transparent disabled:text-white/30 disabled:cursor-default"
+          className="shrink-0 px-3.5 sm:px-4 text-[12.5px] border-l border-white/5 transition-colors cursor-pointer text-white bg-[#f05e23]/20 hover:bg-[#f05e23]/30 disabled:bg-transparent disabled:text-white/30 disabled:cursor-default"
         >
           {busy ? "Saving…" : (
             <>
@@ -1287,7 +1287,7 @@ function AliasesSection({ initial, onUsernameChange }: { initial: AliasState; on
           <div className="flex items-center gap-2">
             <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Aliases ({used})</h2>
             <span
-              className="text-[11px] font-normal rounded-full px-2.5 py-0.5 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30"
+              className="text-[11px] font-normal rounded-full px-2.5 py-0.5 border text-white bg-[#f05e23]/20 border-[#f05e23]/30"
               title="Aliases used / slots"
             >
               {used}/{state.slots}
@@ -1304,7 +1304,7 @@ function AliasesSection({ initial, onUsernameChange }: { initial: AliasState; on
         <div className="flex items-center gap-2 flex-wrap shrink-0">
           <Link
             href="/checkout/alias-token"
-            className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[12px] font-normal border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors"
+            className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[12px] font-normal border text-white bg-[#f05e23]/20 border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="9" cy="20" r="1.5" />
@@ -1352,7 +1352,7 @@ function AliasesSection({ initial, onUsernameChange }: { initial: AliasState; on
                   setPage(1);
                 }}
                 placeholder="Search aliases…"
-                className="w-full bg-[#161616] border border-white/5 rounded-xl h-10 pl-9 pr-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#5b6cf5]/40"
+                className="w-full bg-[#161616] border border-white/5 rounded-xl h-10 pl-9 pr-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#f05e23]/40"
               />
             </label>
             <FilterSelect
@@ -1382,7 +1382,7 @@ function AliasesSection({ initial, onUsernameChange }: { initial: AliasState; on
                     </a>
                     <span className="hidden md:flex items-center gap-2 text-[12.5px] text-white/45">
                       Your profile
-                      <span className="text-[10.5px] rounded-full px-2 py-0.5 text-[#c7cdfb] bg-[#5b6cf5]/15 border border-[#5b6cf5]/25">Redirect</span>
+                      <span className="text-[10.5px] rounded-full px-2 py-0.5 text-[#fcd3be] bg-[#f05e23]/15 border border-[#f05e23]/25">Redirect</span>
                     </span>
                     <span className="text-[12px] text-white/40 tabular-nums whitespace-nowrap">
                       <span className="md:hidden">{formatDateShort(a.createdAt)}</span>
@@ -1740,7 +1740,7 @@ function AliasFormModal({
       </h3>
       <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">{description}</p>
       <form onSubmit={submit} className="mt-4 flex flex-col gap-3">
-        <label className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#5b6cf5]/40 transition-colors">
+        <label className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#f05e23]/40 transition-colors">
           <span className="flex items-center pl-3.5 text-[13px] text-white/35 select-none">{SITE}/</span>
           <span className="sr-only">Alias</span>
           <input
@@ -1766,7 +1766,7 @@ function AliasFormModal({
           <button
             type="submit"
             disabled={busy || !valid || unchanged}
-            className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
+            className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#f05e23]/20 border border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
           >
             {busy ? busyLabel : submitLabel}
           </button>
@@ -1817,7 +1817,7 @@ function ConfirmModal({
           className={`h-9 rounded-xl px-4 text-[13px] font-normal border transition-colors cursor-pointer disabled:opacity-50 ${
             tone === "danger"
               ? "text-red-300 bg-red-500/15 border-red-500/25 hover:bg-red-500/25"
-              : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+              : "text-white bg-[#f05e23]/20 border-[#f05e23]/30 hover:bg-[#f05e23]/30"
           }`}
         >
           {busy ? busyLabel : confirmLabel}
@@ -1918,7 +1918,7 @@ function DomainTab({ initial }: { initial: DomainState }) {
           <button
             type="button"
             onClick={() => setAddOpen(true)}
-            className="shrink-0 w-fit inline-flex items-center gap-1.5 h-9 rounded-full px-4 text-[12.5px] text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+            className="shrink-0 w-fit inline-flex items-center gap-1.5 h-9 rounded-full px-4 text-[12.5px] text-white bg-[#f05e23]/20 border border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
               <path d="M12 5v14M5 12h14" />
@@ -1928,7 +1928,7 @@ function DomainTab({ initial }: { initial: DomainState }) {
         ) : (
           <Link
             href="/checkout/domain-token"
-            className="shrink-0 w-fit inline-flex items-center gap-1.5 h-9 rounded-full px-4 text-[12.5px] text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors"
+            className="shrink-0 w-fit inline-flex items-center gap-1.5 h-9 rounded-full px-4 text-[12.5px] text-white bg-[#f05e23]/20 border border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors"
           >
             Buy Custom Domain
           </Link>
@@ -1966,7 +1966,7 @@ function DomainTab({ initial }: { initial: DomainState }) {
                     <button type="button" onClick={() => setDnsId(d.id)} className="h-8 rounded-xl px-3 text-[12px] text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer">
                       DNS records
                     </button>
-                    <button type="button" onClick={() => verify(d)} disabled={busyId === d.id} className="h-8 rounded-xl px-3 text-[12px] text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50">
+                    <button type="button" onClick={() => verify(d)} disabled={busyId === d.id} className="h-8 rounded-xl px-3 text-[12px] text-white bg-[#f05e23]/20 border border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer disabled:opacity-50">
                       {busyId === d.id ? "Checking…" : "Verify"}
                     </button>
                   </>
@@ -2099,7 +2099,7 @@ function DnsModal({ domain, busy, onClose, onVerify }: { domain: DomainRow; busy
         <button type="button" onClick={onClose} className="h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer">
           Close
         </button>
-        <button type="button" onClick={onVerify} disabled={busy} className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50">
+        <button type="button" onClick={onVerify} disabled={busy} className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#f05e23]/20 border border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer disabled:opacity-50">
           {busy ? "Checking…" : "Verify"}
         </button>
       </div>
@@ -2115,7 +2115,7 @@ function AddDomainModal({ onClose, onAdded }: { onClose: () => void; onAdded: (n
   const clean = domain.trim().toLowerCase();
   const valid = /^(?=.{4,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(clean);
   const fieldClass =
-    "w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none focus:border-[#5b6cf5]/40 transition-colors";
+    "w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none focus:border-[#f05e23]/40 transition-colors";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -2200,7 +2200,7 @@ function AddDomainModal({ onClose, onAdded }: { onClose: () => void; onAdded: (n
           <button
             type="submit"
             disabled={!valid || busy}
-            className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
+            className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#f05e23]/20 border border-[#f05e23]/30 hover:bg-[#f05e23]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
           >
             {busy ? "Adding…" : "Add domain"}
           </button>
@@ -2267,14 +2267,14 @@ function SessionsTab() {
       </div>
 
       {loading ? (
-        <div className="h-24 flex items-center justify-center"><div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" /></div>
+        <div className="h-24 flex items-center justify-center"><div className="w-5 h-5 border-2 border-white/10 border-t-[#f05e23] rounded-full animate-spin" /></div>
       ) : !sessions || sessions.length === 0 ? (
         <div className="border border-dashed border-white/[0.08] rounded-xl bg-[#141414]/30 py-8 px-4 text-center"><p className="text-[12.5px] text-white/45">No active sessions found.</p></div>
       ) : (
         <ul className="flex flex-col gap-2">
           {sessions.map((s) => (
             <li key={s.jti} className="flex flex-col sm:flex-row sm:items-center gap-3 bg-[#161616] border border-white/5 rounded-xl px-3.5 py-3">
-              <span className="w-8 h-8 rounded-lg bg-[#1e2747] border border-white/5 flex items-center justify-center text-[#7b8bff] shrink-0" aria-hidden="true">
+              <span className="w-8 h-8 rounded-lg bg-[#35180d] border border-white/5 flex items-center justify-center text-[#f47b47] shrink-0" aria-hidden="true">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="12" rx="2" /><path d="M8 20h8" /><path d="M12 16v4" /></svg>
               </span>
               <div className="flex flex-col min-w-0 flex-1">

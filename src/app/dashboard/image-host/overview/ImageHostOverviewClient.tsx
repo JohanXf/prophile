@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect, useRef, type ReactNode } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from "recharts";
 import { startOfDay, subDays, format, isSameDay } from "date-fns";
+import { authFetch } from "@/lib/auth-client";
 
 type ActivityAction = "upload" | "delete" | "favorite" | "unfavorite" | "lock" | "unlock";
 
@@ -25,7 +26,7 @@ interface ImageHostStats {
 }
 
 const FILE_TYPE_META: Record<string, { label: string; color: string }> = {
-  image: { label: "Images", color: "#5b6cf5" },
+  image: { label: "Images", color: "#f05e23" },
   video: { label: "Videos", color: "#a855f7" },
   archive: { label: "Archives", color: "#ec4899" },
   audio: { label: "Audio", color: "#38bdf8" },
@@ -112,7 +113,7 @@ function HeartIcon() {
 }
 
 function StatCard({ label, value, icon }: { label: string; value: string; icon: ReactNode }) {
-  const accent = "#5b6cf5";
+  const accent = "#f05e23";
   return (
     <div className="bg-white/2 border border-white/4 rounded-[20px] p-4 flex items-center gap-4 hover:border-white/8 transition-colors">
       <div
@@ -168,7 +169,7 @@ function UploadsChart({ entries }: { entries: UploadEntry[] }) {
           <p className="text-white/30 text-[12px] mt-1">{RANGE_SUBTITLE[range]}</p>
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/40">
             <span className="flex items-center gap-1.5">
-              <span className="h-0.5 w-3 rounded bg-[#5b6cf5]" />Uploads
+              <span className="h-0.5 w-3 rounded bg-[#f05e23]" />Uploads
               <span className="tabular-nums text-white/70">{totalCount}</span>
             </span>
             <span className="flex items-center gap-1.5">
@@ -183,7 +184,7 @@ function UploadsChart({ entries }: { entries: UploadEntry[] }) {
               key={r.key}
               onClick={() => setRange(r.key)}
               className={`px-2 sm:px-3 py-1 rounded-lg text-xs font-medium text-center whitespace-nowrap transition-colors ${
-                range === r.key ? "bg-[#5b6cf5]/20 text-white" : "text-white/50 hover:text-white/80"
+                range === r.key ? "bg-[#f05e23]/20 text-white" : "text-white/50 hover:text-white/80"
               }`}
             >
               {r.label}
@@ -195,14 +196,14 @@ function UploadsChart({ entries }: { entries: UploadEntry[] }) {
       <div ref={containerRef} className="h-56 sm:h-72 w-full relative">
         {dimensions.width === 0 ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-white/10 border-t-[#f05e23] rounded-full animate-spin" />
           </div>
         ) : (
           <AreaChart key={range} width={dimensions.width} height={dimensions.height} data={data} margin={{ top: 10, right: 10, left: -20, bottom: 24 }}>
             <defs>
               <linearGradient id="colorUploads" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#5b6cf5" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#5b6cf5" stopOpacity={0} />
+                <stop offset="5%" stopColor="#f05e23" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#f05e23" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
@@ -236,7 +237,7 @@ function UploadsChart({ entries }: { entries: UploadEntry[] }) {
                     <div className="bg-[#111] border border-white/10 px-3 py-2 rounded-lg shadow-2xl backdrop-blur-md">
                       <p className="text-[10px] text-white/40 uppercase tracking-wider font-bold mb-0.5">{label}</p>
                       <div className="flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#5b6cf5]" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#f05e23]" />
                         <p className="text-white text-xs font-semibold">
                           {point.count} <span className="text-white/40 font-normal">upload{point.count === 1 ? "" : "s"}</span>
                         </p>
@@ -253,7 +254,7 @@ function UploadsChart({ entries }: { entries: UploadEntry[] }) {
                 return null;
               }}
             />
-            <Area yAxisId="count" type="monotone" dataKey="count" name="Uploads" stroke="#5b6cf5" strokeWidth={2} fillOpacity={1} fill="url(#colorUploads)" />
+            <Area yAxisId="count" type="monotone" dataKey="count" name="Uploads" stroke="#f05e23" strokeWidth={2} fillOpacity={1} fill="url(#colorUploads)" />
             <Area yAxisId="bytes" type="monotone" dataKey="bytes" name="Storage" stroke="#a855f7" strokeWidth={1.5} strokeDasharray="4 3" fill="none" dot={false} />
           </AreaChart>
         )}
@@ -289,7 +290,7 @@ function FileTypesChart({ data }: { data: { name: string; value: number; color: 
       <div ref={containerRef} className="h-52 w-full relative mt-4 flex-1">
         {dimensions.width === 0 ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-white/10 border-t-[#f05e23] rounded-full animate-spin" />
           </div>
         ) : (
           <PieChart width={dimensions.width} height={dimensions.height}>
@@ -353,7 +354,7 @@ const STAR_PATH = "M12 2 15.09 8.26 22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.2
 const ACTIVITY_META: Record<ActivityAction, { label: string; color: string; icon: ReactNode }> = {
   upload: {
     label: "Uploaded",
-    color: "#5b6cf5",
+    color: "#f05e23",
     icon: <svg {...ICON_PROPS}><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg>,
   },
   delete: {
@@ -373,7 +374,7 @@ const ACTIVITY_META: Record<ActivityAction, { label: string; color: string; icon
   },
   lock: {
     label: "Locked",
-    color: "#aab4ff",
+    color: "#f8ab88",
     icon: <svg {...ICON_PROPS}><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>,
   },
   unlock: {
@@ -431,7 +432,7 @@ function RecentActivity() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/image-host/activity?limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}`)
+    authFetch(`/api/image-host/activity?limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (cancelled || !data || !Array.isArray(data.items)) return;
@@ -530,7 +531,7 @@ export default function ImageHostOverviewClient() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/image-host/stats")
+    authFetch("/api/image-host/stats")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!cancelled && data && typeof data.totalUploads === "number") setStats(data);

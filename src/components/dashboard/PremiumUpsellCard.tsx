@@ -28,10 +28,10 @@ export default function PremiumUpsellCard({
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#5b6cf5]/[0.08] via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#f05e23]/[0.08] via-transparent to-transparent pointer-events-none" />
       <div className="relative flex flex-col gap-1">
         <span className="flex items-center gap-2 text-[14px] font-medium text-white/90 tracking-tight">
-          <svg width="14" height="14" viewBox="0 0 512 512" fill="#5b6cf5" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 512 512" fill="#f05e23" aria-hidden="true">
             <path d={DIAMOND_PATH} />
           </svg>
           Upgrade to Premium
@@ -41,7 +41,7 @@ export default function PremiumUpsellCard({
           <button
             type="button"
             onClick={goCheckout}
-            className="bg-[#5b6cf5] hover:bg-[#5b6cf5]/85 text-white text-[13px] font-medium rounded-xl px-4 py-2 transition-colors cursor-pointer"
+            className="bg-[#f05e23] hover:bg-[#f05e23]/85 text-white text-[13px] font-medium rounded-xl px-4 py-2 transition-colors cursor-pointer"
           >
             Upgrade
           </button>
@@ -64,7 +64,7 @@ export default function PremiumUpsellCard({
 
 function CheckIcon({ muted = false }: { muted?: boolean }) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={muted ? "#ffffff40" : "#5b6cf5"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5" aria-hidden="true">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={muted ? "#ffffff40" : "#f05e23"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5" aria-hidden="true">
       <path d="M20 6L9 17L4 12" />
     </svg>
   );
@@ -105,7 +105,7 @@ function ComparePlansModal({ onClose, onPurchase }: { onClose: () => void; onPur
             <h2 id="compare-plans-title" className="text-[15px] font-normal text-white/90 tracking-tight">
               Compare plans
             </h2>
-            <p className="text-[12px] text-white/40 mt-1">One payment, Premium is yours forever.</p>
+            <p className="text-[12px] text-white/40 mt-1">Simple monthly pricing — $1/month, cancel anytime.</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 rounded-full bg-white/[0.03] border border-white/5 p-1">
@@ -116,7 +116,7 @@ function ComparePlansModal({ onClose, onPurchase }: { onClose: () => void; onPur
                   onClick={() => setCurrency(c)}
                   aria-pressed={currency === c}
                   className={`rounded-full px-3 py-1 text-[12px] font-normal transition-colors cursor-pointer ${
-                    currency === c ? "bg-[#5b6cf5]/20 text-white" : "text-white/45 hover:text-white/75"
+                    currency === c ? "bg-[#f05e23]/20 text-white" : "text-white/45 hover:text-white/75"
                   }`}
                 >
                   {c}
@@ -141,8 +141,8 @@ function ComparePlansModal({ onClose, onPurchase }: { onClose: () => void; onPur
             <p className="text-[14px] font-normal text-white/90 tracking-tight">Free</p>
             <p className="text-[12px] text-white/40 mt-0.5 mb-4">Everything you need to start.</p>
             <div className="flex items-baseline gap-1.5 mb-5">
-              <span className="text-3xl font-medium text-white">{price.symbol}0</span>
-              <span className="text-[12px] text-white/40">/ forever</span>
+              <span className="text-3xl font-medium text-white tabular-nums">{price.symbol}0</span>
+              <span className="text-[12px] text-white/40">/ month</span>
             </div>
             <ul className="flex flex-col gap-2.5 mb-6">
               {FREE_FEATURES.map((f) => (
@@ -157,25 +157,25 @@ function ComparePlansModal({ onClose, onPurchase }: { onClose: () => void; onPur
             </div>
           </div>
 
-          <div className="relative bg-[#111111] border border-[#5b6cf5]/40 rounded-[20px] p-5 flex flex-col overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-[#5b6cf5]/[0.07] via-transparent to-transparent pointer-events-none" />
+          <div className="relative bg-[#111111] border border-[#f05e23]/40 rounded-[20px] p-5 flex flex-col overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-[#f05e23]/[0.07] via-transparent to-transparent pointer-events-none" />
             <div className="relative flex flex-col h-full">
               <div className="flex items-center justify-between">
                 <p className="text-[14px] font-normal text-white/90 tracking-tight flex items-center gap-2">
-                  <svg width="13" height="13" viewBox="0 0 512 512" fill="#5b6cf5" aria-hidden="true">
+                  <svg width="13" height="13" viewBox="0 0 512 512" fill="#f05e23" aria-hidden="true">
                     <path d={DIAMOND_PATH} />
                   </svg>
                   Premium
                 </p>
-                <span className="text-[11px] font-normal text-white bg-[#5b6cf5] rounded-full px-2.5 py-0.5">Recommended</span>
+                <span className="text-[11px] font-normal text-white bg-[#f05e23] rounded-full px-2.5 py-0.5">Recommended</span>
               </div>
               <p className="text-[12px] text-white/40 mt-0.5 mb-4">Unlock everything, no limits.</p>
               <div className="flex items-baseline gap-1.5 mb-5">
-                <span className="text-3xl font-medium text-white">
+                <span className="text-3xl font-medium text-white tabular-nums">
                   {price.symbol}
                   {price.display}
                 </span>
-                <span className="text-[12px] text-white/40">/lifetime</span>
+                <span className="text-[12px] text-white/40">/ month</span>
               </div>
               <ul className="flex flex-col gap-2.5 mb-6">
                 {PREMIUM_FEATURES.map((f) => (
@@ -188,7 +188,7 @@ function ComparePlansModal({ onClose, onPurchase }: { onClose: () => void; onPur
               <button
                 type="button"
                 onClick={onPurchase}
-                className="mt-auto w-full bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/30 text-white font-normal rounded-xl py-2.5 text-[13px] transition-colors cursor-pointer"
+                className="mt-auto w-full bg-[#f05e23]/20 hover:bg-[#f05e23]/30 border border-[#f05e23]/30 text-white font-normal rounded-xl py-2.5 text-[13px] transition-colors cursor-pointer"
               >
                 Purchase Premium
               </button>

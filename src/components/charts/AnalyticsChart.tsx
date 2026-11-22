@@ -102,12 +102,12 @@ export default function AnalyticsChart({ totalViews, initialData, hourlyData = [
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
           <h2 className="text-white font-medium text-lg tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>Views</h2>
-          <div className="flex items-center gap-1.5 bg-[#5b6cf5]/10 border border-[#5b6cf5]/20 px-2.5 py-1 rounded-full">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="flex items-center gap-1.5 bg-[#f05e23]/10 border border-[#f05e23]/20 px-2.5 py-1 rounded-full">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f05e23" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
               <polyline points="17 6 23 6 23 12"></polyline>
             </svg>
-            <span className="text-[#5b6cf5] text-xs font-bold leading-none" title="All-time views">{totalViews}</span>
+            <span className="text-[#f05e23] text-xs font-bold leading-none" title="All-time views">{totalViews}</span>
           </div>
           <span className="text-xs text-white/35 whitespace-nowrap">
             {rangeTotal} in {rangeInfo.long.toLowerCase()}
@@ -123,7 +123,7 @@ export default function AnalyticsChart({ totalViews, initialData, hourlyData = [
               aria-pressed={range === r.id}
               title={r.long}
               className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                range === r.id ? "bg-[#5b6cf5]/20 text-white" : "text-white/50 hover:text-white/80"
+                range === r.id ? "bg-[#f05e23]/20 text-white" : "text-white/50 hover:text-white/80"
               }`}
             >
               {r.label}
@@ -135,7 +135,7 @@ export default function AnalyticsChart({ totalViews, initialData, hourlyData = [
       <div className="w-full relative" style={{ height: 320, minHeight: 320, minWidth: 80 }}>
         {!isMounted ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-white/10 border-t-[#f05e23] rounded-full animate-spin" />
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={320} minWidth={80} minHeight={80}>
@@ -145,8 +145,8 @@ export default function AnalyticsChart({ totalViews, initialData, hourlyData = [
             >
               <defs>
                 <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#5b6cf5" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#5b6cf5" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#f05e23" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#f05e23" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
@@ -175,7 +175,7 @@ export default function AnalyticsChart({ totalViews, initialData, hourlyData = [
                       <div className="bg-[#111] border border-white/10 px-3 py-2 rounded-lg shadow-2xl backdrop-blur-md">
                         <p className="text-[10px] text-white/40 uppercase tracking-wider font-bold mb-0.5">{label}</p>
                         <div className="flex items-center gap-1.5">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#5b6cf5]" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#f05e23]" />
                           <p className="text-white text-xs font-semibold">
                             {payload[0].value} <span className="text-white/40 font-normal">views</span>
                           </p>
@@ -190,7 +190,7 @@ export default function AnalyticsChart({ totalViews, initialData, hourlyData = [
                 type="monotone"
                 dataKey="views"
                 name="Views"
-                stroke="#5b6cf5"
+                stroke="#f05e23"
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#colorViews)"

@@ -1,4 +1,5 @@
-import { getStore, saveStore } from "@/lib/local-store";
+import { authFetch } from "@/lib/auth-client";
+import { hydrateStoreFromServer } from "@/lib/local-store";
 import type { CustomBadge } from "@/components/profile/layouts/ProfileBadges";
 
 export type MyBadges = {
@@ -9,64 +10,49 @@ export type MyBadges = {
 };
 
 export async function getMyBadges(): Promise<MyBadges> {
-  const state = getStore();
-  const uid = state.currentUserId ?? 1;
-  const user = state.users[uid];
-  const custom = state.customBadges[uid] ?? [];
-  const baseOwned = state.ownedBadges[uid] ?? ["early", "premium", "verified", "donator", "image-host"];
-  const owned = Array.from(new Set([...baseOwned, ...custom.map((c) => c.id)]));
-  const equipped = state.equippedBadges[uid] ?? ["early", "premium"];
-  return {
-    owned,
-    equipped,
-    custom,
-    tokens: user?.badgeTokens ?? 3,
-  };
+  const res = await authFetch("/api/badges");
+  if (!res.ok) {
+    return { owned: [], equipped: [], custom: [], tokens: 0 };
+  }
+  return (await res.json()) as MyBadges;
 }
 
 export async function createCustomBadge(input: { name: string; iconUrl: string }): Promise<MyBadges> {
-  const state = getStore();
-  const uid = state.currentUserId ?? 1;
-  const id = `custom-${Math.random().toString(16).slice(2, 10)}`;
-  const custom = state.customBadges[uid] ?? [];
-  custom.push({
-    id,
-    name: input.name.trim() || "Custom",
-    iconUrl: input.iconUrl || "/Favicon.png",
+  const res = await authFetch("/api/badges/custom", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
   });
-  state.customBadges[uid] = custom;
-  const equipped = state.equippedBadges[uid] ?? [];
-  if (!equipped.includes(id)) {
-    state.equippedBadges[uid] = [...equipped, id];
-  }
-  saveStore(state);
-  return getMyBadges();
+  await hydrateStoreFromServer();
+  if (!res.ok) return getMyBadges();
+  return (await res.json()) as MyBadges;
 }
 
 export async function resetCustomBadges(): Promise<MyBadges> {
-  const state = getStore();
-  const uid = state.currentUserId ?? 1;
-  state.customBadges[uid] = [];
-  state.equippedBadges[uid] = (state.equippedBadges[uid] ?? []).filter((b) => !b.startsWith("custom-"));
-  saveStore(state);
-  return getMyBadges();
+  const res = await authFetch("/api/badges/custom/reset", { method: "POST" });
+  await hydrateStoreFromServer();
+  if (!res.ok) return getMyBadges();
+  return (await res.json()) as MyBadges;
 }
 
 export async function deleteCustomBadge(badgeId: string): Promise<MyBadges> {
-  const state = getStore();
-  const uid = state.currentUserId ?? 1;
-  state.customBadges[uid] = (state.customBadges[uid] ?? []).filter((b) => b.id !== badgeId);
-  state.equippedBadges[uid] = (state.equippedBadges[uid] ?? []).filter((b) => b !== badgeId);
-  saveStore(state);
-  return getMyBadges();
+  const res = await authFetch(`/api/badges/custom/${encodeURIComponent(badgeId)}`, {
+    method: "DELETE",
+  });
+  await hydrateStoreFromServer();
+  if (!res.ok) return getMyBadges();
+  return (await res.json()) as MyBadges;
 }
 
 export async function saveEquippedBadges(ids: string[]): Promise<MyBadges> {
-  const state = getStore();
-  const uid = state.currentUserId ?? 1;
-  state.equippedBadges[uid] = ids;
-  saveStore(state);
-  return getMyBadges();
+  const res = await authFetch("/api/badges/equipped", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ids }),
+  });
+  await hydrateStoreFromServer();
+  if (!res.ok) return getMyBadges();
+  return (await res.json()) as MyBadges;
 }
 
 export async function syncDiscordBadges(): Promise<

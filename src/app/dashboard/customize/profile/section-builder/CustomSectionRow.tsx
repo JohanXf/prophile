@@ -69,7 +69,7 @@ export default function CustomSectionRow({
           </svg>
         </button>
 
-        <span className="text-[#5b6cf5] shrink-0">
+        <span className="text-[#f05e23] shrink-0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="4" width="18" height="7" rx="2" />
             <rect x="3" y="15" width="18" height="5" rx="2" />

@@ -9,6 +9,7 @@ import type { ProfileEffect } from "@/components/dashboard/EffectsPicker";
 import { getMyBadges } from "@/actions/badges";
 import { effectSkuFromUrl, useProfileEffect } from "@/lib/collectibles-client";
 import { normalizeProfileSections } from "@/lib/profile-sections";
+import { normalizeCollectionLayout, normalizePhotoCollection } from "@/lib/photo-collection";
 
 import type { CustomBadge } from "@/components/profile/layouts/ProfileBadges";
 
@@ -208,7 +209,7 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       otherFontSize={deferredOverrides.otherFontSize ?? user?.otherFontSize ?? 13}
       otherFontWeight={deferredOverrides.otherFontWeight ?? user?.otherFontWeight ?? 400}
       otherLetterSpacing={deferredOverrides.otherLetterSpacing ?? user?.otherLetterSpacing ?? 0}
-      otherColor={deferredOverrides.otherColor ?? user?.otherColor ?? "#5b6cf5"}
+      otherColor={deferredOverrides.otherColor ?? user?.otherColor ?? "#f05e23"}
       highlightFont={deferredOverrides.highlightFont ?? user?.highlightFont ?? "Inter"}
       highlightFontSize={deferredOverrides.highlightFontSize ?? user?.highlightFontSize ?? 11}
       highlightFontWeight={deferredOverrides.highlightFontWeight ?? user?.highlightFontWeight ?? 500}
@@ -241,6 +242,8 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       linksSectionDescription={deferredOverrides.linksSectionDescription ?? user?.linksSectionDescription ?? undefined}
       linksSectionPosition={deferredOverrides.linksSectionPosition ?? user?.linksSectionPosition ?? "below"}
       profileSections={normalizeProfileSections(deferredOverrides.profileSections ?? user?.profileSections)}
+      photoCollection={normalizePhotoCollection(deferredOverrides.photoCollection ?? user?.photoCollection)}
+      photoCollectionLayout={normalizeCollectionLayout(deferredOverrides.photoCollectionLayout ?? user?.photoCollectionLayout)}
       widgetsSectionEnabled={deferredOverrides.widgetsSectionEnabled ?? user?.widgetsSectionEnabled ?? true}
       contentAlignment={deferredOverrides.contentAlignment ?? user?.contentAlignment ?? DEFAULT_FRAME.contentAlignment}
       avatarPlacement={deferredOverrides.avatarPlacement ?? user?.avatarPlacement ?? DEFAULT_FRAME.avatarPlacement}
@@ -295,6 +298,7 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       musicPlayerVolume={deferredOverrides.musicPlayerVolume ?? user?.musicPlayerVolume ?? true}
       musicPlayerDefaultVolume={deferredOverrides.musicPlayerDefaultVolume ?? user?.musicPlayerDefaultVolume ?? 100}
       musicPlayerVolumeFixed={true}
+      volumePlacement={deferredOverrides.volumePlacement ?? user?.volumePlacement ?? "top-left"}
       musicPlayerShuffle={deferredOverrides.musicPlayerShuffle ?? user?.musicPlayerShuffle ?? false}
       musicCardColor={deferredOverrides.musicCardColor !== undefined ? deferredOverrides.musicCardColor : user?.musicCardColor ?? null}
       musicCardOpacity={deferredOverrides.musicCardOpacity ?? user?.musicCardOpacity ?? 100}

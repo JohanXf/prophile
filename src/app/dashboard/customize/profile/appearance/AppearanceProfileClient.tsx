@@ -318,7 +318,7 @@ export default function AppearanceProfileClient({ user, backgrounds }: { user: F
                 height="26"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#5b6cf5"
+                stroke="#f05e23"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"

@@ -11,7 +11,7 @@ export interface ProfileLink {
 
 export const MAX_LINKS = 10;
 
-export const DEFAULT_LINK_COLOR = "#5b6cf5";
+export const DEFAULT_LINK_COLOR = "#f05e23";
 
 export const LINK_ICON_KEYS = [
   "discord",

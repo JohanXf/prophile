@@ -12,6 +12,7 @@ import { CURSOR_HOTSPOT } from "@/lib/cursor";
 import { formatTabTitle, isAllowedOgImage } from "@/lib/og";
 import { getProfileRowsSync } from "./profile-data";
 import { normalizeProfileSections } from "@/lib/profile-sections";
+import { normalizeCollectionLayout, normalizePhotoCollection } from "@/lib/photo-collection";
 import { getStore, subscribeStore } from "@/lib/local-store";
 import NotFound from "@/app/not-found";
 
@@ -49,6 +50,13 @@ export default function ProfileView({
   }, [userList.length, username, state]);
 
   if (userList.length === 0) {
+    if (!state.hydrated) {
+      return (
+        <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+          <div className="w-7 h-7 rounded-full border-2 border-[#f05e23]/30 border-t-[#f05e23] animate-spin" />
+        </div>
+      );
+    }
     return <NotFound />;
   }
 
@@ -316,6 +324,8 @@ export default function ProfileView({
         linksSectionDescription={user.linksSectionDescription ?? undefined}
         linksSectionPosition={user.linksSectionPosition ?? undefined}
         profileSections={normalizeProfileSections(user.profileSections)}
+        photoCollection={normalizePhotoCollection(user.photoCollection)}
+        photoCollectionLayout={normalizeCollectionLayout(user.photoCollectionLayout)}
         widgetsSectionEnabled={user.widgetsSectionEnabled ?? undefined}
         contentAlignment={user.contentAlignment ?? undefined}
         avatarPlacement={user.avatarPlacement ?? undefined}
@@ -341,8 +351,11 @@ export default function ProfileView({
         linksLetterSpacing={user.linksLetterSpacing ?? undefined}
         musicTracks={(user.musicTracks as import("@/lib/music").MusicTrack[] | null) ?? undefined}
         musicPlayerStyle={user.musicPlayerStyle ?? undefined}
+        musicAutoPlay={!isStatic && (user.musicAutoPlay !== false)}
         musicPlayerArtBg={user.musicPlayerArtBg ?? false}
         musicPlayerVolume={user.musicPlayerVolume ?? true}
+        musicPlayerVolumeFixed={true}
+        volumePlacement={user.volumePlacement ?? "top-left"}
         musicPlayerDefaultVolume={user.musicPlayerDefaultVolume ?? 100}
         musicPlayerShuffle={user.musicPlayerShuffle ?? false}
         musicCardColor={user.musicCardColor ?? null}

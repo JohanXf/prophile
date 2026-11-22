@@ -116,7 +116,7 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
             height="22"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#5b6cf5"
+            stroke="#f05e23"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -175,7 +175,7 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
                       isSelected ? "bg-white/[0.06]" : "hover:bg-white/[0.04]"
                     }`}
                   >
-                    <span className="w-3.5 shrink-0 pt-[3px] text-[#5b6cf5]">
+                    <span className="w-3.5 shrink-0 pt-[3px] text-[#f05e23]">
                       {isSelected && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M20 6 9 17l-5-5" />
@@ -217,15 +217,15 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
                   aria-pressed={isSelected}
                   className={`flex items-center justify-center gap-2 h-[38px] rounded-xl border transition-colors cursor-pointer focus:outline-none ${
                     isSelected
-                      ? "bg-[#111326] border-[#5b6cf5]/40"
+                      ? "bg-[#1f0e08] border-[#f05e23]/40"
                       : "bg-[#111111] border-white/5 hover:border-white/15"
                   }`}
                 >
                   <span className={`flex flex-col gap-[3px] ${option === "center" ? "items-center" : option === "right" ? "items-end" : ""}`}>
-                    <span className={`block h-[2px] w-4 rounded-full ${isSelected ? "bg-[#5b6cf5]" : "bg-white/30"}`} />
-                    <span className={`block h-[2px] w-2.5 rounded-full ${isSelected ? "bg-[#5b6cf5]" : "bg-white/30"}`} />
+                    <span className={`block h-[2px] w-4 rounded-full ${isSelected ? "bg-[#f05e23]" : "bg-white/30"}`} />
+                    <span className={`block h-[2px] w-2.5 rounded-full ${isSelected ? "bg-[#f05e23]" : "bg-white/30"}`} />
                   </span>
-                  <span className={`text-[13px] ${isSelected ? "text-[#5b6cf5] font-medium" : "text-white/70"}`}>
+                  <span className={`text-[13px] ${isSelected ? "text-[#f05e23] font-medium" : "text-white/70"}`}>
                     {option === "left" ? "Left" : option === "right" ? "Right" : "Center"}
                   </span>
                 </button>
@@ -243,7 +243,7 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
             <div className="flex-1 flex items-center gap-4">
               <div className="relative flex items-center h-5 group w-full min-w-0">
                 <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                  <div className="absolute h-full bg-[#5b6cf5]" style={{ width: `${fillPercent}%` }} />
+                  <div className="absolute h-full bg-[#f05e23]" style={{ width: `${fillPercent}%` }} />
                 </div>
                 <input
                   type="range"
@@ -256,7 +256,7 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                 />
                 <div
-                  className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+                  className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#f05e23] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
                   style={{ left: `calc(${fillPercent}% - 8px)` }}
                 />
               </div>
@@ -283,7 +283,7 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
               onClick={() => setWrapInCard(!wrapInCard)}
               aria-pressed={wrapInCard}
               className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 cursor-pointer focus:outline-none ${
-                wrapInCard ? "bg-[#5b6cf5]" : "bg-white/10"
+                wrapInCard ? "bg-[#f05e23]" : "bg-white/10"
               }`}
             >
               <div
@@ -310,7 +310,7 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
             <div className="relative flex items-center h-5 group w-full min-w-0">
               <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
                 <div
-                  className={wrapInCard ? "absolute h-full bg-[#5b6cf5]" : "absolute h-full bg-white/20"}
+                  className={wrapInCard ? "absolute h-full bg-[#f05e23]" : "absolute h-full bg-white/20"}
                   style={{ width: `${opacityFillPercent}%` }}
                 />
               </div>
@@ -329,7 +329,7 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
               />
               <div
                 className={`absolute w-4 h-4 bg-[#050505] border-[2px] rounded-full pointer-events-none transition-transform shadow-lg ${
-                  wrapInCard ? "border-[#5b6cf5] group-active:scale-110" : "border-white/20"
+                  wrapInCard ? "border-[#f05e23] group-active:scale-110" : "border-white/20"
                 }`}
                 style={{ left: `calc(${opacityFillPercent}% - 8px)` }}
               />

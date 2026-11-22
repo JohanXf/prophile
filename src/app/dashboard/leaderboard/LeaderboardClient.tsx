@@ -117,10 +117,10 @@ export default function LeaderboardClient({
         <div className="relative overflow-hidden bg-[#0c0c0c] border border-white/5 rounded-[20px] px-4 sm:px-6 pt-8 sm:pt-10 pb-6">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[720px] h-80 bg-[radial-gradient(ellipse_at_top,rgba(91,108,245,0.12),rgba(91,108,245,0.03)_45%,transparent_72%)]"
+            className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[720px] h-80 bg-[radial-gradient(ellipse_at_top,rgba(240,94,35,0.12),rgba(240,94,35,0.03)_45%,transparent_72%)]"
           />
           <div className="relative flex flex-col items-center text-center mb-8">
-            <span className="w-11 h-11 rounded-2xl bg-[#5b6cf5]/15 border border-[#5b6cf5]/25 flex items-center justify-center text-[#a5aef9]">
+            <span className="w-11 h-11 rounded-2xl bg-[#f05e23]/15 border border-[#f05e23]/25 flex items-center justify-center text-[#f8ab88]">
               <MetricIcon category={category} />
             </span>
             <p className="mt-3 text-[15px] font-normal text-white/90 tracking-tight">{metric.empty}</p>
@@ -142,7 +142,7 @@ export default function LeaderboardClient({
             {(category === "badges" || category === "aliases") && (
               <Link
                 href={category === "badges" ? "/checkout/badge-token" : "/checkout/alias-token"}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/25 px-4 py-2 text-[12.5px] text-white transition-colors"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#f05e23]/20 hover:bg-[#f05e23]/30 border border-[#f05e23]/25 px-4 py-2 text-[12.5px] text-white transition-colors"
               >
                 {category === "badges" ? "Get a custom badge" : "Get an alias"}
               </Link>
@@ -189,7 +189,7 @@ export default function LeaderboardClient({
                       href={`/${entry.username}`}
                       target="_blank"
                       className={`grid grid-cols-[40px_1fr_auto] sm:grid-cols-[64px_1fr_auto] items-center px-3.5 sm:px-5 py-3 transition-colors hover:bg-white/[0.03] ${
-                        entry.userId === currentUserId ? "bg-[#5b6cf5]/[0.07]" : ""
+                        entry.userId === currentUserId ? "bg-[#f05e23]/[0.07]" : ""
                       }`}
                     >
                       <span className="text-[12px] sm:text-[13px] text-white/50 tabular-nums">#{entry.rank}</span>
@@ -201,7 +201,7 @@ export default function LeaderboardClient({
                             {entry.premium && <PremiumTag />}
                             {entry.verified && <VerifiedTag />}
                             {entry.userId === currentUserId && (
-                              <span className="text-[10.5px] rounded-full px-2 py-0.5 bg-[#5b6cf5]/20 text-white/80">You</span>
+                              <span className="text-[10.5px] rounded-full px-2 py-0.5 bg-[#f05e23]/20 text-white/80">You</span>
                             )}
                           </span>
                           <span className="text-[11.5px] text-white/35 truncate">@{entry.username}</span>
@@ -233,7 +233,7 @@ export default function LeaderboardClient({
                     onClick={() => go({ page: n })}
                     aria-current={n === safePage ? "page" : undefined}
                     className={`min-w-8 h-8 px-2 rounded-lg text-[12.5px] tabular-nums transition-colors cursor-pointer ${
-                      n === safePage ? "bg-[#5b6cf5]/20 text-white" : "text-white/45 hover:text-white/80 hover:bg-white/[0.04]"
+                      n === safePage ? "bg-[#f05e23]/20 text-white" : "text-white/45 hover:text-white/80 hover:bg-white/[0.04]"
                     }`}
                   >
                     {n}
@@ -300,7 +300,7 @@ function PodiumSpot({ entry, isMe, category }: { entry: LeaderboardEntry; isMe: 
         <span className="mt-2 sm:mt-3 text-[13px] sm:text-[14.5px] text-white truncate max-w-full">{entry.displayName ?? entry.username}</span>
         <span className="text-[10.5px] sm:text-[11.5px] text-white/35 truncate max-w-full">
           @{entry.username}
-          {isMe && <span className="text-[#a5aef9]"> · You</span>}
+          {isMe && <span className="text-[#f8ab88]"> · You</span>}
         </span>
         {}
         <span className="mt-1.5 sm:mt-2 h-[20px] sm:h-[22px] flex items-center justify-center gap-1.5">
@@ -339,9 +339,9 @@ function YourRank({ me, ahead, periodLabel, category }: { me: LeaderboardEntry; 
   const gap = ahead ? ahead.score - me.score + 1 : 0;
   const unit = METRICS[category].unit;
   return (
-    <div className="flex flex-wrap items-center gap-3 sm:gap-4 bg-[#0c0c0c] border border-[#5b6cf5]/25 rounded-[20px] px-4 sm:px-5 py-4 relative overflow-hidden">
-      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-[#5b6cf5]/[0.12] via-transparent to-transparent pointer-events-none" />
-      <span className="relative w-11 h-11 shrink-0 rounded-2xl bg-[#5b6cf5]/15 border border-[#5b6cf5]/25 flex items-center justify-center text-[15px] text-white tabular-nums">
+    <div className="flex flex-wrap items-center gap-3 sm:gap-4 bg-[#0c0c0c] border border-[#f05e23]/25 rounded-[20px] px-4 sm:px-5 py-4 relative overflow-hidden">
+      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-[#f05e23]/[0.12] via-transparent to-transparent pointer-events-none" />
+      <span className="relative w-11 h-11 shrink-0 rounded-2xl bg-[#f05e23]/15 border border-[#f05e23]/25 flex items-center justify-center text-[15px] text-white tabular-nums">
         #{me.rank}
       </span>
       <div className="relative flex flex-col min-w-0">
@@ -443,7 +443,7 @@ function PageButton({ disabled, onClick, label, children }: { disabled: boolean;
 
 function VerifiedCheck() {
   return (
-    <svg width="14" height="14" viewBox="64 64 512 512" fill="#5b6cf5" className="shrink-0" role="img" aria-label="Verified">
+    <svg width="14" height="14" viewBox="64 64 512 512" fill="#f05e23" className="shrink-0" role="img" aria-label="Verified">
       <path d="M320 64C356.8 64 388.8 84.7 404.9 115.1C437.8 105 475 112.9 501 139C527 165.1 535 202.3 524.9 235.2C555.3 251.2 576 283.2 576 320C576 356.8 555.3 388.8 524.9 404.9C535 437.8 527 475 501 501C475 527 437.7 535 404.8 524.9C388.8 555.3 356.8 576 320 576C283.2 576 251.2 555.3 235.1 524.9C202.2 535 165 527 139 501C113 475 105 437.7 115.1 404.8C84.7 388.8 64 356.8 64 320C64 283.2 84.7 251.2 115.1 235.1C105 202.2 112.9 165 139 139C165.1 113 202.3 105 235.2 115.1C251.2 84.7 283.2 64 320 64zM410.9 228.6C400.2 220.8 385.2 223.2 377.4 233.9L291.8 351.6L265.3 324.2C256.1 314.7 240.9 314.4 231.4 323.6C221.9 332.8 221.6 348 230.8 357.5L277.2 405.5C282.1 410.6 289 413.3 296.1 412.8C303.2 412.3 309.7 408.7 313.9 403L416.2 262.1C424 251.4 421.6 236.4 410.9 228.6z" />
     </svg>
   );
@@ -476,7 +476,7 @@ function VerifiedTag() {
   return (
     <span
       title="Verified"
-      className="inline-flex items-center gap-1 shrink-0 rounded-full px-1.5 sm:px-2 py-0.5 text-[10.5px] text-[#c7cdfb] bg-[#5b6cf5]/15 border border-[#5b6cf5]/25"
+      className="inline-flex items-center gap-1 shrink-0 rounded-full px-1.5 sm:px-2 py-0.5 text-[10.5px] text-[#fcd3be] bg-[#f05e23]/15 border border-[#f05e23]/25"
     >
       <VerifiedCheck />
       <span className="hidden sm:inline">Verified</span>

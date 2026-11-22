@@ -26,11 +26,11 @@ interface Particle {
 const BUBBLE_COLORS = ["#bdeaff", "#ffffff", "#9be8ff"];
 const HEART_COLORS = ["#ff5b7f", "#ff8fab", "#ff2e63"];
 const STAR_COLORS = ["#ffc7e3", "#c4b5fd", "#a7f3d0", "#ffffff"];
-const CONFETTI_COLORS = ["#5b6cf5", "#f472b6", "#4ade80", "#facc15", "#ffffff"];
+const CONFETTI_COLORS = ["#f05e23", "#f472b6", "#4ade80", "#facc15", "#ffffff"];
 const SNOW_COLORS = ["#ffffff", "#dbeafe", "#bae6fd"];
 const EMBER_COLORS = ["#ffdd88", "#ff9d3c", "#ff5b21", "#ffc46b"];
 const PETAL_COLORS = ["#ffb7c9", "#ff8fab", "#ffc2d4", "#f9a8d4"];
-const FIREWORK_COLORS = ["#5b6cf5", "#f472b6", "#4ade80", "#facc15", "#38bdf8", "#ffffff"];
+const FIREWORK_COLORS = ["#f05e23", "#f472b6", "#4ade80", "#facc15", "#38bdf8", "#ffffff"];
 
 const SOUND_POOL_SIZE = 3;
 

@@ -3,6 +3,7 @@ export const SECTION_CATEGORIES = [
   { id: "links", label: "Links", description: "Your big links with icons" },
   { id: "widgets", label: "Widgets", description: "Your widgets placed outside the card" },
   { id: "music", label: "Music", description: "Your music player" },
+  { id: "collection", label: "Collection", description: "Your 9:16 photo collection" },
 ] as const;
 
 export type SectionCategory = (typeof SECTION_CATEGORIES)[number]["id"];
@@ -29,10 +30,12 @@ export function normalizeProfileSections(raw: unknown): ProfileSection[] {
       const categories = Array.isArray(value.categories)
         ? Array.from(
             new Set(
-              value.categories.filter(
-                (category): category is SectionCategory =>
-                  typeof category === "string" && CATEGORY_IDS.includes(category)
-              )
+              value.categories
+                .map((category) => (category === "photos" ? "collection" : category))
+                .filter(
+                  (category): category is SectionCategory =>
+                    typeof category === "string" && CATEGORY_IDS.includes(category)
+                )
             )
           ).slice(0, MAX_SECTION_CATEGORIES)
         : [];

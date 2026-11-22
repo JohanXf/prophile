@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/components/ui/toast";
+import { authFetch } from "@/lib/auth-client";
 
 type FilterKey = "all" | "image" | "video" | "favorite";
 
@@ -157,7 +158,7 @@ export default function ImageHostGalleryClient() {
   filterRef.current = filter;
 
   const loadPage = useCallback((f: FilterKey, p: number) => {
-    fetch(`/api/image-host/files?limit=${PAGE_SIZE}&offset=${p * PAGE_SIZE}&filter=${f}`)
+    authFetch(`/api/image-host/files?limit=${PAGE_SIZE}&offset=${p * PAGE_SIZE}&filter=${f}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error("failed"))))
       .then((data: { files: GalleryFile[]; total: number }) => {
         if (data.files.length === 0 && p > 0 && data.total > 0) {
@@ -278,7 +279,7 @@ export default function ImageHostGalleryClient() {
     });
     if (filterRef.current === "favorite" && !next) setTotal((t) => Math.max(0, t - 1));
     try {
-      const res = await fetch("/api/image-host/files", {
+      const res = await authFetch("/api/image-host/files", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids: [file.id], favorite: next }),
@@ -298,7 +299,7 @@ export default function ImageHostGalleryClient() {
     setFiles((prev) => prev.map((x) => (selected.has(x.id) ? { ...x, favorite: true } : x)));
     setSelected(new Set());
     try {
-      const res = await fetch("/api/image-host/files", {
+      const res = await authFetch("/api/image-host/files", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids, favorite: true }),
@@ -316,7 +317,7 @@ export default function ImageHostGalleryClient() {
     const ids = confirmDelete;
     setDeleting(true);
     try {
-      const res = await fetch("/api/image-host/files", {
+      const res = await authFetch("/api/image-host/files", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids }),
@@ -362,7 +363,7 @@ export default function ImageHostGalleryClient() {
               key={f.key}
               onClick={() => changeFilter(f.key)}
               className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
-                filter === f.key ? "bg-[#5b6cf5]/20 text-white" : "text-white/50 hover:text-white/80"
+                filter === f.key ? "bg-[#f05e23]/20 text-white" : "text-white/50 hover:text-white/80"
               }`}
             >
               {f.label}
@@ -372,7 +373,7 @@ export default function ImageHostGalleryClient() {
       </div>
 
       {selected.size > 0 && (
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#5b6cf5]/20 bg-[#5b6cf5]/[0.06] px-4 py-2.5">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#f05e23]/20 bg-[#f05e23]/[0.06] px-4 py-2.5">
           <div className="flex items-center gap-3">
             <button onClick={toggleSelectAll} className="text-[12px] text-white/60 hover:text-white transition-colors">
               {allLoadedSelected ? "Deselect all" : "Select all"}
@@ -509,7 +510,7 @@ function FileCard({
   return (
     <div
       className={`group relative rounded-xl bg-white/[0.02] border p-1.5 transition-colors ${
-        selected ? "border-[#5b6cf5]/60" : "border-white/5 hover:border-white/10"
+        selected ? "border-[#f05e23]/60" : "border-white/5 hover:border-white/10"
       }`}
     >
       <div
@@ -523,7 +524,7 @@ function FileCard({
           }
         }}
         aria-label={`Open ${file.name}`}
-        className="relative aspect-[4/3] w-full cursor-pointer overflow-hidden rounded-lg bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5b6cf5]/60"
+        className="relative aspect-[4/3] w-full cursor-pointer overflow-hidden rounded-lg bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f05e23]/60"
       >
         <Thumbnail file={file} />
         {file.favorite && (
@@ -539,7 +540,7 @@ function FileCard({
         aria-label={selected ? "Deselect file" : "Select file"}
         className={`absolute top-3 left-3 z-20 flex h-5 w-5 items-center justify-center rounded-md border transition-colors ${
           selected
-            ? "bg-[#5b6cf5] border-[#5b6cf5] text-white"
+            ? "bg-[#f05e23] border-[#f05e23] text-white"
             : "bg-black/40 border-white/40 text-transparent backdrop-blur-sm hover:border-white/70"
         }`}
       >
@@ -645,7 +646,7 @@ function PasswordModal({
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch(`/api/image-host/files/${file.id}/password`, {
+      const res = await authFetch(`/api/image-host/files/${file.id}/password`, {
         method: isAdd ? "POST" : "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
@@ -664,7 +665,7 @@ function PasswordModal({
   };
 
   const inputClass =
-    "h-10 w-full rounded-xl border border-white/5 bg-[#161616] px-3.5 text-[13px] text-white placeholder:text-white/25 focus:border-[#5b6cf5]/40 focus:outline-none";
+    "h-10 w-full rounded-xl border border-white/5 bg-[#161616] px-3.5 text-[13px] text-white placeholder:text-white/25 focus:border-[#f05e23]/40 focus:outline-none";
 
   return (
     <div
@@ -732,7 +733,7 @@ function PasswordModal({
           <button
             type="submit"
             disabled={saving || !password}
-            className="rounded-xl bg-[#5b6cf5]/20 px-4 py-2 text-[13px] font-normal text-white transition-colors hover:bg-[#5b6cf5]/30 disabled:opacity-50"
+            className="rounded-xl bg-[#f05e23]/20 px-4 py-2 text-[13px] font-normal text-white transition-colors hover:bg-[#f05e23]/30 disabled:opacity-50"
           >
             {saving ? "Saving…" : isAdd ? "Add password" : "Remove password"}
           </button>
@@ -789,8 +790,8 @@ function Pagination({
               aria-current={p === page ? "page" : undefined}
               className={`${pill} min-w-9 sm:min-w-14 ${
                 p === page
-                  ? "bg-[#5b6cf5]/20 text-[#aab4ff]"
-                  : "text-white/45 hover:bg-[#5b6cf5]/10 hover:text-white"
+                  ? "bg-[#f05e23]/20 text-[#f8ab88]"
+                  : "text-white/45 hover:bg-[#f05e23]/10 hover:text-white"
               }`}
             >
               {p + 1}

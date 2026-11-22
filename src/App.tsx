@@ -3,6 +3,8 @@ import { NavigationProvider, usePathname } from "@/shims/next-navigation";
 import ConditionalBackground from "@/components/ConditionalBackground";
 import { Toaster } from "@/components/ui/toast";
 import { getCurrentSessionDataSync } from "@/lib/features/users/db";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import { subscribeStore } from "@/lib/local-store";
 import {
   ALIAS_TOKEN_PLAN_TAG,
   BADGE_TOKEN_PLAN_TAG,
@@ -45,6 +47,7 @@ import ImageHostGalleryPage from "@/app/dashboard/image-host/gallery/page";
 
 import LinksPage from "@/app/dashboard/customize/links/page";
 import MusicPage from "@/app/dashboard/customize/music/page";
+import CollectionPage from "@/app/dashboard/customize/collection/page";
 import BadgesPage from "@/app/dashboard/customize/badges/page";
 import TemplatesPage from "@/app/dashboard/customize/templates/page";
 import MetadataPage from "@/app/dashboard/customize/metadata/page";
@@ -103,6 +106,9 @@ function renderDashboardRoute(path: string) {
   }
   if (path === "/dashboard/customize/music") {
     return <MusicPage />;
+  }
+  if (path === "/dashboard/customize/collection") {
+    return <CollectionPage />;
   }
   if (path === "/dashboard/customize/badges") {
     return <BadgesPage />;
@@ -208,6 +214,9 @@ function renderDashboardRoute(path: string) {
 }
 
 function RouterContent() {
+  const [, setVersion] = React.useState(0);
+  React.useEffect(() => subscribeStore(() => setVersion((v) => v + 1)), []);
+
   const rawPathname = usePathname();
   const path = rawPathname.length > 1 ? rawPathname.replace(/\/+$/, "") : rawPathname;
   const { featuredAvatars } = getCurrentSessionDataSync();
@@ -270,12 +279,14 @@ function RouterContent() {
 
 export default function App() {
   return (
-    <NavigationProvider>
-      <div className="min-h-screen flex flex-col relative text-white selection:bg-white/20 selection:text-white antialiased">
-        <ConditionalBackground />
-        <RouterContent />
-        <Toaster />
-      </div>
-    </NavigationProvider>
+    <AuthProvider>
+      <NavigationProvider>
+        <div className="min-h-screen flex flex-col relative text-white selection:bg-white/20 selection:text-white antialiased">
+          <ConditionalBackground />
+          <RouterContent />
+          <Toaster />
+        </div>
+      </NavigationProvider>
+    </AuthProvider>
   );
 }

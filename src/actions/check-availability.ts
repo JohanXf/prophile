@@ -11,11 +11,10 @@ export async function checkAvailability({
   username: string;
   email: string;
 }): Promise<AvailabilityResult> {
-  if (!username || username.trim().length < 2) {
-    return { error: "Username must be at least 2 characters.", field: "username" };
-  }
-  if (!email || !email.includes("@")) {
-    return { error: "Enter a valid email address.", field: "email" };
-  }
-  return { available: true };
+  const params = new URLSearchParams();
+  if (username) params.set("username", username);
+  if (email) params.set("email", email);
+  const res = await fetch(`/api/auth/check-availability?${params.toString()}`);
+  if (!res.ok) return { available: false, error: "Could not verify availability." };
+  return (await res.json()) as AvailabilityResult;
 }

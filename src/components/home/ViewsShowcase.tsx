@@ -113,7 +113,7 @@ function CursorArrow() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" className="drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">
       <path d="M5.5 3.5 19.5 11.5l-7.8 1.3-3.4 7.2L5.5 3.5z" fill="#fff" stroke="#0a0a0c" strokeWidth="1.6" strokeLinejoin="round" />
-      <circle cx="18.5" cy="18.5" r="4" fill="#8b93e8" stroke="#0a0a0c" strokeWidth="1.4" />
+      <circle cx="18.5" cy="18.5" r="4" fill="#f47b47" stroke="#0a0a0c" strokeWidth="1.4" />
     </svg>
   );
 }
@@ -223,12 +223,12 @@ export function ViewsDemo() {
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-3 min-w-0 flex-wrap">
                 <h3 className="text-white font-medium text-lg tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>Views</h3>
-                <span className="flex items-center gap-1.5 bg-[#5b6cf5]/10 border border-[#5b6cf5]/20 px-2.5 py-1 rounded-full">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <span className="flex items-center gap-1.5 bg-[#f05e23]/10 border border-[#f05e23]/20 px-2.5 py-1 rounded-full">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f05e23" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
                     <polyline points="17 6 23 6 23 12" />
                   </svg>
-                  <span className="text-[#5b6cf5] text-xs font-bold leading-none">
+                  <span className="text-[#f05e23] text-xs font-bold leading-none">
                     <AnimatedNumber value={range.total + liveExtra} />
                   </span>
                 </span>
@@ -250,7 +250,7 @@ export function ViewsDemo() {
                     <span
                       key={r.id}
                       className={`w-11 h-7 rounded-lg flex items-center justify-center text-xs font-medium transition-colors duration-300 ${
-                        i === rangeIdx ? "bg-[#5b6cf5]/20 text-white" : "text-white/50"
+                        i === rangeIdx ? "bg-[#f05e23]/20 text-white" : "text-white/50"
                       }`}
                     >
                       {r.label}
@@ -272,8 +272,8 @@ export function ViewsDemo() {
               <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto block" preserveAspectRatio="none" style={{ height: 190 }}>
                 <defs>
                   <linearGradient id="views-area" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#5b6cf5" stopOpacity="0.3" />
-                    <stop offset="95%" stopColor="#5b6cf5" stopOpacity="0" />
+                    <stop offset="5%" stopColor="#f05e23" stopOpacity="0.3" />
+                    <stop offset="95%" stopColor="#f05e23" stopOpacity="0" />
                   </linearGradient>
                 </defs>
                 {[0.25, 0.5, 0.75].map((f) => (
@@ -299,7 +299,7 @@ export function ViewsDemo() {
                   animate={{ d: line }}
                   transition={{ duration: 0.9, ease: "easeInOut" }}
                   fill="none"
-                  stroke="#5b6cf5"
+                  stroke="#f05e23"
                   strokeWidth="2"
                   strokeLinecap="round"
                 />
@@ -308,7 +308,7 @@ export function ViewsDemo() {
                   cy={peak.y}
                   r="4"
                   fill="#0f0f0f"
-                  stroke="#5b6cf5"
+                  stroke="#f05e23"
                   strokeWidth="2.5"
                   animate={{ cx: peak.x, cy: peak.y }}
                   transition={{ duration: 0.9, ease: "easeInOut" }}
@@ -317,7 +317,7 @@ export function ViewsDemo() {
                   cx={peak.x}
                   cy={peak.y}
                   fill="none"
-                  stroke="#5b6cf5"
+                  stroke="#f05e23"
                   strokeWidth="1.5"
                   initial={{ r: 4, opacity: 0.8 }}
                   animate={{ cx: peak.x, cy: peak.y, r: [4, 14], opacity: [0.8, 0] }}

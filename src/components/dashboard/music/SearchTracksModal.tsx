@@ -4,11 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import NextImage from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { parseLRC, type LyricLine } from "./lrc";
+import { uploadMediaFile } from "@/lib/media-upload";
 
 export type SearchTrack = {
   id: string;
   title: string;
   artist: string;
+  bio?: string | null;
   artwork: string | null;
   album?: string | null;
   duration?: number | null;
@@ -52,11 +54,23 @@ const MAX_COVER_MB = 5;
 function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
+  const [bio, setBio] = useState("");
   const [lrc, setLrc] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!coverFile) {
+      setCoverPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(coverFile);
+    setCoverPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [coverFile]);
 
   const pickUnder = (file: File | undefined, maxMB: number, label: string): File | null => {
     if (!file) return null;
@@ -68,14 +82,9 @@ function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
     return file;
   };
 
-  const uploadOne = async (file: File, assetType: string) => {
-    const fd = new FormData();
-    fd.append("fileToUpload", file);
-    fd.append("assetType", assetType);
-    const res = await fetch("/api/upload", { method: "POST", body: fd, signal: AbortSignal.timeout(30_000) });
-    const data = await res.json().catch(() => null);
-    if (!res.ok || !data?.url) throw new Error(data?.error || "Upload failed");
-    return data.url as string;
+  const uploadOne = async (file: File, _assetType: string) => {
+    const result = await uploadMediaFile(file, { category: "audio" });
+    return result.url;
   };
 
   const probeDuration = (url: string) =>
@@ -99,18 +108,20 @@ function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
     });
 
   const submit = async () => {
-    if (!audioFile || !coverFile || busy) return;
+    if (!audioFile || busy) return;
     setBusy(true);
     setError(null);
     try {
       const streamUrl = await uploadOne(audioFile, "track");
-      const artwork = await uploadOne(coverFile, "artwork");
+      const artwork = coverFile ? await uploadOne(coverFile, "artwork") : null;
       const duration = await probeDuration(streamUrl);
-      const lyrics = lrc.trim() ? parseLRC(lrc) : null;
+      const lyrics = lrc.trim() ? parseLRC(lrc, duration) : null;
+      const cleanName = audioFile.name.replace(/\.[^.]+$/, "").replace(/_/g, " ").trim();
       onDone({
         id: `custom-${Date.now().toString(36)}`,
-        title: title.trim() || audioFile.name.replace(/\.[^.]+$/, "") || "Untitled",
+        title: title.trim() || cleanName || "Untitled",
         artist: artist.trim() || "Unknown artist",
+        bio: bio.trim() || null,
         artwork,
         album: null,
         duration,
@@ -126,72 +137,116 @@ function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
 
   return (
     <div className="flex flex-col gap-4 py-1">
-      <label className="w-full border border-dashed border-white/[0.12] hover:border-[#5b6cf5]/50 rounded-2xl bg-[#141414]/40 px-4 py-6 flex flex-col items-center justify-center text-center cursor-pointer transition-colors">
+      <label className="w-full border border-dashed border-white/[0.14] hover:border-[#f05e23]/55 rounded-2xl bg-[#141414]/50 px-4 py-5 flex flex-col items-center justify-center text-center cursor-pointer transition-colors">
         <input
           type="file"
           accept="audio/mpeg,audio/mp3,audio/mp4,audio/m4a,audio/ogg,audio/flac,audio/wav,audio/*"
           className="hidden"
-          onChange={(e) => setAudioFile(pickUnder(e.target.files?.[0], MAX_AUDIO_MB, "The audio file"))}
+          onChange={(e) => {
+            const picked = pickUnder(e.target.files?.[0], MAX_AUDIO_MB, "The audio file");
+            setAudioFile(picked);
+            if (picked && !title.trim()) {
+              setTitle(picked.name.replace(/\.[^.]+$/, "").replace(/_/g, " ").trim());
+            }
+          }}
         />
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-white/40 mb-2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-[#f05e23] mb-2">
           <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
         </svg>
-        <span className="text-[13px] text-white/80">
+        <span className="text-[13px] text-white/90">
           {audioFile ? audioFile.name : "Choose an audio file"}
         </span>
         <span className="text-[11.5px] text-white/35 mt-1">MP3, M4A, OGG, FLAC or WAV · up to 15MB</span>
       </label>
 
-      <div className="flex flex-col gap-1.5">
-        <label className="text-[12.5px] text-white/40">Title</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          maxLength={200}
-          placeholder="Song title"
-          className="bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white placeholder:text-white/25 focus:outline-none focus:border-white/10"
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[12.5px] text-white/50">Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={200}
+            placeholder="Song title"
+            className="bg-[#161616] border border-white/8 rounded-xl h-10 px-3.5 text-[13px] text-white placeholder:text-white/25 focus:outline-none focus:border-[#f05e23]/40"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[12.5px] text-white/50">Artist</label>
+          <input
+            type="text"
+            value={artist}
+            onChange={(e) => setArtist(e.target.value)}
+            maxLength={200}
+            placeholder="Artist name"
+            className="bg-[#161616] border border-white/8 rounded-xl h-10 px-3.5 text-[13px] text-white placeholder:text-white/25 focus:outline-none focus:border-[#f05e23]/40"
+          />
+        </div>
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-[12.5px] text-white/40">Artist</label>
+        <label className="text-[12.5px] text-white/50">
+          Bio / Caption <span className="text-white/25">(optional)</span>
+        </label>
         <input
           type="text"
-          value={artist}
-          onChange={(e) => setArtist(e.target.value)}
-          maxLength={200}
-          placeholder="Artist name"
-          className="bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white placeholder:text-white/25 focus:outline-none focus:border-white/10"
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          maxLength={180}
+          placeholder="Short note or caption shown on the player"
+          className="bg-[#161616] border border-white/8 rounded-xl h-10 px-3.5 text-[13px] text-white placeholder:text-white/25 focus:outline-none focus:border-[#f05e23]/40"
         />
       </div>
 
-      <label className="w-full border border-white/5 hover:border-white/15 rounded-2xl bg-[#141414]/40 px-4 py-3.5 flex items-center gap-3 cursor-pointer transition-colors">
-        <input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => setCoverFile(pickUnder(e.target.files?.[0], MAX_COVER_MB, "The cover"))}
-        />
-        <span className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-center shrink-0 overflow-hidden">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
-            <rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.5-3.5a2 2 0 0 0-3 0L6 20" />
-          </svg>
-        </span>
-        <span className="flex flex-col">
-          <span className="text-[13px] text-white/80">{coverFile ? coverFile.name : "Cover art"}</span>
-          <span className="text-[11.5px] text-white/35">Square image works best · up to {MAX_COVER_MB}MB · required</span>
-        </span>
-      </label>
+      <div className="w-full border border-white/8 hover:border-white/15 rounded-2xl bg-[#141414]/40 px-4 py-3 flex items-center gap-3 transition-colors">
+        <label className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer">
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              setCoverFile(pickUnder(e.target.files?.[0], MAX_COVER_MB, "The cover"));
+              e.target.value = "";
+            }}
+          />
+          <span className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/8 flex items-center justify-center shrink-0 overflow-hidden relative">
+            {coverPreview ? (
+              <NextImage src={coverPreview} alt="" fill sizes="40px" unoptimized className="object-cover" />
+            ) : (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
+                <rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.5-3.5a2 2 0 0 0-3 0L6 20" />
+              </svg>
+            )}
+          </span>
+          <span className="flex flex-col min-w-0">
+            <span className="text-[13px] text-white/85 truncate">
+              {coverFile ? coverFile.name : "Cover art / Banner"} <span className="text-white/30 text-[11.5px]">(optional)</span>
+            </span>
+            <span className="text-[11.5px] text-white/35">Optional image · up to {MAX_COVER_MB}MB</span>
+          </span>
+        </label>
+        {coverFile && (
+          <button
+            type="button"
+            onClick={() => setCoverFile(null)}
+            className="text-[11.5px] text-white/50 hover:text-red-300 px-2 py-1 rounded-lg hover:bg-white/[0.05] transition-colors cursor-pointer shrink-0"
+          >
+            Remove
+          </button>
+        )}
+      </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-[12.5px] text-white/40">Lyrics <span className="text-white/25">(optional, LRC format)</span></label>
+        <label className="text-[12.5px] text-white/50">
+          Lyrics <span className="text-white/25">(optional · synced LRC or plain lines)</span>
+        </label>
         <textarea
           value={lrc}
           onChange={(e) => setLrc(e.target.value)}
           rows={3}
-          placeholder={"[00:12.00] First line\n[00:16.50] Second line"}
-          className="bg-[#161616] border border-white/5 rounded-xl px-3.5 py-2.5 text-[13px] font-mono text-white placeholder:text-white/25 resize-y focus:outline-none focus:border-white/10"
+          placeholder={"[00:12.00] First line\n[00:16.50] Second line\n\nOr paste plain lyrics line by line"}
+          className="bg-[#161616] border border-white/8 rounded-xl px-3.5 py-2.5 text-[13px] font-mono text-white placeholder:text-white/25 resize-y focus:outline-none focus:border-[#f05e23]/40"
         />
       </div>
 
@@ -200,11 +255,11 @@ function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
       <button
         type="button"
         onClick={submit}
-        disabled={!audioFile || !coverFile || busy}
-        className="w-full h-10 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white text-[13px] font-normal transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        disabled={!audioFile || busy}
+        className="w-full h-10 rounded-xl bg-[#f05e23]/25 hover:bg-[#f05e23]/35 border border-[#f05e23]/30 text-white text-[13px] font-normal transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {busy ? (
-          <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-[#5b6cf5] animate-spin" />
+          <span className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
         ) : (
           "Upload track"
         )}
@@ -215,10 +270,12 @@ function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
 
 export default function SearchTracksModal({
   open,
+  initialView = "choose",
   onClose,
   onSelect,
 }: {
   open: boolean;
+  initialView?: "choose" | "search" | "upload";
   onClose: () => void;
   onSelect: (track: SearchTrack) => void;
 }) {
@@ -236,7 +293,7 @@ export default function SearchTracksModal({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [lyricLines, setLyricLines] = useState<LyricLine[]>([]);
   const [lyricsLoading, setLyricsLoading] = useState(false);
-  const [view, setView] = useState<"choose" | "search" | "upload">("choose");
+  const [view, setView] = useState<"choose" | "search" | "upload">(initialView);
   const activeLyricRef = useRef<HTMLParagraphElement | null>(null);
   const lyricsScrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -261,20 +318,22 @@ export default function SearchTracksModal({
   };
 
   useEffect(() => {
-    if (!open) {
-      setQuery("");
-      setResults([]);
-      setError(null);
-      setLoading(false);
-      setSearched(false);
-      abortRef.current?.abort();
-      stopPreview();
-      setSelectedId(null);
-      setLyricLines([]);
-      setLyricsLoading(false);
-      setView("choose");
+    if (open) {
+      setView(initialView);
+      return;
     }
-  }, [open ]);
+    setQuery("");
+    setResults([]);
+    setError(null);
+    setLoading(false);
+    setSearched(false);
+    abortRef.current?.abort();
+    stopPreview();
+    setSelectedId(null);
+    setLyricLines([]);
+    setLyricsLoading(false);
+    setView(initialView);
+  }, [open, initialView]);
 
   useEffect(
     () => () => {
@@ -551,9 +610,13 @@ export default function SearchTracksModal({
             className={`relative w-full ${results.length > 0 ? "max-w-[900px]" : "max-w-[560px]"} max-h-[85vh] flex flex-col bg-[#0c0c0c] border border-white/10 rounded-[24px] shadow-2xl z-10 overflow-hidden transition-all duration-200`}
           >
             <div className="px-4 sm:px-6 pt-4 sm:pt-5 pb-4 border-b border-white/[0.06] shrink-0">
-              <h3 className="text-[15px] font-normal text-white tracking-tight">Search Tracks</h3>
+              <h3 className="text-[15px] font-normal text-white tracking-tight">
+                {view === "upload" ? "Upload Audio Track" : view === "search" ? "Search Songs" : "Add Music Track"}
+              </h3>
               <p className="text-[12.5px] text-white/40 mt-0.5">
-                Select a track to preview audio and lyrics, then add it.
+                {view === "upload"
+                  ? "Upload your own audio with custom title, artist, bio, lyrics, and optional banner."
+                  : "Search for a song or upload your own audio file."}
               </p>
             </div>
 
@@ -573,7 +636,7 @@ export default function SearchTracksModal({
                     <span className="flex-1 min-w-0 flex flex-col">
                       <span className="flex items-center gap-2">
                         <span className="text-[13.5px] font-medium text-white">Search</span>
-                        <span className="text-[10px] font-medium text-white bg-[#2b3280] border border-[#5b6cf5]/50 rounded-full px-2 py-0.5">Recommended</span>
+                        <span className="text-[10px] font-medium text-white bg-[#5c240d] border border-[#f05e23]/50 rounded-full px-2 py-0.5">Recommended</span>
                       </span>
                       <span className="text-[12px] text-white/40 mt-0.5">Find any song with artwork and synced lyrics.</span>
                     </span>
@@ -591,7 +654,7 @@ export default function SearchTracksModal({
                     </span>
                     <span className="flex-1 min-w-0 flex flex-col">
                       <span className="text-[13.5px] font-medium text-white">Upload</span>
-                      <span className="text-[12px] text-white/40 mt-0.5">Upload your own MP3 file with custom cover art.</span>
+                      <span className="text-[12px] text-white/40 mt-0.5">Upload your own MP3/audio file with optional cover banner & lyrics.</span>
                     </span>
                   </button>
                 </div>
@@ -633,7 +696,7 @@ export default function SearchTracksModal({
                   className="w-full bg-transparent text-[13px] text-white placeholder:text-white/25 focus:outline-none"
                 />
                 {loading && (
-                  <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#5b6cf5] animate-spin shrink-0 ml-2" />
+                  <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#f05e23] animate-spin shrink-0 ml-2" />
                 )}
               </div>
 
@@ -657,7 +720,7 @@ export default function SearchTracksModal({
                           }}
                           className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left cursor-pointer ${
                             isSelected
-                              ? "bg-[#5b6cf5]/10 border border-[#5b6cf5]/25"
+                              ? "bg-[#f05e23]/10 border border-[#f05e23]/25"
                               : "border border-transparent hover:bg-white/[0.05]"
                           }`}
                         >
@@ -694,12 +757,12 @@ export default function SearchTracksModal({
                           title={previewActive ? "Stop preview" : "Play preview"}
                           className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all cursor-pointer ${
                             previewActive
-                              ? "bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)]"
-                              : "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)]"
+                              ? "bg-[#f05e23]/30 text-white shadow-[0_0_15px_rgba(240,94,35,0.1)]"
+                              : "bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white shadow-[0_0_15px_rgba(240,94,35,0.1)]"
                           }`}
                         >
                           {buffering ? (
-                            <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#5b6cf5] animate-spin shrink-0" />
+                            <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#f05e23] animate-spin shrink-0" />
                           ) : playing ? (
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                               <rect x="6" y="5" width="4" height="14" rx="1" />
@@ -724,7 +787,7 @@ export default function SearchTracksModal({
                         >
                           {lyricsLoading ? (
                             <div className="flex items-center justify-center py-8">
-                              <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-[#5b6cf5] animate-spin" />
+                              <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-[#f05e23] animate-spin" />
                             </div>
                           ) : lyricLines.length === 0 ? (
                             <p className="text-[13px] text-white/50 blur-[2.5px] opacity-70 select-none text-center py-8">
@@ -800,11 +863,14 @@ export default function SearchTracksModal({
                         type="button"
                         onClick={() => {
                           stopPreview();
-                          onSelect(selectedTrack);
+                          onSelect({
+                            ...selectedTrack,
+                            lyrics: lyricLines.length > 0 ? lyricLines : selectedTrack.lyrics ?? null,
+                          });
                           setQuery("");
                           onClose();
                         }}
-                        className="w-full h-9 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white text-[13px] font-normal transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
+                        className="w-full h-9 rounded-xl bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white text-[13px] font-normal transition-all shadow-[0_0_15px_rgba(240,94,35,0.1)] cursor-pointer"
                       >
                         Add track
                       </button>
@@ -818,7 +884,7 @@ export default function SearchTracksModal({
                       <span
                         key={i}
                         style={{ height: `${h * 100}%`, animationDelay: `${i * 120}ms` }}
-                        className={`w-1 rounded-full bg-[#5b6cf5]/70 ${emptyActive ? "" : "opacity-40"}`}
+                        className={`w-1 rounded-full bg-[#f05e23]/70 ${emptyActive ? "" : "opacity-40"}`}
                       />
                     ))}
                   </div>

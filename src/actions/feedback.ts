@@ -1,25 +1,21 @@
-import { getStore, saveStore } from "@/lib/local-store";
+import { authFetch } from "@/lib/auth-client";
+import { hydrateStoreFromServer } from "@/lib/local-store";
 
 export async function submitFeedbackAction(
   userId: number,
   type: "like" | "dislike" | "unlike" | "undislike"
 ) {
-  const state = getStore();
-  const target = state.users[userId];
-  if (!target) return { success: false, error: "Profile not found." };
-
-  if (type === "like") target.likesCount += 1;
-  else if (type === "unlike") target.likesCount = Math.max(0, target.likesCount - 1);
-  else if (type === "dislike") target.dislikesCount += 1;
-  else if (type === "undislike") target.dislikesCount = Math.max(0, target.dislikesCount - 1);
-
-  saveStore(state);
-  return {
-    success: true,
-    likesCount: target.likesCount,
-    dislikesCount: target.dislikesCount,
-    userReaction: type === "like" ? "like" : type === "dislike" ? "dislike" : null,
-  };
+  const res = await authFetch("/api/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, type }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    return { success: false, error: (body as { error?: string }).error || "Sign in to react to profiles." };
+  }
+  await hydrateStoreFromServer();
+  return body;
 }
 
 export async function getDashboardFeedback(
@@ -28,46 +24,28 @@ export async function getDashboardFeedback(
   _limit = 4,
   _extra?: unknown
 ) {
-  const state = getStore();
-  const rex = state.users[2];
-  const sara = state.users[3];
-  const received = [
-    {
-      id: 1,
-      receiverId: 1,
-      giverId: rex.id,
-      type: "like" as const,
-      createdAt: new Date(Date.now() - 3600 * 1000 * 2),
-      user: {
-        id: rex.id,
-        username: rex.username,
-        displayName: rex.displayName,
-        avatarUrl: rex.avatarUrl,
-        avatarShape: rex.avatarShape,
-      },
-    },
-    {
-      id: 2,
-      receiverId: 1,
-      giverId: sara.id,
-      type: "like" as const,
-      createdAt: new Date(Date.now() - 3600 * 1000 * 12),
-      user: {
-        id: sara.id,
-        username: sara.username,
-        displayName: sara.displayName,
-        avatarUrl: sara.avatarUrl,
-        avatarShape: sara.avatarShape,
-      },
-    },
-  ];
+  const res = await authFetch("/api/dashboard/feedback");
+  if (!res.ok) {
+    return {
+      success: true,
+      received: [],
+      given: [],
+      receivedHasMore: false,
+      givenHasMore: false,
+      receivedTotal: 0,
+      givenTotal: 0,
+    };
+  }
+  const data = await res.json();
   return {
-    success: true,
-    received,
-    given: [],
-    receivedHasMore: false,
-    givenHasMore: false,
-    receivedTotal: received.length,
-    givenTotal: 0,
+    ...data,
+    received: (data.received ?? []).map((r: Record<string, unknown>) => ({
+      ...r,
+      createdAt: new Date(String(r.createdAt)),
+    })),
+    given: (data.given ?? []).map((g: Record<string, unknown>) => ({
+      ...g,
+      createdAt: new Date(String(g.createdAt)),
+    })),
   };
 }

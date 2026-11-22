@@ -9,27 +9,6 @@ export default defineConfig(() => {
     plugins: [
       react(),
       tailwindcss(),
-      {
-        name: 'intercept-app-fetch',
-        transform(code: string, id: string) {
-          const normalized = id.replace(/\\/g, '/');
-          if (
-            !normalized.includes('/node_modules/') &&
-            normalized.includes('/src/') &&
-            !normalized.endsWith('/src/lib/api-interceptor.ts') &&
-            /\bfetch\s*\(/.test(code)
-          ) {
-            return {
-              code: code.replace(
-                /(?<![.\w$])fetch\s*\(/g,
-                '((globalThis).__prophileFetch || fetch)('
-              ),
-              map: null,
-            };
-          }
-          return null;
-        },
-      },
       // Copies src/assets into dist/ so root-relative URLs like
       // "/src/assets/images/..." (e.g. generate_image output) still resolve
       // in production builds. Do not remove.

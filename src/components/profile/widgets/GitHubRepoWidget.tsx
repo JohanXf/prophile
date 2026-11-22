@@ -60,7 +60,7 @@ export default function GitHubRepoWidget({ widget }: { widget: WidgetItem }) {
     return <WidgetUnavailable imageShape={imageShape} label="GitHub repository" />;
   }
 
-  const langColor = repoData.language ? LANGUAGE_COLORS[repoData.language] || "#5b6cf5" : "#5b6cf5";
+  const langColor = repoData.language ? LANGUAGE_COLORS[repoData.language] || "#f05e23" : "#f05e23";
 
   return (
     <a

@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { SITE_CONFIG } from '@/lib/config';
 
+import { useAuth } from '@/components/auth/AuthProvider';
+
 interface NavbarProps {
   isAuthenticated?: boolean;
 }
@@ -21,24 +23,8 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = React.useState(() => tabForPath(pathname));
   const [hidden, setHidden] = React.useState(false);
-  const serverAuthProvided = isAuthenticated !== undefined;
-  const [clientAuth, setClientAuth] = React.useState(false);
-
-  React.useEffect(() => {
-    if (serverAuthProvided) return;
-    let cancelled = false;
-    fetch("/api/auth/me")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (!cancelled && d?.authenticated) setClientAuth(true);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [serverAuthProvided]);
-
-  const showDashboard = serverAuthProvided ? isAuthenticated : clientAuth;
+  const { isAuthenticated: authIsAuthenticated, user } = useAuth();
+  const showDashboard = isAuthenticated !== undefined ? isAuthenticated : authIsAuthenticated;
 
   React.useEffect(() => {
     setActiveTab(tabForPath(pathname));
@@ -119,10 +105,10 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
         <div className="bg-[#0c0c0c]/95 lg:bg-[#0c0c0c]/85 lg:backdrop-blur-xl border border-white/10 rounded-full px-4 sm:px-6 py-3 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           <Link href="/" className="flex items-center gap-1.5 shrink-0 hover:opacity-80 transition-opacity">
             <Image src="/Favicon.png" alt="prophile Logo" width={512} height={512} className="w-5 h-auto object-contain shrink-0" priority />
-            <span className="font-light text-white tracking-tight text-base" style={{ fontFamily: "var(--font-comfortaa)" }}>pro<span className="text-[#5b6cf5] lowercase">phile</span></span>
+            <span className="font-light text-white tracking-tight text-base" style={{ fontFamily: "var(--font-comfortaa)" }}>pro<span className="text-[#f05e23] lowercase">phile</span></span>
           </Link>
 
-          <div className="hidden lg:flex shrink-0 items-center gap-1 bg-[#5b6cf5]/3 rounded-full p-1 border border-[#5b6cf5]/10 relative">
+          <div className="hidden lg:flex shrink-0 items-center gap-1 bg-[#f05e23]/3 rounded-full p-1 border border-[#f05e23]/10 relative">
             {tabs.map((tab) => {
               const tabClassName = `px-5 py-1.5 rounded-full text-[13px] font-light transition-all relative z-10 cursor-pointer ${
                 activeTab === tab.label
@@ -134,7 +120,7 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
                   {activeTab === tab.label && (
                     <motion.div
                       layoutId="navbar-bubble"
-                      className="absolute inset-0 bg-[#5b6cf5]/20 shadow-[0_0_15px_rgba(91,108,245,0.1)] rounded-full z-0"
+                      className="absolute inset-0 bg-[#f05e23]/20 shadow-[0_0_15px_rgba(240,94,35,0.1)] rounded-full z-0"
                       transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
                     />
                   )}
@@ -165,18 +151,29 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
             })}
           </div>
 
-          <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
             {showDashboard ? (
-              <Link
-                href="/dashboard"
-                className="whitespace-nowrap bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer flex items-center gap-2"
-                style={{ fontFamily: "var(--font-comfortaa)" }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2 17L12 22L22 17"/><path d="M2 12L12 17L22 12"/><path d="M12 2L2 7L12 12L22 7L12 2Z"/>
-                </svg>
-                Dashboard
-              </Link>
+              <>
+                {user?.username && (
+                  <Link
+                    href={`/${user.username}`}
+                    className="hidden sm:inline-flex whitespace-nowrap shrink-0 items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-normal text-white/70 hover:text-white hover:bg-white/[0.06] transition-all cursor-pointer"
+                    style={{ fontFamily: "var(--font-comfortaa)" }}
+                  >
+                    <span>/{user.username}</span>
+                  </Link>
+                )}
+                <Link
+                  href="/dashboard"
+                  className="whitespace-nowrap shrink-0 bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white px-5 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(240,94,35,0.1)] cursor-pointer flex items-center gap-2"
+                  style={{ fontFamily: "var(--font-comfortaa)" }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 17L12 22L22 17"/><path d="M2 12L12 17L22 12"/><path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+                  </svg>
+                  Dashboard
+                </Link>
+              </>
             ) : (
               <>
                 <Link
@@ -188,7 +185,7 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
                 </Link>
                 <Link
                   href="/register"
-                  className="whitespace-nowrap bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
+                  className="whitespace-nowrap bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(240,94,35,0.1)] cursor-pointer"
                   style={{ fontFamily: "var(--font-comfortaa)" }}
                 >
                   Get Started
@@ -234,7 +231,16 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
                     className="absolute right-0 top-[calc(100%+10px)] w-56 rounded-2xl bg-[#0c0c0c] border border-white/10 shadow-[0_16px_48px_rgba(0,0,0,0.5)] p-1.5 z-50"
                     style={{ fontFamily: "var(--font-comfortaa)" }}
                   >
-                    {!showDashboard && (
+                    {showDashboard && user?.username ? (
+                      <Link
+                        href={`/${user.username}`}
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-light text-white/90 hover:text-white hover:bg-[#f05e23]/12 transition-all"
+                      >
+                        <span>My Page</span>
+                        <span className="text-xs text-[#f05e23]">/{user.username}</span>
+                      </Link>
+                    ) : !showDashboard ? (
                       <Link
                         href="/signin"
                         onClick={() => setMenuOpen(false)}
@@ -242,13 +248,13 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
                       >
                         Sign In
                       </Link>
-                    )}
+                    ) : null}
                     {tabs.map((tab) => {
                       const row = (
                         <>
                           <span>{tab.label}</span>
                           {activeTab === tab.label && (
-                            <span className="w-1 h-1 rounded-full bg-[#5b6cf5] shrink-0" />
+                            <span className="w-1 h-1 rounded-full bg-[#f05e23] shrink-0" />
                           )}
                         </>
                       );

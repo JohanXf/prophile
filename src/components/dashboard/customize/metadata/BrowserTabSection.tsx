@@ -123,7 +123,7 @@ export default function BrowserTabSection({
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col gap-5">
       <div className="flex items-center gap-3">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f05e23" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <rect width="18" height="18" x="3" y="3" rx="2" />
           <path d="M3 9h18" />
           <path d="M7 6h.01" />
@@ -188,7 +188,7 @@ export default function BrowserTabSection({
             onClick={() => setTabTitleAnimated(!tabTitleAnimated)}
             aria-pressed={tabTitleAnimated}
             className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 cursor-pointer focus:outline-none ${
-              tabTitleAnimated ? "bg-[#5b6cf5]" : "bg-white/10"
+              tabTitleAnimated ? "bg-[#f05e23]" : "bg-white/10"
             }`}
           >
             <div

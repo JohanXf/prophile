@@ -84,14 +84,14 @@ export default function HeaderSection({
             height="22"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#5b6cf5"
+            stroke="#f05e23"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           >
             <rect x="3" y="3" width="18" height="18" rx="2" />
             <path d="M3 9h18" />
-            <circle cx="7.5" cy="6" r="1.25" fill="#5b6cf5" stroke="none" />
+            <circle cx="7.5" cy="6" r="1.25" fill="#f05e23" stroke="none" />
           </svg>
           <h2 className="text-white font-normal text-[16px] tracking-tight">
             Header
@@ -141,7 +141,7 @@ export default function HeaderSection({
                         isSelected ? "bg-white/[0.06]" : "hover:bg-white/[0.04]"
                       }`}
                     >
-                      <span className="w-3.5 shrink-0 pt-[3px] text-[#5b6cf5]">
+                      <span className="w-3.5 shrink-0 pt-[3px] text-[#f05e23]">
                         {isSelected && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M20 6 9 17l-5-5" />

@@ -6,11 +6,11 @@ export type FaqItem = {
 export const HOME_FAQS: FaqItem[] = [
   {
     q: "Is prophile really free?",
-    a: "Yes. The free plan covers your username, page, background, music, widgets and effects, forever. Premium is a one time payment for people who want more.",
+    a: "Yes. The free plan covers your username, page, background, music, widgets and effects. Premium is just $1/month for people who want more, cancel anytime.",
   },
   {
     q: "What does Premium unlock?",
-    a: "More of everything. 5 backgrounds, 10 tracks, 10 widgets, every effect, aliases, tab customization and the Premium badge. Pay once, keep it for life.",
+    a: "More of everything. 5 backgrounds, 10 tracks, 10 widgets, every effect, aliases, tab customization and the Premium badge — all for $1/month.",
   },
   {
     q: "How do widgets stay updated?",

@@ -8,6 +8,7 @@ import {
   SIDED_SLOTS,
   detailSide,
 } from "@/components/profile/layouts/ProfilePresetLayout";
+import { type VolumePlacement } from "@/components/profile/music/volume";
 
 const PLACEMENTS: { id: Exclude<DetailPlacement, "hidden">; label: string }[] = [
   { id: "top", label: "Top of profile" },
@@ -107,6 +108,10 @@ interface ProfileDetailsSectionProps {
   setPlacement: (key: DetailKey, value: DetailPlacement) => void;
   layout: DetailLayout;
   setLayout: (layout: DetailLayout) => void;
+  volumeEnabled?: boolean;
+  setVolumeEnabled?: (val: boolean) => void;
+  volumePlacement?: VolumePlacement;
+  setVolumePlacement?: (val: VolumePlacement) => void;
 }
 
 const SIDES: { id: DetailSide; label: string }[] = [
@@ -114,14 +119,63 @@ const SIDES: { id: DetailSide; label: string }[] = [
   { id: "right", label: "Right corner" },
 ];
 
+type VolumeSlot = "top" | "bottom" | "player";
+
+const VOLUME_SLOTS: { id: VolumeSlot; label: string }[] = [
+  { id: "top", label: "Top of page" },
+  { id: "bottom", label: "Bottom of page" },
+  { id: "player", label: "Inside player" },
+];
+
+function volumeSummary(enabled: boolean, placement: VolumePlacement): string {
+  if (!enabled) return "Not shown anywhere on your profile";
+  switch (placement) {
+    case "top-left":
+      return "Shown in the top left corner of your page";
+    case "top-right":
+      return "Shown in the top right corner of your page";
+    case "bottom-left":
+      return "Shown in the bottom left corner of your page";
+    case "bottom-right":
+      return "Shown in the bottom right corner of your page";
+    case "player":
+      return "Shown inside the music player card";
+  }
+}
+
 export default function ProfileDetailsSection({
   placements,
   setPlacement,
   layout,
   setLayout,
+  volumeEnabled = true,
+  setVolumeEnabled,
+  volumePlacement = "top-left",
+  setVolumePlacement,
 }: ProfileDetailsSectionProps) {
   const setSide = (key: DetailKey, side: DetailSide) =>
     setLayout({ ...layout, sides: { ...layout.sides, [key]: side } });
+
+  const volSlot: VolumeSlot =
+    volumePlacement === "player"
+      ? "player"
+      : volumePlacement.startsWith("bottom")
+        ? "bottom"
+        : "top";
+  const volSide: DetailSide = volumePlacement.endsWith("right") ? "right" : "left";
+
+  const setVolumeSlot = (slot: VolumeSlot) => {
+    if (!setVolumePlacement) return;
+    if (setVolumeEnabled && !volumeEnabled) setVolumeEnabled(true);
+    if (slot === "player") setVolumePlacement("player");
+    else setVolumePlacement(`${slot}-${volSide}` as VolumePlacement);
+  };
+
+  const setVolumeSide = (side: DetailSide) => {
+    if (!setVolumePlacement || volSlot === "player") return;
+    if (setVolumeEnabled && !volumeEnabled) setVolumeEnabled(true);
+    setVolumePlacement(`${volSlot}-${side}` as VolumePlacement);
+  };
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 flex flex-col gap-6 shadow-sm">
       <div className="flex flex-col gap-2">
@@ -131,7 +185,7 @@ export default function ProfileDetailsSection({
             height="22"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#5b6cf5"
+            stroke="#f05e23"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -166,7 +220,7 @@ export default function ProfileDetailsSection({
                   className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center transition-colors ${
                     isHidden
                       ? "bg-white/[0.03] text-white/20"
-                      : "bg-[#5b6cf5]/10 text-[#5b6cf5]"
+                      : "bg-[#f05e23]/10 text-[#f05e23]"
                   }`}
                 >
                   {detail.icon}
@@ -197,7 +251,7 @@ export default function ProfileDetailsSection({
                   aria-pressed={!isHidden}
                   title={isHidden ? "Show on profile" : "Hide from profile"}
                   className={`w-9 h-5 rounded-full relative flex items-center shrink-0 transition-colors cursor-pointer focus:outline-none ${
-                    isHidden ? "bg-white/10 hover:bg-white/[0.14]" : "bg-[#5b6cf5]"
+                    isHidden ? "bg-white/10 hover:bg-white/[0.14]" : "bg-[#f05e23]"
                   }`}
                 >
                   <div
@@ -222,7 +276,7 @@ export default function ProfileDetailsSection({
                       aria-pressed={isSelected}
                       className={`text-[12px] px-3 py-1.5 rounded-full border transition-colors cursor-pointer focus:outline-none ${
                         isSelected
-                          ? "bg-[#111326] border-[#5b6cf5]/40 text-[#5b6cf5] font-medium"
+                          ? "bg-[#1f0e08] border-[#f05e23]/40 text-[#f05e23] font-medium"
                           : isHidden
                             ? "bg-white/[0.02] border-white/5 text-white/25 hover:text-white/50"
                             : "bg-[#111111] border-white/5 text-white/50 hover:border-white/15 hover:text-white/80"
@@ -246,7 +300,7 @@ export default function ProfileDetailsSection({
                         aria-pressed={isSelected}
                         className={`text-[12px] px-3 py-1.5 rounded-full border transition-colors cursor-pointer focus:outline-none ${
                           isSelected
-                            ? "bg-[#111326] border-[#5b6cf5]/40 text-[#5b6cf5] font-medium"
+                            ? "bg-[#1f0e08] border-[#f05e23]/40 text-[#f05e23] font-medium"
                             : "bg-[#111111] border-white/5 text-white/50 hover:border-white/15 hover:text-white/80"
                         }`}
                       >
@@ -259,6 +313,104 @@ export default function ProfileDetailsSection({
             </div>
           );
         })}
+
+        {setVolumePlacement && (
+          <div className="flex flex-col gap-3 py-5 border-t border-white/5">
+            <div className="flex items-start gap-3">
+              <div
+                className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center transition-colors ${
+                  !volumeEnabled
+                    ? "bg-white/[0.03] text-white/20"
+                    : "bg-[#f05e23]/10 text-[#f05e23]"
+                }`}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                </svg>
+              </div>
+
+              <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                <span
+                  className={`text-[13px] font-medium ${
+                    !volumeEnabled ? "text-white/35" : "text-white/90"
+                  }`}
+                >
+                  Volume meter
+                </span>
+                <span className="text-[11.5px] text-white/35 leading-snug">
+                  {volumeSummary(volumeEnabled, volumePlacement)}
+                </span>
+              </div>
+
+              {setVolumeEnabled && (
+                <button
+                  type="button"
+                  onClick={() => setVolumeEnabled(!volumeEnabled)}
+                  aria-label={`${volumeEnabled ? "Hide" : "Show"} Volume meter`}
+                  aria-pressed={volumeEnabled}
+                  title={volumeEnabled ? "Hide from profile" : "Show on profile"}
+                  className={`w-9 h-5 rounded-full relative flex items-center shrink-0 transition-colors cursor-pointer focus:outline-none ${
+                    !volumeEnabled ? "bg-white/10 hover:bg-white/[0.14]" : "bg-[#f05e23]"
+                  }`}
+                >
+                  <div
+                    className={`w-3.5 h-3.5 rounded-full absolute bg-white shadow-sm transition-all ${
+                      !volumeEnabled ? "left-[3px]" : "right-[3px]"
+                    }`}
+                  />
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {VOLUME_SLOTS.map((slot) => {
+                const isSelected = volumeEnabled && volSlot === slot.id;
+                return (
+                  <button
+                    key={slot.id}
+                    type="button"
+                    onClick={() => setVolumeSlot(slot.id)}
+                    aria-pressed={isSelected}
+                    className={`text-[12px] px-3 py-1.5 rounded-full border transition-colors cursor-pointer focus:outline-none ${
+                      isSelected
+                        ? "bg-[#1f0e08] border-[#f05e23]/40 text-[#f05e23] font-medium"
+                        : !volumeEnabled
+                          ? "bg-white/[0.02] border-white/5 text-white/25 hover:text-white/50"
+                          : "bg-[#111111] border-white/5 text-white/50 hover:border-white/15 hover:text-white/80"
+                    }`}
+                  >
+                    {slot.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {volumeEnabled && volSlot !== "player" && (
+              <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Volume meter corner">
+                {SIDES.map((s) => {
+                  const isSelected = volSide === s.id;
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setVolumeSide(s.id)}
+                      aria-pressed={isSelected}
+                      className={`text-[12px] px-3 py-1.5 rounded-full border transition-colors cursor-pointer focus:outline-none ${
+                        isSelected
+                          ? "bg-[#1f0e08] border-[#f05e23]/40 text-[#f05e23] font-medium"
+                          : "bg-[#111111] border-white/5 text-white/50 hover:border-white/15 hover:text-white/80"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -55,13 +55,13 @@ export default function ColorCustomization({
                 height="22"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#5b6cf5"
+                stroke="#f05e23"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
                 <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
-                <circle cx="12" cy="12" r="2" fill="#5b6cf5" stroke="none" opacity="0.3"/>
+                <circle cx="12" cy="12" r="2" fill="#f05e23" stroke="none" opacity="0.3"/>
               </svg>
               <h2 className="text-white font-normal text-[16px] tracking-tight">Profile Color</h2>
             </div>
@@ -73,7 +73,7 @@ export default function ColorCustomization({
           <button
             type="button"
             onClick={handleRandomize}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#5b6cf5]/10 hover:bg-[#5b6cf5]/20 border border-[#5b6cf5]/25 hover:border-[#5b6cf5]/45 text-[#5b6cf5] hover:text-white text-xs font-medium transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#f05e23]/10 hover:bg-[#f05e23]/20 border border-[#f05e23]/25 hover:border-[#f05e23]/45 text-[#f05e23] hover:text-white text-xs font-medium transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>

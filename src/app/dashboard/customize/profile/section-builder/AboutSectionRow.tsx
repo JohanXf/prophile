@@ -30,7 +30,7 @@ export default function AboutSectionRow({ data, onChange, dragHandleProps, dropH
   return (
     <div
       data-section="about"
-      className={`bg-[#0c0c0c] border rounded-[16px] transition-all duration-150 select-none ${hidden ? "opacity-40" : ""} ${isDragging ? "opacity-35 border-[#5b6cf5]/40 scale-[0.99]" : dropHighlight ? "border-[#5b6cf5] shadow-lg shadow-[#5b6cf5]/10" : "border-white/5"}`}
+      className={`bg-[#0c0c0c] border rounded-[16px] transition-all duration-150 select-none ${hidden ? "opacity-40" : ""} ${isDragging ? "opacity-35 border-[#f05e23]/40 scale-[0.99]" : dropHighlight ? "border-[#f05e23] shadow-lg shadow-[#f05e23]/10" : "border-white/5"}`}
     >
       <div className="flex items-center gap-3.5 px-4 py-3.5">
         <span
@@ -42,7 +42,7 @@ export default function AboutSectionRow({ data, onChange, dragHandleProps, dropH
           onPointerUp={dragHandleProps?.onPointerUp}
           onPointerCancel={dragHandleProps?.onPointerCancel}
           onKeyDown={dragHandleProps?.onKeyDown}
-          className={dragHandleProps ? "cursor-grab active:cursor-grabbing touch-none flex shrink-0 p-2 -m-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5b6cf5]/60" : "flex shrink-0"}
+          className={dragHandleProps ? "cursor-grab active:cursor-grabbing touch-none flex shrink-0 p-2 -m-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f05e23]/60" : "flex shrink-0"}
         >
           <svg className="text-white/20 shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="9" cy="5" r="1.6" />
@@ -54,7 +54,7 @@ export default function AboutSectionRow({ data, onChange, dragHandleProps, dropH
           </svg>
         </span>
 
-        <span className="text-[#5b6cf5] shrink-0">
+        <span className="text-[#f05e23] shrink-0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
             <circle cx="12" cy="7" r="4" />

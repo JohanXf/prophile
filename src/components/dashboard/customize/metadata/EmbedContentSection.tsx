@@ -39,7 +39,7 @@ export default function EmbedContentSection({
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col gap-5">
       <div className="flex items-center gap-3">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f05e23" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
           <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
         </svg>
@@ -189,7 +189,7 @@ export default function EmbedContentSection({
       </div>
 
       <div className="flex gap-3 bg-[#161616] border border-white/5 rounded-xl p-3.5">
-        <svg className="text-[#5b6cf5] shrink-0 mt-px" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <svg className="text-[#f05e23] shrink-0 mt-px" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />
           <path d="M12 16v-4" />
           <path d="M12 8h.01" />

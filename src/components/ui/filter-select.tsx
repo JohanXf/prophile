@@ -78,11 +78,11 @@ export default function FilterSelect<T extends string>({
         aria-controls={listId}
         aria-label={`${label}: ${current.label}`}
         className={`flex items-center gap-2.5 bg-[#161616] border rounded-xl h-10 pl-3.5 pr-3 text-[13px] text-white cursor-pointer outline-none transition-colors ${fullWidth ? "w-full" : "min-w-[160px]"} ${
-          open ? "border-[#5b6cf5]/40 bg-[#1a1a1a]" : "border-white/5 hover:border-white/10 focus-visible:border-[#5b6cf5]/40"
+          open ? "border-[#f05e23]/40 bg-[#1a1a1a]" : "border-white/5 hover:border-white/10 focus-visible:border-[#f05e23]/40"
         }`}
       >
         {icon && (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#5b6cf5] shrink-0" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#f05e23] shrink-0" aria-hidden="true">
             {icon}
           </svg>
         )}
@@ -123,7 +123,7 @@ export default function FilterSelect<T extends string>({
                   {o.label}
                   <span className="w-[13px] h-[13px] shrink-0 flex items-center justify-center" aria-hidden="true">
                     {selected && (
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f05e23" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M20 6 9 17l-5-5" />
                       </svg>
                     )}

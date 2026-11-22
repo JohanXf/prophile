@@ -251,7 +251,7 @@ export default function WidgetsProfileClient({ user, backgrounds }: { user: Full
 
         {!isPremium && (
           <div className="flex flex-col gap-3 sm:flex-row bg-[#0c0c0c] border border-white/5 rounded-[16px] px-4 py-3.5 relative overflow-hidden">
-            <div className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full bg-[#5b6cf5]/70" />
+            <div className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full bg-[#f05e23]/70" />
             <PremiumLock size={16} className="mt-0.5" />
             <div className="flex flex-col gap-0.5 min-w-0 flex-1">
               <span className="text-[14px] font-medium text-white/90 tracking-tight">
@@ -277,7 +277,7 @@ export default function WidgetsProfileClient({ user, backgrounds }: { user: Full
                 }
                 router.push("/pricing");
               }}
-              className="shrink-0 self-stretch sm:self-center text-center whitespace-nowrap bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white text-[12.5px] font-normal rounded-xl px-3.5 py-2 transition-colors cursor-pointer"
+              className="shrink-0 self-stretch sm:self-center text-center whitespace-nowrap bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white text-[12.5px] font-normal rounded-xl px-3.5 py-2 transition-colors cursor-pointer"
             >
               Get Premium
             </button>

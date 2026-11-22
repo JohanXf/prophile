@@ -18,6 +18,7 @@ import {
   type ProfileLink,
 } from "@/lib/links";
 import { deleteLinkIconFiles, saveProfileLinks } from "@/actions/profile";
+import { uploadMediaFile } from "@/lib/media-upload";
 import { toast } from "@/components/ui/toast";
 import { type FullUser } from "@/lib/features/users/db";
 
@@ -61,17 +62,8 @@ function VariantMock({ variant }: { variant: LinkVariant }) {
 }
 
 async function uploadLinkIcon(file: File): Promise<string> {
-  const form = new FormData();
-  form.append("reqtype", "fileupload");
-  form.append("fileToUpload", file);
-  form.append("assetType", "link-icon");
-  const res = await fetch("/api/upload", { method: "POST", body: form, signal: AbortSignal.timeout(30_000) });
-  if (!res.ok) {
-    const err = await res.json().catch(() => null);
-    throw new Error(err?.error || "Failed to upload icon");
-  }
-  const data = await res.json();
-  return data.url as string;
+  const result = await uploadMediaFile(file, { category: "icon" });
+  return result.url;
 }
 
 function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
@@ -235,7 +227,7 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
                       onClick={() => setVariant(v)}
                       className={`flex flex-col rounded-xl border px-2.5 py-2 text-left transition-all cursor-pointer ${
                         variant === v
-                          ? "bg-[#111326] border-[#5b6cf5]/40"
+                          ? "bg-[#1f0e08] border-[#f05e23]/40"
                           : "bg-[#141414]/70 border-white/5 hover:border-white/15"
                       }`}
                     >
@@ -259,7 +251,7 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
                     onClick={() => setIconSource("iconify")}
                     className={`flex flex-col rounded-2xl border p-3 text-left transition-all cursor-pointer ${
                       iconSource === "iconify"
-                        ? "bg-[#111326] border-[#5b6cf5]/40"
+                        ? "bg-[#1f0e08] border-[#f05e23]/40"
                         : "bg-[#141414]/70 border-white/5 hover:border-white/15"
                     }`}
                   >
@@ -271,7 +263,7 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
                     onClick={() => setIconSource("custom")}
                     className={`flex flex-col rounded-2xl border p-3 text-left transition-all cursor-pointer ${
                       iconSource === "custom"
-                        ? "bg-[#111326] border-[#5b6cf5]/40"
+                        ? "bg-[#1f0e08] border-[#f05e23]/40"
                         : "bg-[#141414]/70 border-white/5 hover:border-white/15"
                     }`}
                   >
@@ -413,7 +405,7 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
                 <div className="flex flex-col gap-2">
                   <span className="text-[12.5px] font-medium text-white/90">Color</span>
                   <div className="flex items-center gap-2 flex-wrap">
-                    {["#609fda", "#5b6cf5", "#a78bfa", "#f472b6", "#fb7185", "#fb923c", "#facc15", "#4ade80", "#2dd4bf", "#ffffff"].map((swatch) => (
+                    {["#609fda", "#f05e23", "#a78bfa", "#f472b6", "#fb7185", "#fb923c", "#facc15", "#4ade80", "#2dd4bf", "#ffffff"].map((swatch) => (
                       <button
                         key={swatch}
                         type="button"
@@ -463,7 +455,7 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="h-10 px-6 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white font-normal text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-10 px-6 rounded-xl bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white font-normal text-sm transition-all shadow-[0_0_15px_rgba(240,94,35,0.1)] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {saving ? "Uploading..." : initial ? "Save link" : "Add link"}
                 </button>
@@ -578,7 +570,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal whitespace-nowrap transition-all duration-200 ${
                 count >= MAX_LINKS
                   ? "bg-white/5 border border-white/5 text-white/30 cursor-not-allowed"
-                  : "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer active:scale-95"
+                  : "bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white shadow-[0_0_15px_rgba(240,94,35,0.1)] cursor-pointer active:scale-95"
               }`}
             >
               <span className={`text-[13px] leading-none font-normal ${count >= MAX_LINKS ? "text-white/30" : "text-white"}`}>+</span>
@@ -675,13 +667,13 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
                     onClick={() => setAlignment(a)}
                     className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-[12.5px] transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-[#111326] border-[#5b6cf5]/40 text-[#5b6cf5] font-medium"
+                        ? "bg-[#1f0e08] border-[#f05e23]/40 text-[#f05e23] font-medium"
                         : "bg-[#141414]/70 border-white/5 text-white/50 hover:text-white/80 hover:border-white/15 font-normal"
                     }`}
                   >
                     <span className={`flex flex-col gap-[3px] ${a === "center" ? "items-center" : a === "right" ? "items-end" : ""}`}>
-                      <span className={`block h-[2px] w-4 rounded-full ${isSelected ? "bg-[#5b6cf5]" : "bg-white/30"}`} />
-                      <span className={`block h-[2px] w-2.5 rounded-full ${isSelected ? "bg-[#5b6cf5]" : "bg-white/30"}`} />
+                      <span className={`block h-[2px] w-4 rounded-full ${isSelected ? "bg-[#f05e23]" : "bg-white/30"}`} />
+                      <span className={`block h-[2px] w-2.5 rounded-full ${isSelected ? "bg-[#f05e23]" : "bg-white/30"}`} />
                     </span>
                     <span className="capitalize">{a}</span>
                   </button>
@@ -701,7 +693,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
               <span className="text-[13px] font-normal text-white/90">Background container</span>
               <span className="text-[11.5px] text-white/35 leading-snug">Show a background box behind each icon. Off means bare icons.</span>
             </span>
-            <span className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${social ? "bg-[#5b6cf5]" : "bg-white/10"}`}>
+            <span className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${social ? "bg-[#f05e23]" : "bg-white/10"}`}>
               <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${social ? "left-[18px]" : "left-0.5"}`} />
             </span>
           </button>
@@ -714,7 +706,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
             <div className="relative flex items-center h-5 group w-full">
               <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
                 <div
-                  className="absolute h-full bg-[#5b6cf5]"
+                  className="absolute h-full bg-[#f05e23]"
                   style={{ width: `${(radius / 32) * 100}%` }}
                 />
               </div>
@@ -729,7 +721,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
               />
               <div
-                className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+                className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#f05e23] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
                 style={{ left: `calc(${(radius / 32) * 100}% - 8px)` }}
               />
             </div>
@@ -743,7 +735,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
             <div className="relative flex items-center h-5 group w-full">
               <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
                 <div
-                  className="absolute h-full bg-[#5b6cf5]"
+                  className="absolute h-full bg-[#f05e23]"
                   style={{ width: `${((iconSize - 12) / 20) * 100}%` }}
                 />
               </div>
@@ -758,7 +750,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
               />
               <div
-                className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+                className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#f05e23] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
                 style={{ left: `calc(${((iconSize - 12) / 20) * 100}% - 8px)` }}
               />
             </div>
@@ -772,7 +764,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
             <div className="relative flex items-center h-5 group w-full">
               <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
                 <div
-                  className="absolute h-full bg-[#5b6cf5]"
+                  className="absolute h-full bg-[#f05e23]"
                   style={{ width: `${(iconGap / 24) * 100}%` }}
                 />
               </div>
@@ -787,7 +779,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
               />
               <div
-                className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+                className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#f05e23] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
                 style={{ left: `calc(${(iconGap / 24) * 100}% - 8px)` }}
               />
             </div>

@@ -31,7 +31,7 @@ export const Turnstile: React.FC<TurnstileProps> = ({ onSuccess, className }) =>
     >
       <div className="flex items-center gap-3">
         {status === "verifying" ? (
-          <span className="w-5 h-5 rounded-full border-2 border-[#5b6cf5] border-t-transparent animate-spin inline-block" />
+          <span className="w-5 h-5 rounded-full border-2 border-[#f05e23] border-t-transparent animate-spin inline-block" />
         ) : (
           <span className="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">

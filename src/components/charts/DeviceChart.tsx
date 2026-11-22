@@ -19,7 +19,7 @@ export default function DeviceChart({ stats }: DeviceChartProps) {
   const data = [
     { name: 'iOS', value: stats.ios, color: '#f472b6' },
     { name: 'Android', value: stats.android, color: '#4ade80' },
-    { name: 'Windows', value: stats.windows, color: '#5b6cf5' },
+    { name: 'Windows', value: stats.windows, color: '#f05e23' },
     { name: 'Mac', value: stats.mac, color: '#94a3b8' },
     { name: 'Other', value: stats.other, color: '#52525b' },
   ].filter(item => item.value > 0);
@@ -36,7 +36,7 @@ export default function DeviceChart({ stats }: DeviceChartProps) {
       <div className="w-full relative mt-4" style={{ height: 192, minHeight: 192, minWidth: 80 }}>
         {!isMounted ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-white/10 border-t-[#f05e23] rounded-full animate-spin" />
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={192} minWidth={80} minHeight={80}>

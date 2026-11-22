@@ -72,7 +72,7 @@ export default function BackgroundEffectSection({
           height="22"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#5b6cf5"
+          stroke="#f05e23"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -90,7 +90,7 @@ export default function BackgroundEffectSection({
           disabled={isBgDisabled}
           onClick={() => setBackgroundEffectAboveContainer(!backgroundEffectAboveContainer)}
           className={`relative inline-flex h-5 w-[34px] flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none transition-colors duration-200 ease-in-out ${
-            backgroundEffectAboveContainer ? 'bg-[#5b6cf5]' : 'bg-[#1a1a1a]'
+            backgroundEffectAboveContainer ? 'bg-[#f05e23]' : 'bg-[#1a1a1a]'
           } ${isBgDisabled ? 'cursor-not-allowed' : ''}`}
         >
           <span className="sr-only">Use setting</span>
@@ -140,7 +140,7 @@ export default function BackgroundEffectSection({
                       else if (effect.id === "lightning") setBackgroundEffectColor("#a8d8ff");
                       else if (effect.id === "meteors") setBackgroundEffectColor("#ffffff");
                       else if (effect.id === "lightrays") setBackgroundEffectColor("#ffffff");
-                      else if (effect.id === "lighttunnel") setBackgroundEffectColor("#5b6cf5");
+                      else if (effect.id === "lighttunnel") setBackgroundEffectColor("#f05e23");
                       else if (effect.id === "aurora") setBackgroundEffectColor("#7dffa8");
                       setBgDropdownOpen(false);
                     }}
@@ -181,7 +181,7 @@ export default function BackgroundEffectSection({
         <div className="relative flex items-center h-5 group w-full">
           <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
             <div
-              className="absolute h-full bg-[#5b6cf5]"
+              className="absolute h-full bg-[#f05e23]"
               style={{ width: `${backgroundEffectIntensity}%` }}
             />
           </div>
@@ -196,7 +196,7 @@ export default function BackgroundEffectSection({
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
           />
           <div
-            className={`absolute w-4 h-4 bg-[#050505] border-[2px] ${isBgDisabled ? "border-[#252a4a]" : "border-[#5b6cf5]"
+            className={`absolute w-4 h-4 bg-[#050505] border-[2px] ${isBgDisabled ? "border-[#472213]" : "border-[#f05e23]"
               } rounded-full pointer-events-none transition-transform shadow-lg`}
             style={{
               left: `calc(${backgroundEffectIntensity}% - 8px)`

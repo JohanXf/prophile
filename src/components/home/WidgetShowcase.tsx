@@ -308,7 +308,7 @@ export default function WidgetShowcase() {
         className="pointer-events-none absolute inset-0 z-0"
         style={{
           background:
-            "radial-gradient(55% 45% at 50% 55%, rgba(91,108,245,0.16) 0%, rgba(91,108,245,0.05) 50%, transparent 70%)",
+            "radial-gradient(55% 45% at 50% 55%, rgba(240,94,35,0.16) 0%, rgba(240,94,35,0.05) 50%, transparent 70%)",
         }}
       />
       {}
@@ -335,7 +335,7 @@ export default function WidgetShowcase() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-[11px] font-medium tracking-[0.32em] text-[#8b93e8] uppercase mb-5"
+          className="text-[11px] font-medium tracking-[0.32em] text-[#f47b47] uppercase mb-5"
         >
           Live widgets
         </motion.span>
@@ -348,7 +348,7 @@ export default function WidgetShowcase() {
           className="text-4xl md:text-5xl font-medium tracking-tight text-white mb-6"
         >
           Your page,{" "}
-          <span className="bg-gradient-to-r from-[#8b93e8] to-[#cdd2ff] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#f47b47] to-[#fcd3be] bg-clip-text text-transparent">
             but alive
           </span>
           .

@@ -323,7 +323,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                     href={SITE_CONFIG.links.discord}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#5b6cf5] hover:underline font-medium"
+                    className="text-[#f05e23] hover:underline font-medium"
                   >
                     Join here
                   </a>
@@ -351,7 +351,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                 disabled={!user?.discordId}
                 onClick={() => setUseLinked(!useLinked)}
                 className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  useLinked ? "bg-[#5b6cf5]" : "bg-white/10"
+                  useLinked ? "bg-[#f05e23]" : "bg-white/10"
                 } ${!user?.discordId ? "opacity-40 cursor-not-allowed" : ""}`}
               >
                 <span

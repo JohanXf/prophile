@@ -25,7 +25,7 @@ export default function GlobalError({
             height="40"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#5b6cf5"
+            stroke="#f05e23"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -46,7 +46,7 @@ export default function GlobalError({
 
           <button
             onClick={reset}
-            className="bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-5 py-2.5 rounded-xl font-normal text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
+            className="bg-[#f05e23]/20 hover:bg-[#f05e23]/30 text-white px-5 py-2.5 rounded-xl font-normal text-sm transition-all shadow-[0_0_15px_rgba(240,94,35,0.1)] cursor-pointer"
           >
             Try again
           </button>

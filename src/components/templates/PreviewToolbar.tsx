@@ -4,6 +4,8 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "@/components/ui/toast";
+import { authFetch } from "@/lib/auth-client";
+import { hydrateStoreFromServer } from "@/lib/local-store";
 
 interface PreviewToolbarProps {
   templateId: number;
@@ -30,9 +32,10 @@ export default function PreviewToolbar({
   const apply = useCallback(async () => {
     setBusy("apply");
     try {
-      const r = await fetch(`/api/templates/${templateId}/apply`, { method: "POST", signal: AbortSignal.timeout(30_000) });
+      const r = await authFetch(`/api/templates/${templateId}/apply`, { method: "POST", signal: AbortSignal.timeout(30_000) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j?.error ?? "Failed");
+      await hydrateStoreFromServer();
       toast.success("Template applied!");
       router.push(`/${username}`);
     } catch (e) {
@@ -45,7 +48,7 @@ export default function PreviewToolbar({
   const save = useCallback(async () => {
     setBusy("save");
     const post = async (name: string) => {
-      const r = await fetch("/api/templates", {
+      const r = await authFetch("/api/templates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
@@ -105,7 +108,7 @@ export default function PreviewToolbar({
           type="button"
           onClick={apply}
           disabled={busy !== null}
-          className="h-8 px-4 rounded-full bg-[#5b6cf5]/25 hover:bg-[#5b6cf5]/35 border border-[#5b6cf5]/30 text-white text-[12.5px] font-normal transition cursor-pointer disabled:opacity-50 shrink-0"
+          className="h-8 px-4 rounded-full bg-[#f05e23]/25 hover:bg-[#f05e23]/35 border border-[#f05e23]/30 text-white text-[12.5px] font-normal transition cursor-pointer disabled:opacity-50 shrink-0"
           style={{ fontFamily: "var(--font-comfortaa)" }}
         >
           {busy === "apply" ? "Applying…" : "Apply"}
