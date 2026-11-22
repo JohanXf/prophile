@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { onIdTokenChanged, signInWithPopup, signOut as firebaseSignOut, type User } from "firebase/auth";
-import { auth, googleAuthProvider } from "@/lib/firebase";
+import { auth, googleAuthProvider, syncPublicProfileToFirestore } from "@/lib/firebase";
 import { authFetch, isLocalTokenInMemory, setInMemoryAuthToken } from "@/lib/auth-client";
 import { hydrateStoreFromServer, getStore, subscribeStore, type FullUser, hydrateFullUser } from "@/lib/local-store";
 
@@ -40,10 +40,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => subscribeStore(() => setVersion((v) => v + 1)), []);
 
   const refreshSession = useCallback(async () => {
-    await hydrateStoreFromServer();
+    await hydrateStoreFromServer(true);
   }, []);
 
   useEffect(() => {
+    void hydrateStoreFromServer();
     const unsubscribe = onIdTokenChanged(auth, async (fbUser) => {
       setFirebaseUser(fbUser);
       if (fbUser) {
@@ -56,7 +57,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (!isLocalTokenInMemory()) {
         setInMemoryAuthToken(null);
       }
-      await hydrateStoreFromServer();
+      const nextState = await hydrateStoreFromServer(Boolean(fbUser));
+      if (fbUser && fbUser.emailVerified && nextState.currentUserId != null) {
+        const syncedUser = hydrateFullUser(nextState.users[nextState.currentUserId]);
+        if (syncedUser) {
+          const bgs = nextState.backgrounds[syncedUser.id] ?? [];
+          const badges = nextState.equippedBadges[syncedUser.id] ?? [];
+          void syncPublicProfileToFirestore({
+            uid: syncedUser.id,
+            username: syncedUser.username,
+            displayName: syncedUser.displayName || syncedUser.username,
+            bio: syncedUser.bio,
+            avatarUrl: syncedUser.avatarUrl,
+            bannerUrl: syncedUser.bannerImageUrl || bgs[0] || null,
+            location: syncedUser.location,
+            occupation: syncedUser.occupation,
+            badges,
+          }).catch(() => {
+            // Firestore sync error is already logged by handleFirestoreError
+          });
+        }
+      }
       setLoading(false);
     });
     return () => unsubscribe();
@@ -77,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data.token) {
         setInMemoryAuthToken(data.token);
       }
-      await hydrateStoreFromServer();
+      await hydrateStoreFromServer(true);
       return { ok: true };
     } catch (error) {
       return { ok: false, error: error instanceof Error ? error.message : "Sign-in failed." };
@@ -100,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (data.token) {
           setInMemoryAuthToken(data.token);
         }
-        await hydrateStoreFromServer();
+        await hydrateStoreFromServer(true);
         return { ok: true };
       } catch (error) {
         return { ok: false, error: error instanceof Error ? error.message : "Registration failed." };
@@ -114,7 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await signInWithPopup(auth, googleAuthProvider);
       const token = await result.user.getIdToken();
       setInMemoryAuthToken(token);
-      await hydrateStoreFromServer();
+      await hydrateStoreFromServer(true);
       return { ok: true };
     } catch (error) {
       const msg = error instanceof Error ? error.message : "Google sign-in failed.";
@@ -134,7 +155,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // ignore
     }
     setInMemoryAuthToken(null);
-    await hydrateStoreFromServer();
+    await hydrateStoreFromServer(true);
   }, []);
 
   const store = getStore();

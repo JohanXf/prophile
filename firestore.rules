@@ -1,0 +1,186 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Hardened Global Primitives ---
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidUsername(handle) {
+      return handle is string && handle.size() >= 1 && handle.size() <= 40 && handle.matches('^[a-z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isVerified() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'faizennahmed@gmail.com'
+      );
+    }
+
+    function isOptionalBoundedString(data, key, maxLen) {
+      return !(key in data) || (data[key] is string && data[key].size() <= maxLen);
+    }
+
+    function isValidBadgeList(data) {
+      return !('badges' in data) || (
+        data.badges is list &&
+        data.badges.size() <= 10 &&
+        (data.badges.size() == 0 || (data.badges[0] is string && data.badges[0].size() <= 40))
+      );
+    }
+
+    // --- Entity Validation Blueprints ---
+    function isValidPublicProfile(data) {
+      return data.uid is number &&
+        data.uid >= 1 &&
+        data.ownerUid is string &&
+        isValidId(data.ownerUid) &&
+        isValidUsername(data.username) &&
+        data.displayName is string &&
+        data.displayName.size() >= 1 &&
+        data.displayName.size() <= 80 &&
+        isOptionalBoundedString(data, 'bio', 500) &&
+        isOptionalBoundedString(data, 'avatarUrl', 512) &&
+        isOptionalBoundedString(data, 'bannerUrl', 512) &&
+        isOptionalBoundedString(data, 'location', 80) &&
+        isOptionalBoundedString(data, 'occupation', 80) &&
+        isValidBadgeList(data) &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidUserPrivateProfile(data) {
+      return data.ownerUid is string &&
+        isValidId(data.ownerUid) &&
+        isValidUsername(data.username) &&
+        data.email is string &&
+        data.email.size() >= 3 &&
+        data.email.size() <= 254 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidAdminRecord(data) {
+      return data.uid is string &&
+        isValidId(data.uid) &&
+        data.grantedAt is timestamp;
+    }
+
+    // --- Collection: /publicProfiles/{username} (No PII) ---
+    match /publicProfiles/{username} {
+      // Anyone can fetch a public showcase profile by exact username
+      allow get: if isValidUsername(username);
+      allow list: if false;
+
+      allow create: if isVerified() &&
+        isValidUsername(username) &&
+        incoming().keys().hasAll(['uid', 'ownerUid', 'username', 'displayName', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly([
+          'uid', 'ownerUid', 'username', 'displayName', 'bio',
+          'avatarUrl', 'bannerUrl', 'location', 'occupation', 'badges',
+          'createdAt', 'updatedAt'
+        ]) &&
+        isValidPublicProfile(incoming()) &&
+        incoming().username == username &&
+        (incoming().ownerUid == request.auth.uid || isAdmin()) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+
+      allow update: if isVerified() &&
+        isValidUsername(username) &&
+        isValidPublicProfile(incoming()) &&
+        incoming().ownerUid == existing().ownerUid &&
+        incoming().uid == existing().uid &&
+        incoming().username == existing().username &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        (
+          isAdmin() ||
+          (
+            existing().ownerUid == request.auth.uid &&
+            incoming().diff(existing()).affectedKeys().hasOnly([
+              'displayName', 'bio', 'avatarUrl', 'bannerUrl',
+              'location', 'occupation', 'badges', 'updatedAt'
+            ])
+          )
+        );
+
+      allow delete: if isVerified() &&
+        isValidUsername(username) &&
+        (existing().ownerUid == request.auth.uid || isAdmin());
+    }
+
+    // --- Collection: /users/{userId} (PII Strictly Isolated) ---
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (request.auth.uid == userId || isAdmin());
+      allow list: if false;
+
+      allow create: if isVerified() &&
+        isValidId(userId) &&
+        request.auth.uid == userId &&
+        incoming().keys().hasAll(['ownerUid', 'username', 'email', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['ownerUid', 'username', 'email', 'createdAt', 'updatedAt']) &&
+        isValidUserPrivateProfile(incoming()) &&
+        incoming().ownerUid == request.auth.uid &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+
+      allow update: if isVerified() &&
+        isValidId(userId) &&
+        isValidUserPrivateProfile(incoming()) &&
+        incoming().ownerUid == existing().ownerUid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        (
+          isAdmin() ||
+          (
+            request.auth.uid == userId &&
+            existing().ownerUid == request.auth.uid &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['username', 'email', 'updatedAt'])
+          )
+        );
+
+      allow delete: if isVerified() && isValidId(userId) && (request.auth.uid == userId || isAdmin());
+    }
+
+    // --- Collection: /admins/{userId} (Trusted Role Registry) ---
+    match /admins/{userId} {
+      allow get: if isVerified() && isValidId(userId) && (request.auth.uid == userId || isAdmin());
+      allow list: if false;
+
+      allow create: if isAdmin() &&
+        isValidId(userId) &&
+        incoming().keys().hasAll(['uid', 'grantedAt']) &&
+        incoming().keys().hasOnly(['uid', 'grantedAt']) &&
+        isValidAdminRecord(incoming()) &&
+        incoming().uid == userId &&
+        incoming().grantedAt == request.time;
+
+      allow update: if false;
+      allow delete: if isAdmin() && isValidId(userId);
+    }
+  }
+}

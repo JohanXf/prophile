@@ -1,0 +1,165 @@
+{
+  "entities": {
+    "PublicProfile": {
+      "title": "PublicProfile",
+      "description": "Public showcase profile document without PII, indexed by lowercase username.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "number",
+          "description": "Numeric public user ID"
+        },
+        "ownerUid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Auth UID of the profile owner"
+        },
+        "username": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^[a-z0-9_\\-]+$",
+          "description": "Lowercase unique handle"
+        },
+        "displayName": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "Public display name"
+        },
+        "bio": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Public profile bio"
+        },
+        "avatarUrl": {
+          "type": "string",
+          "maxLength": 512,
+          "description": "Public avatar image URL"
+        },
+        "bannerUrl": {
+          "type": "string",
+          "maxLength": 512,
+          "description": "Public banner or background URL"
+        },
+        "location": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "Optional public location text"
+        },
+        "occupation": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "Optional public occupation text"
+        },
+        "badges": {
+          "type": "array",
+          "description": "Bounded list (max 10) of equipped badge IDs"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server last-updated timestamp"
+        }
+      },
+      "required": [
+        "uid",
+        "ownerUid",
+        "username",
+        "displayName",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "UserPrivateProfile": {
+      "title": "UserPrivateProfile",
+      "description": "Private user account document containing PII and private preferences, isolated per Firebase Auth UID.",
+      "type": "object",
+      "properties": {
+        "ownerUid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Auth UID matching the document ID"
+        },
+        "username": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^[a-z0-9_\\-]+$",
+          "description": "Lowercase handle linked to this account"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 254,
+          "description": "User email address (PII)"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server last-updated timestamp"
+        }
+      },
+      "required": [
+        "ownerUid",
+        "username",
+        "email",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "AdminRecord": {
+      "title": "AdminRecord",
+      "description": "Trusted admin membership marker document keyed by Firebase Auth UID.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Auth UID of the administrator"
+        },
+        "grantedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when admin access was granted"
+        }
+      },
+      "required": [
+        "uid",
+        "grantedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/publicProfiles/{username}": {
+      "schema": {
+        "$ref": "#/entities/PublicProfile"
+      },
+      "description": "Public showcase profiles without PII; readable by anyone via direct get, writable only by verified owner or admin."
+    },
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserPrivateProfile"
+      },
+      "description": "Private user documents containing PII; strictly restricted to the authenticated owner or admin."
+    },
+    "/admins/{userId}": {
+      "schema": {
+        "$ref": "#/entities/AdminRecord"
+      },
+      "description": "Trusted admin role registry; prevents client-side privilege escalation."
+    }
+  }
+}

@@ -410,16 +410,21 @@ export function hydrateFullUser(user: StoredUserBase | undefined | null): FullUs
 }
 
 let inflightHydration: Promise<StoreState> | null = null;
+let hydrationSeq = 0;
 
-export async function hydrateStoreFromServer(): Promise<StoreState> {
-  if (inflightHydration) return inflightHydration;
-  inflightHydration = (async () => {
+export async function hydrateStoreFromServer(force = false): Promise<StoreState> {
+  if (inflightHydration && !force) return inflightHydration;
+  const seq = ++hydrationSeq;
+  const task = (async () => {
     try {
       const res = await authFetch("/api/bootstrap");
       if (!res.ok) {
         return memoryState;
       }
       const data = (await res.json()) as StoreState;
+      if (seq !== hydrationSeq) {
+        return memoryState;
+      }
       const revivedUsers: Record<number, StoredUserBase> = {};
       for (const [k, v] of Object.entries(data.users ?? {})) {
         revivedUsers[Number(k)] = reviveDates(v);
@@ -438,8 +443,11 @@ export async function hydrateStoreFromServer(): Promise<StoreState> {
     } catch {
       return memoryState;
     } finally {
-      inflightHydration = null;
+      if (seq === hydrationSeq) {
+        inflightHydration = null;
+      }
     }
   })();
-  return inflightHydration;
+  inflightHydration = task;
+  return task;
 }
