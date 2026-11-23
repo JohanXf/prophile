@@ -92,18 +92,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithEmail = useCallback(async (identifier: string, password: string) => {
     try {
+      const sendLogin = () =>
+        fetch("/api/auth/login", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identifier, password }),
+        });
+
+      let res = await sendLogin();
+      if (res.status === 502 || res.status === 503 || res.status === 504) {
+        await new Promise((r) => setTimeout(r, 900));
+        res = await sendLogin();
+      }
+
+      const contentType = res.headers.get("content-type") || "";
+      const data = contentType.includes("application/json")
+        ? await res.json().catch(() => ({}))
+        : {};
+
+      if (!res.ok) {
+        return {
+          ok: false,
+          error: data.error || `Invalid email or password (HTTP ${res.status}).`,
+        };
+      }
+
       await firebaseSignOut(auth).catch(() => {});
       clearStoredLocalToken();
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier, password }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        return { ok: false, error: data.error || "Invalid email or password." };
-      }
       if (data.token) {
         setInMemoryAuthToken(data.token);
       }
@@ -120,18 +136,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const registerWithEmail = useCallback(
     async (input: { username: string; email: string; password: string }) => {
       try {
+        const sendRegister = () =>
+          fetch("/api/auth/register", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(input),
+          });
+
+        let res = await sendRegister();
+        if (res.status === 502 || res.status === 503 || res.status === 504) {
+          await new Promise((r) => setTimeout(r, 900));
+          res = await sendRegister();
+        }
+
+        const contentType = res.headers.get("content-type") || "";
+        const data = contentType.includes("application/json")
+          ? await res.json().catch(() => ({}))
+          : {};
+
+        if (!res.ok) {
+          const fallback =
+            res.status === 404
+              ? "Registration API is unreachable on this preview URL (HTTP 404). Please open the live app URL and try again."
+              : res.status >= 500
+                ? `Server error while creating account (HTTP ${res.status}). Please try again.`
+                : `Registration failed (HTTP ${res.status}).`;
+          return { ok: false, error: data.error || fallback };
+        }
+
         await firebaseSignOut(auth).catch(() => {});
         clearStoredLocalToken();
-        const res = await fetch("/api/auth/register", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(input),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          return { ok: false, error: data.error || "Registration failed." };
-        }
         if (data.token) {
           setInMemoryAuthToken(data.token);
         }

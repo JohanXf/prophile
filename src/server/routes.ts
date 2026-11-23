@@ -2,7 +2,7 @@ import express, { type Router, type Response } from "express";
 import multer from "multer";
 import crypto from "crypto";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
-import { db } from "../db/index.ts";
+import { db, isTransientDbError, withDbRetry } from "../db/index.ts";
 import {
   users,
   aliases,
