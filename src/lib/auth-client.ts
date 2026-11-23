@@ -1,22 +1,64 @@
 import { auth } from "@/lib/firebase";
 
-let inMemoryIdToken: string | null = null;
+const LOCAL_TOKEN_STORAGE_KEY = "prophile:session_token";
+
+function readStoredLocalToken(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const val = window.localStorage.getItem(LOCAL_TOKEN_STORAGE_KEY);
+    return val && val.startsWith("prophile.") ? val : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredLocalToken(token: string | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (token && token.startsWith("prophile.")) {
+      window.localStorage.setItem(LOCAL_TOKEN_STORAGE_KEY, token);
+    } else {
+      window.localStorage.removeItem(LOCAL_TOKEN_STORAGE_KEY);
+    }
+  } catch {
+    // ignore storage access errors
+  }
+}
+
+let inMemoryIdToken: string | null = readStoredLocalToken();
 
 export function setInMemoryAuthToken(token: string | null) {
   inMemoryIdToken = token;
+  if (token && token.startsWith("prophile.")) {
+    writeStoredLocalToken(token);
+  } else {
+    writeStoredLocalToken(null);
+  }
+}
+
+export function clearStoredLocalToken() {
+  if (inMemoryIdToken?.startsWith("prophile.")) {
+    inMemoryIdToken = null;
+  }
+  writeStoredLocalToken(null);
 }
 
 export function getInMemoryAuthToken(): string | null {
+  if (!inMemoryIdToken) {
+    inMemoryIdToken = readStoredLocalToken();
+  }
   return inMemoryIdToken;
 }
 
 export function isLocalTokenInMemory(): boolean {
-  return Boolean(inMemoryIdToken && inMemoryIdToken.startsWith("prophile."));
+  const tok = getInMemoryAuthToken();
+  return Boolean(tok && tok.startsWith("prophile."));
 }
 
 export async function getFreshAuthToken(): Promise<string | null> {
-  if (isLocalTokenInMemory()) {
-    return inMemoryIdToken;
+  const current = getInMemoryAuthToken();
+  if (current && current.startsWith("prophile.")) {
+    return current;
   }
   if (auth.currentUser) {
     try {

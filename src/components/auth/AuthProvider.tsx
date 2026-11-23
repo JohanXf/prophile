@@ -1,8 +1,14 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { onIdTokenChanged, signInWithPopup, signOut as firebaseSignOut, type User } from "firebase/auth";
 import { auth, googleAuthProvider, syncPublicProfileToFirestore } from "@/lib/firebase";
-import { authFetch, isLocalTokenInMemory, setInMemoryAuthToken } from "@/lib/auth-client";
+import {
+  authFetch,
+  clearStoredLocalToken,
+  isLocalTokenInMemory,
+  setInMemoryAuthToken,
+} from "@/lib/auth-client";
 import { hydrateStoreFromServer, getStore, subscribeStore, type FullUser, hydrateFullUser } from "@/lib/local-store";
+import { formatFirebaseAuthError } from "@/actions/register";
 
 interface AuthContextValue {
   firebaseUser: User | null;
@@ -47,18 +53,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     void hydrateStoreFromServer();
     const unsubscribe = onIdTokenChanged(auth, async (fbUser) => {
       setFirebaseUser(fbUser);
-      if (fbUser) {
+      const hasLocalSession = isLocalTokenInMemory();
+      if (fbUser && !hasLocalSession) {
         try {
           const token = await fbUser.getIdToken();
           setInMemoryAuthToken(token);
         } catch {
           if (!isLocalTokenInMemory()) setInMemoryAuthToken(null);
         }
-      } else if (!isLocalTokenInMemory()) {
+      } else if (!fbUser && !hasLocalSession) {
         setInMemoryAuthToken(null);
       }
-      const nextState = await hydrateStoreFromServer(Boolean(fbUser));
-      if (fbUser && fbUser.emailVerified && nextState.currentUserId != null) {
+      const nextState = await hydrateStoreFromServer(Boolean(fbUser && !hasLocalSession));
+      if (fbUser && !hasLocalSession && fbUser.emailVerified && nextState.currentUserId != null) {
         const syncedUser = hydrateFullUser(nextState.users[nextState.currentUserId]);
         if (syncedUser) {
           const bgs = nextState.backgrounds[syncedUser.id] ?? [];
@@ -85,6 +92,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithEmail = useCallback(async (identifier: string, password: string) => {
     try {
+      await firebaseSignOut(auth).catch(() => {});
+      clearStoredLocalToken();
       const res = await fetch("/api/auth/login", {
         method: "POST",
         credentials: "include",
@@ -98,7 +107,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data.token) {
         setInMemoryAuthToken(data.token);
       }
-      await hydrateStoreFromServer(true);
+      const nextState = await hydrateStoreFromServer(true);
+      if (nextState.currentUserId == null) {
+        return { ok: false, error: "Sign-in succeeded, but failed to load your session. Please try again." };
+      }
       return { ok: true };
     } catch (error) {
       return { ok: false, error: error instanceof Error ? error.message : "Sign-in failed." };
@@ -108,6 +120,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const registerWithEmail = useCallback(
     async (input: { username: string; email: string; password: string }) => {
       try {
+        await firebaseSignOut(auth).catch(() => {});
+        clearStoredLocalToken();
         const res = await fetch("/api/auth/register", {
           method: "POST",
           credentials: "include",
@@ -121,7 +135,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (data.token) {
           setInMemoryAuthToken(data.token);
         }
-        await hydrateStoreFromServer(true);
+        const nextState = await hydrateStoreFromServer(true);
+        if (nextState.currentUserId == null) {
+          return { ok: false, error: "Account created, but failed to start your session. Please sign in." };
+        }
         return { ok: true };
       } catch (error) {
         return { ok: false, error: error instanceof Error ? error.message : "Registration failed." };
@@ -132,14 +149,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = useCallback(async () => {
     try {
+      clearStoredLocalToken();
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => {});
       const result = await signInWithPopup(auth, googleAuthProvider);
-      const token = await result.user.getIdToken();
+      const token = await result.user.getIdToken(true);
       setInMemoryAuthToken(token);
-      await hydrateStoreFromServer(true);
+
+      const meRes = await authFetch("/api/auth/me");
+      const meData = await meRes.json().catch(() => ({}));
+      if (!meRes.ok || !meData?.authenticated) {
+        return {
+          ok: false,
+          error:
+            meData?.error ||
+            "Google sign-in succeeded, but the server could not verify your Firebase token. Please try again.",
+        };
+      }
+
+      const nextState = await hydrateStoreFromServer(true);
+      if (nextState.currentUserId == null) {
+        return { ok: false, error: "Signed in with Google, but failed to load session. Please try again." };
+      }
       return { ok: true };
     } catch (error) {
-      const msg = error instanceof Error ? error.message : "Google sign-in failed.";
-      return { ok: false, error: msg };
+      return { ok: false, error: formatFirebaseAuthError(error, "Google sign-in failed.") };
     }
   }, []);
 
@@ -154,6 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore
     }
+    clearStoredLocalToken();
     setInMemoryAuthToken(null);
     await hydrateStoreFromServer(true);
   }, []);

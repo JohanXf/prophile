@@ -6,7 +6,7 @@ import type { ProfileLink } from "@/lib/links";
 import type { MusicTrack } from "@/lib/music";
 import type { WidgetConfig } from "@/lib/widget-types";
 import type { ProfileSection } from "@/lib/profile-sections";
-import { authFetch } from "@/lib/auth-client";
+import { authFetch, clearStoredLocalToken, isLocalTokenInMemory } from "@/lib/auth-client";
 
 export interface StoredUserBase {
   id: number;
@@ -428,6 +428,9 @@ export async function hydrateStoreFromServer(force = false): Promise<StoreState>
       const revivedUsers: Record<number, StoredUserBase> = {};
       for (const [k, v] of Object.entries(data.users ?? {})) {
         revivedUsers[Number(k)] = reviveDates(v);
+      }
+      if (data.currentUserId == null && isLocalTokenInMemory()) {
+        clearStoredLocalToken();
       }
       memoryState = {
         ...buildEmptyState(),

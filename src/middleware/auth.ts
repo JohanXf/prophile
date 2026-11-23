@@ -91,8 +91,8 @@ export async function optionalAuth(
 ) {
   try {
     await resolveAuth(req);
-  } catch {
-    // Treat invalid token on optional routes as unauthenticated
+  } catch (error) {
+    console.warn("optionalAuth token rejected:", error instanceof Error ? error.message : String(error));
   }
   next();
 }

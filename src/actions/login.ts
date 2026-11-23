@@ -1,7 +1,8 @@
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, signOut as firebaseSignOut } from "firebase/auth";
 import { auth, googleAuthProvider } from "@/lib/firebase";
-import { setInMemoryAuthToken } from "@/lib/auth-client";
+import { clearStoredLocalToken, setInMemoryAuthToken } from "@/lib/auth-client";
 import { hydrateStoreFromServer } from "@/lib/local-store";
+import { formatFirebaseAuthError } from "@/actions/register";
 
 export interface LoginInput {
   identifier: string;
@@ -13,13 +14,15 @@ export interface LoginInput {
 
 export async function signInWithGoogleAction(): Promise<{ success?: string; error?: string }> {
   try {
+    clearStoredLocalToken();
+    await fetch("/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => {});
     const result = await signInWithPopup(auth, googleAuthProvider);
-    const token = await result.user.getIdToken();
+    const token = await result.user.getIdToken(true);
     setInMemoryAuthToken(token);
-    await hydrateStoreFromServer();
+    await hydrateStoreFromServer(true);
     return { success: "Signed in with Google!" };
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "Google sign-in failed." };
+    return { error: formatFirebaseAuthError(error, "Google sign-in failed.") };
   }
 }
 
@@ -27,6 +30,8 @@ export async function login(
   input: LoginInput
 ): Promise<{ twoFactor?: boolean; ticket?: string | null; success?: string; error?: string }> {
   try {
+    await firebaseSignOut(auth).catch(() => {});
+    clearStoredLocalToken();
     const res = await fetch("/api/auth/login", {
       method: "POST",
       credentials: "include",
@@ -43,7 +48,7 @@ export async function login(
     if (data.token) {
       setInMemoryAuthToken(data.token);
     }
-    await hydrateStoreFromServer();
+    await hydrateStoreFromServer(true);
     return { success: "Signed in! Redirecting..." };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Sign-in failed." };
