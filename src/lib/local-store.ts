@@ -454,3 +454,78 @@ export async function hydrateStoreFromServer(force = false): Promise<StoreState>
   inflightHydration = task;
   return task;
 }
+
+export function upsertFirebaseSessionInStore(profile: {
+  uidNum: number;
+  ownerUid: string;
+  username: string;
+  email: string;
+  displayName: string;
+  avatarUrl?: string;
+  bannerUrl?: string;
+  bio?: string;
+  location?: string;
+  occupation?: string;
+  badges?: string[];
+}): StoreState {
+  const existingByUid = Object.values(memoryState.users).find(
+    (u) => u.uid === profile.ownerUid || u.username.toLowerCase() === profile.username.toLowerCase()
+  );
+  const id = existingByUid?.id ?? profile.uidNum;
+  const now = new Date();
+
+  const userRecord = {
+    ...(existingByUid ?? {}),
+    id,
+    uid: profile.ownerUid,
+    username: profile.username,
+    needsUsername: false,
+    email: profile.email,
+    role: existingByUid?.role ?? (profile.email.toLowerCase() === "faizennahmed@gmail.com" ? "admin" : "user"),
+    emailVerified: true,
+    isPremium: existingByUid?.isPremium ?? true,
+    hasImageHost: existingByUid?.hasImageHost ?? true,
+    hasVerified: existingByUid?.hasVerified ?? true,
+    hasDonator: existingByUid?.hasDonator ?? false,
+    badgeTokens: existingByUid?.badgeTokens ?? 3,
+    aliasTokens: existingByUid?.aliasTokens ?? 3,
+    domainTokens: existingByUid?.domainTokens ?? 2,
+    usernameLoginEnabled: existingByUid?.usernameLoginEnabled ?? true,
+    views: existingByUid?.views ?? 1,
+    likesCount: existingByUid?.likesCount ?? 0,
+    dislikesCount: existingByUid?.dislikesCount ?? 0,
+    displayName: profile.displayName || profile.username,
+    location: profile.location ?? existingByUid?.location ?? null,
+    occupation: profile.occupation ?? existingByUid?.occupation ?? null,
+    bio: profile.bio ?? existingByUid?.bio ?? "Welcome to my prophile page.",
+    avatarUrl: profile.avatarUrl ?? existingByUid?.avatarUrl ?? null,
+    bannerImageUrl: profile.bannerUrl ?? existingByUid?.bannerImageUrl ?? null,
+    createdAt: existingByUid?.createdAt ?? now,
+    updatedAt: now,
+    effectConfig: existingByUid?.effectConfig ?? { ...DEFAULT_EFFECT_CONFIG },
+  } as StoredUserBase;
+
+  memoryState = {
+    ...memoryState,
+    hydrated: true,
+    currentUserId: id,
+    sessionUserId: id,
+    users: {
+      ...memoryState.users,
+      [id]: reviveDates(userRecord),
+    },
+    equippedBadges: {
+      ...memoryState.equippedBadges,
+      [id]: profile.badges ?? memoryState.equippedBadges[id] ?? ["early", "verified"],
+    },
+    ownedBadges: {
+      ...memoryState.ownedBadges,
+      [id]: Array.from(
+        new Set([...(memoryState.ownedBadges[id] ?? []), ...(profile.badges ?? ["early", "verified"])])
+      ),
+    },
+  };
+  notifySubscribers();
+  return memoryState;
+}
+

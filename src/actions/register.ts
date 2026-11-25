@@ -1,7 +1,7 @@
 import { signInWithPopup, signOut as firebaseSignOut } from "firebase/auth";
-import { auth, googleAuthProvider } from "@/lib/firebase";
+import { auth, ensureFirestoreUserAccount, googleAuthProvider } from "@/lib/firebase";
 import { authFetch, clearStoredLocalToken, setInMemoryAuthToken } from "@/lib/auth-client";
-import { hydrateStoreFromServer } from "@/lib/local-store";
+import { hydrateStoreFromServer, upsertFirebaseSessionInStore } from "@/lib/local-store";
 
 export interface RegisterInput {
   username: string;
@@ -41,30 +41,44 @@ export async function registerWithGoogle(
     const token = await result.user.getIdToken(true);
     setInMemoryAuthToken(token);
 
-    // Explicitly verify backend session creation before proceeding
-    const meRes = await authFetch("/api/auth/me");
-    const meData = await meRes.json().catch(() => ({}));
-    if (!meRes.ok || !meData?.authenticated) {
-      return {
-        error:
-          meData?.error ||
-          "Google sign-in succeeded, but the server could not verify your Firebase token. Please try again.",
-      };
+    let backendAvailable = false;
+    try {
+      const meRes = await authFetch("/api/auth/me");
+      if (meRes.ok) {
+        const meData = await meRes.json().catch(() => ({}));
+        if (meData?.authenticated) {
+          backendAvailable = true;
+        }
+      } else if (meRes.status !== 404) {
+        const meData = await meRes.json().catch(() => ({}));
+        return {
+          error:
+            meData?.error ||
+            "Google sign-in succeeded, but the server could not verify your Firebase token. Please try again.",
+        };
+      }
+    } catch {
+      // Fall through to Firebase + Firestore client session
     }
 
-    if (desiredUsername && desiredUsername.trim().length >= 2) {
-      await authFetch("/api/account/username", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: desiredUsername.trim() }),
-      }).catch(() => {});
+    if (backendAvailable) {
+      if (desiredUsername && desiredUsername.trim().length >= 2) {
+        await authFetch("/api/account/username", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: desiredUsername.trim() }),
+        }).catch(() => {});
+      }
+
+      const nextState = await hydrateStoreFromServer(true);
+      if (nextState.currentUserId != null) {
+        return { success: "Account ready! Redirecting to your dashboard..." };
+      }
     }
 
-    const nextState = await hydrateStoreFromServer(true);
-    if (nextState.currentUserId == null) {
-      return { error: "Account created, but failed to load session. Please refresh and sign in." };
-    }
-
+    // Fallback: static/client-only deployment — persist directly via Firebase Auth + Firestore
+    const firestoreRecord = await ensureFirestoreUserAccount(result.user, desiredUsername);
+    upsertFirebaseSessionInStore(firestoreRecord);
     return { success: "Account ready! Redirecting to your dashboard..." };
   } catch (error) {
     return { error: formatFirebaseAuthError(error, "Google sign-up failed.") };
@@ -73,9 +87,6 @@ export async function registerWithGoogle(
 
 export async function register(input: RegisterInput): Promise<{ success?: string; error?: string }> {
   try {
-    await firebaseSignOut(auth).catch(() => {});
-    clearStoredLocalToken();
-
     const res = await fetch("/api/auth/register", {
       method: "POST",
       credentials: "include",
@@ -86,10 +97,21 @@ export async function register(input: RegisterInput): Promise<{ success?: string
         password: input.password || "",
       }),
     });
-    const data = await res.json().catch(() => ({}));
+    const contentType = res.headers.get("content-type") || "";
+    const data = contentType.includes("application/json")
+      ? await res.json().catch(() => ({}))
+      : {};
     if (!res.ok) {
-      return { error: data.error || "Registration failed." };
+      if (res.status === 404) {
+        return {
+          error:
+            "Email/password sign-up requires the backend server (HTTP 404 on this URL). Click 'Continue with Google' below to create your account right away.",
+        };
+      }
+      return { error: data.error || `Registration failed (HTTP ${res.status}).` };
     }
+    await firebaseSignOut(auth).catch(() => {});
+    clearStoredLocalToken();
     if (data.token) {
       setInMemoryAuthToken(data.token);
     }

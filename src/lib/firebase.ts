@@ -172,6 +172,125 @@ export async function syncPublicProfileToFirestore(input: {
   }
 }
 
+export interface FirestoreUserRecord {
+  ownerUid: string;
+  username: string;
+  email: string;
+  displayName: string;
+  avatarUrl?: string;
+  bannerUrl?: string;
+  bio?: string;
+  location?: string;
+  occupation?: string;
+  badges?: string[];
+  uidNum: number;
+}
+
+function sanitizeFirestoreUsername(raw: string): string {
+  const cleaned = raw
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]/g, "")
+    .replace(/^[_-]+|[_-]+$/g, "")
+    .slice(0, 32);
+  return cleaned.length >= 2 ? cleaned : `user_${Math.floor(1000 + Math.random() * 9000)}`;
+}
+
+function stableNumericUid(firebaseUid: string): number {
+  let hash = 0;
+  for (let i = 0; i < firebaseUid.length; i++) {
+    hash = (hash * 31 + firebaseUid.charCodeAt(i)) >>> 0;
+  }
+  return (hash % 899999) + 100;
+}
+
+export async function ensureFirestoreUserAccount(
+  fbUser: {
+    uid: string;
+    email?: string | null;
+    emailVerified?: boolean;
+    displayName?: string | null;
+    photoURL?: string | null;
+  },
+  desiredUsername?: string
+): Promise<FirestoreUserRecord> {
+  const userPath = `users/${fbUser.uid}`;
+  const userRef = doc(db, "users", fbUser.uid);
+  const email = (fbUser.email || `${fbUser.uid}@users.prophile.app`).trim().slice(0, 254);
+
+  let username = sanitizeFirestoreUsername(
+    desiredUsername || email.split("@")[0] || fbUser.displayName || `user_${fbUser.uid.slice(0, 6)}`
+  );
+
+  try {
+    const existingUserSnap = await getDoc(userRef);
+    if (existingUserSnap.exists()) {
+      const data = existingUserSnap.data() as { username?: string; email?: string };
+      if (data.username && /^[a-z0-9_-]{1,40}$/.test(data.username)) {
+        username = data.username;
+      }
+    } else if (fbUser.emailVerified) {
+      await setDoc(userRef, {
+        ownerUid: fbUser.uid,
+        username,
+        email,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+    }
+  } catch (error) {
+    console.warn("Firestore /users sync skipped:", userPath, error);
+  }
+
+  const uidNum = stableNumericUid(fbUser.uid);
+  const displayName = clampString(fbUser.displayName, 80) || username;
+  const avatarUrl = clampString(fbUser.photoURL, 512);
+
+  let profileData: FirestorePublicProfile | null = null;
+  try {
+    profileData = await fetchPublicProfileFromFirestore(username);
+    if (!profileData && fbUser.emailVerified) {
+      const pubRef = doc(db, "publicProfiles", username);
+      const payload: Record<string, unknown> = {
+        uid: uidNum,
+        ownerUid: fbUser.uid,
+        username,
+        displayName,
+        bio: "Welcome to my prophile page.",
+        badges: ["early", "verified"],
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
+      if (avatarUrl) payload.avatarUrl = avatarUrl;
+      await setDoc(pubRef, payload);
+      profileData = {
+        uid: uidNum,
+        ownerUid: fbUser.uid,
+        username,
+        displayName,
+        bio: "Welcome to my prophile page.",
+        avatarUrl,
+        badges: ["early", "verified"],
+      };
+    }
+  } catch (error) {
+    console.warn("Firestore /publicProfiles sync skipped:", `publicProfiles/${username}`, error);
+  }
+
+  return {
+    ownerUid: fbUser.uid,
+    username,
+    email,
+    displayName: profileData?.displayName || displayName,
+    avatarUrl: profileData?.avatarUrl || avatarUrl,
+    bannerUrl: profileData?.bannerUrl,
+    bio: profileData?.bio || "Welcome to my prophile page.",
+    location: profileData?.location,
+    occupation: profileData?.occupation,
+    badges: profileData?.badges ?? ["early", "verified"],
+    uidNum: profileData?.uid || uidNum,
+  };
+}
+
 async function testConnection() {
   try {
     await getDocFromServer(doc(db, "test", "connection"));
