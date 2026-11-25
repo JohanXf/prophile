@@ -1499,7 +1499,7 @@ function AliasMenu({ alias, onEdit, onSwap, onDelete }: { alias: string; onEdit:
   const [pos, setPos] = useState<{ top: number; right: number; up: boolean } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const url = `https://${SITE}/${alias}`;
+  const url = typeof window !== "undefined" ? `${window.location.origin}/${alias}` : `/${alias}`;
   const MENU_HEIGHT = 210;
 
   function toggle() {

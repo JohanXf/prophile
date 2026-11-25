@@ -13,7 +13,13 @@ import { formatTabTitle, isAllowedOgImage } from "@/lib/og";
 import { getProfileRowsSync } from "./profile-data";
 import { normalizeProfileSections } from "@/lib/profile-sections";
 import { normalizeCollectionLayout, normalizePhotoCollection } from "@/lib/photo-collection";
-import { getStore, subscribeStore } from "@/lib/local-store";
+import {
+  getStore,
+  hydrateStoreFromServer,
+  subscribeStore,
+  upsertPublicProfileInStore,
+} from "@/lib/local-store";
+import { fetchPublicProfileFromFirestore } from "@/lib/firebase";
 import NotFound from "@/app/not-found";
 
 export default function ProfileView({
@@ -30,11 +36,42 @@ export default function ProfileView({
   backgroundOverride?: string[] | null;
 }) {
   const [, setTick] = useState(0);
+  const [checkingRemote, setCheckingRemote] = useState(true);
   useEffect(() => subscribeStore(() => setTick((t) => t + 1)), []);
 
   const username = rawUsername.toLowerCase().trim();
   const state = getStore();
   const userList = getProfileRowsSync(username);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (userList.length > 0) {
+      setCheckingRemote(false);
+      return;
+    }
+
+    setCheckingRemote(true);
+    (async () => {
+      try {
+        await hydrateStoreFromServer();
+        if (cancelled) return;
+        if (getProfileRowsSync(username).length > 0) {
+          setCheckingRemote(false);
+          return;
+        }
+        const fsProfile = await fetchPublicProfileFromFirestore(username);
+        if (!cancelled && fsProfile) {
+          upsertPublicProfileInStore(fsProfile);
+        }
+      } finally {
+        if (!cancelled) setCheckingRemote(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [username, userList.length]);
 
   useEffect(() => {
     if (userList.length === 0) {
@@ -50,7 +87,7 @@ export default function ProfileView({
   }, [userList.length, username, state]);
 
   if (userList.length === 0) {
-    if (!state.hydrated) {
+    if (!state.hydrated || checkingRemote) {
       return (
         <div className="min-h-screen bg-[#050505] flex items-center justify-center">
           <div className="w-7 h-7 rounded-full border-2 border-[#f05e23]/30 border-t-[#f05e23] animate-spin" />

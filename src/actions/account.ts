@@ -1,5 +1,11 @@
 import { authFetch } from "@/lib/auth-client";
-import { getStore, hydrateStoreFromServer } from "@/lib/local-store";
+import {
+  applyUpdatedUserToStore,
+  getStore,
+  hydrateStoreFromServer,
+  type StoredUserBase,
+} from "@/lib/local-store";
+import { auth, syncPublicProfileToFirestore } from "@/lib/firebase";
 import { getActiveSessionsForUser, type ActiveSession } from "@/lib/auth/session";
 
 export type Result<T = Record<string, never>> = { ok: true; data: T } | { ok: false; error: string };
@@ -7,31 +13,115 @@ export type AliasRow = { id: number; alias: string; createdAt: string };
 export type AliasState = { aliases: AliasRow[]; tokens: number; slots: number; premium: boolean };
 export type PasskeyRow = { id: number; name: string; createdAt: string; lastUsedAt: string | null };
 
-async function apiJson<T>(url: string, init: RequestInit): Promise<Result<T>> {
-  const res = await authFetch(url, {
-    ...init,
-    headers: { "Content-Type": "application/json", ...(init.headers as Record<string, string>) },
-  });
-  const body = (await res.json().catch(() => ({}))) as { ok?: boolean; data?: T; error?: string };
-  if (!res.ok) {
-    return { ok: false, error: body.error || "Request failed." };
+async function apiJson<T>(url: string, init: RequestInit): Promise<Result<T> & { status?: number }> {
+  try {
+    const res = await authFetch(url, {
+      ...init,
+      headers: { "Content-Type": "application/json", ...(init.headers as Record<string, string>) },
+    });
+    const contentType = res.headers.get("content-type") || "";
+    const body = contentType.includes("application/json")
+      ? ((await res.json().catch(() => ({}))) as { ok?: boolean; data?: T; error?: string })
+      : {};
+    if (!res.ok) {
+      const fallback =
+        res.status === 404
+          ? "Backend server API is unavailable on this URL (HTTP 404)."
+          : res.status === 401
+            ? "Your session expired. Please sign in again."
+            : res.status === 503
+              ? "Database is waking up — please try again in a moment."
+              : `Request failed (HTTP ${res.status}).`;
+      return { ok: false, error: body.error || fallback, status: res.status };
+    }
+    void hydrateStoreFromServer(true);
+    return { ok: true, data: (body.data ?? {}) as T, status: res.status };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Network error. Please try again.",
+    };
   }
-  await hydrateStoreFromServer();
-  return { ok: true, data: (body.data ?? {}) as T };
 }
 
 export async function updateUsername(raw: string): Promise<Result<{ username: string }>> {
-  return apiJson("/api/account/username", {
+  const clean = raw.toLowerCase().trim();
+  const res = await apiJson<{ username: string }>("/api/account/username", {
     method: "PATCH",
-    body: JSON.stringify({ username: raw }),
+    body: JSON.stringify({ username: clean }),
   });
+
+  const state = getStore();
+  const currentUser = state.currentUserId != null ? state.users[state.currentUserId] : null;
+
+  if (!res.ok && res.status === 404 && currentUser) {
+    if (!/^[a-z0-9_.-]{2,24}$/.test(clean)) {
+      return { ok: false, error: "Username must be 2–24 characters (letters, numbers, ., _, -)." };
+    }
+    const updated: StoredUserBase = { ...currentUser, username: clean, needsUsername: false, updatedAt: new Date() };
+    applyUpdatedUserToStore(updated);
+    if (auth.currentUser?.emailVerified) {
+      void syncPublicProfileToFirestore({
+        uid: updated.id,
+        username: updated.username,
+        displayName: updated.displayName || updated.username,
+        bio: updated.bio,
+        avatarUrl: updated.avatarUrl,
+        bannerUrl: updated.bannerImageUrl,
+        location: updated.location,
+        occupation: updated.occupation,
+      }).catch(() => {});
+    }
+    return { ok: true, data: { username: clean } };
+  }
+
+  if (res.ok && currentUser) {
+    applyUpdatedUserToStore({
+      ...currentUser,
+      username: res.data.username || clean,
+      needsUsername: false,
+      updatedAt: new Date(),
+    });
+  }
+  return res.ok ? { ok: true, data: res.data } : { ok: false, error: res.error };
 }
 
 export async function updateDisplayName(raw: string): Promise<Result<{ displayName: string }>> {
-  return apiJson("/api/account/display-name", {
+  const displayName = raw.trim().slice(0, 48);
+  const res = await apiJson<{ displayName: string }>("/api/account/display-name", {
     method: "PATCH",
-    body: JSON.stringify({ displayName: raw }),
+    body: JSON.stringify({ displayName }),
   });
+
+  const state = getStore();
+  const currentUser = state.currentUserId != null ? state.users[state.currentUserId] : null;
+
+  if (!res.ok && res.status === 404 && currentUser) {
+    const updated: StoredUserBase = { ...currentUser, displayName, updatedAt: new Date() };
+    applyUpdatedUserToStore(updated);
+    if (auth.currentUser?.emailVerified) {
+      void syncPublicProfileToFirestore({
+        uid: updated.id,
+        username: updated.username,
+        displayName: updated.displayName || updated.username,
+        bio: updated.bio,
+        avatarUrl: updated.avatarUrl,
+        bannerUrl: updated.bannerImageUrl,
+        location: updated.location,
+        occupation: updated.occupation,
+      }).catch(() => {});
+    }
+    return { ok: true, data: { displayName } };
+  }
+
+  if (res.ok && currentUser) {
+    applyUpdatedUserToStore({
+      ...currentUser,
+      displayName: res.data.displayName ?? displayName,
+      updatedAt: new Date(),
+    });
+  }
+  return res.ok ? { ok: true, data: res.data } : { ok: false, error: res.error };
 }
 
 export async function addAlias(raw: string): Promise<Result<AliasState>> {

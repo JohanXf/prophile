@@ -116,6 +116,9 @@ function hashSecret(val: string): string {
 
 function sendDbError(res: Response, error: unknown, fallback = "Service unavailable") {
   console.error("API error:", error instanceof Error ? error.message : String(error));
+  if (isTransientDbError(error)) {
+    return res.status(503).json({ error: "Database is waking up — please try again in a moment." });
+  }
   return res.status(500).json({ error: fallback });
 }
 
@@ -125,7 +128,7 @@ export function createApiRouter(): Router {
   // --- Bootstrap & Auth ---
   router.get("/bootstrap", optionalAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const snapshot = await getBootstrapSnapshot(req.dbUser?.id ?? null);
+      const snapshot = await withDbRetry(() => getBootstrapSnapshot(req.dbUser?.id ?? null));
       return res.json(snapshot);
     } catch (error) {
       return sendDbError(res, error, "Failed to load application data");
@@ -147,7 +150,7 @@ export function createApiRouter(): Router {
     try {
       const identifier = String(req.body?.identifier || req.body?.email || "").trim();
       const password = String(req.body?.password || "");
-      const result = await authenticateUserWithPassword(identifier, password);
+      const result = await withDbRetry(() => authenticateUserWithPassword(identifier, password));
       if (result.error || !result.user) {
         return res.status(401).json({ error: result.error || "Invalid credentials." });
       }
@@ -168,7 +171,9 @@ export function createApiRouter(): Router {
       const username = String(req.body?.username || "").trim();
       const email = String(req.body?.email || "").trim();
       const password = String(req.body?.password || "");
-      const result = await registerUserWithEmailPassword({ username, email, password });
+      const result = await withDbRetry(() =>
+        registerUserWithEmailPassword({ username, email, password })
+      );
       if (result.error || !result.user) {
         return res.status(400).json({ error: result.error || "Registration failed." });
       }
@@ -194,7 +199,9 @@ export function createApiRouter(): Router {
       const currentPassword =
         req.body?.currentPassword !== undefined ? String(req.body.currentPassword) : undefined;
       const newPassword = String(req.body?.newPassword || "");
-      const result = await updateUserPassword(req.dbUser!.id, currentPassword, newPassword);
+      const result = await withDbRetry(() =>
+        updateUserPassword(req.dbUser!.id, currentPassword, newPassword)
+      );
       if (!result.ok) {
         return res.status(400).json({ error: result.error || "Failed to update password." });
       }
@@ -206,7 +213,7 @@ export function createApiRouter(): Router {
 
   router.get("/auth/check-availability", async (req, res) => {
     try {
-      await ensureSeedData();
+      await withDbRetry(() => ensureSeedData());
       const username = String(req.query.username || "").toLowerCase().trim();
       const email = String(req.query.email || "").toLowerCase().trim();
 
@@ -214,22 +221,18 @@ export function createApiRouter(): Router {
         if (username.length < 2) {
           return res.json({ available: false, field: "username", error: "Username must be at least 2 characters." });
         }
-        const existingUser = await db
-          .select({ id: users.id })
-          .from(users)
-          .where(eq(users.username, username))
-          .limit(1);
+        const existingUser = await withDbRetry(() =>
+          db.select({ id: users.id }).from(users).where(eq(users.username, username)).limit(1)
+        );
         if (existingUser.length > 0) {
           return res.json({ available: false, field: "username", error: "That username is already taken." });
         }
       }
 
       if (email) {
-        const existingEmail = await db
-          .select({ id: users.id })
-          .from(users)
-          .where(eq(users.email, email))
-          .limit(1);
+        const existingEmail = await withDbRetry(() =>
+          db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1)
+        );
         if (existingEmail.length > 0) {
           return res.json({ available: false, field: "email", error: "That email is already registered." });
         }
@@ -249,23 +252,25 @@ export function createApiRouter(): Router {
       if (!uid) {
         return res.json({ viewerId: null, feedback: null, user: null, backgrounds: [], equippedBadges: [], customBadges: [] });
       }
-      let feedback: string | null = null;
-      if (profileId > 0) {
-        const [fb] = await db
-          .select({ type: profileFeedback.type })
-          .from(profileFeedback)
-          .where(and(eq(profileFeedback.receiverId, profileId), eq(profileFeedback.giverId, uid)))
-          .limit(1);
-        feedback = fb?.type ?? null;
-      }
-      const snapshot = await getBootstrapSnapshot(uid);
+      const [fbRows, badgesState] = await withDbRetry(() =>
+        Promise.all([
+          profileId > 0
+            ? db
+                .select({ type: profileFeedback.type })
+                .from(profileFeedback)
+                .where(and(eq(profileFeedback.receiverId, profileId), eq(profileFeedback.giverId, uid)))
+                .limit(1)
+            : Promise.resolve([]),
+          getUserBadgesState(uid),
+        ])
+      );
       return res.json({
         viewerId: uid,
-        feedback,
-        user: snapshot.users[uid],
-        backgrounds: snapshot.backgrounds[uid] ?? [],
-        equippedBadges: snapshot.equippedBadges[uid] ?? [],
-        customBadges: snapshot.customBadges[uid] ?? [],
+        feedback: fbRows[0]?.type ?? null,
+        user: serializeUserRow(req.dbUser!),
+        backgrounds: [],
+        equippedBadges: badgesState.equipped,
+        customBadges: badgesState.custom,
       });
     } catch (error) {
       return sendDbError(res, error, "Failed to load profile");
@@ -275,7 +280,7 @@ export function createApiRouter(): Router {
   router.patch("/profile/me", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const patch = req.body && typeof req.body === "object" ? req.body : {};
-      const updated = await updateUserProfilePatch(req.dbUser!.id, patch);
+      const updated = await withDbRetry(() => updateUserProfilePatch(req.dbUser!.id, patch));
       return res.json({ success: true, user: updated });
     } catch (error) {
       return sendDbError(res, error, "Failed to save profile changes");
@@ -285,7 +290,7 @@ export function createApiRouter(): Router {
   router.put("/profile/backgrounds", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const urls = Array.isArray(req.body?.urls) ? req.body.urls : [];
-      const saved = await replaceUserBackgrounds(req.dbUser!.id, urls);
+      const saved = await withDbRetry(() => replaceUserBackgrounds(req.dbUser!.id, urls));
       return res.json({ success: true, backgrounds: saved });
     } catch (error) {
       return sendDbError(res, error, "Failed to update backgrounds");
@@ -408,18 +413,18 @@ export function createApiRouter(): Router {
       if (!/^[a-z0-9_.-]{2,24}$/.test(clean)) {
         return res.status(400).json({ error: "Username must be 2–24 characters (letters, numbers, ., _, -)." });
       }
-      const taken = await db
-        .select({ id: users.id })
-        .from(users)
-        .where(eq(users.username, clean))
-        .limit(1);
+      const taken = await withDbRetry(() =>
+        db.select({ id: users.id }).from(users).where(eq(users.username, clean)).limit(1)
+      );
       if (taken.length > 0 && taken[0].id !== req.dbUser!.id) {
         return res.status(409).json({ error: "That username is already taken." });
       }
-      await db
-        .update(users)
-        .set({ username: clean, needsUsername: false, updatedAt: new Date() })
-        .where(eq(users.id, req.dbUser!.id));
+      await withDbRetry(() =>
+        db
+          .update(users)
+          .set({ username: clean, needsUsername: false, updatedAt: new Date() })
+          .where(eq(users.id, req.dbUser!.id))
+      );
       return res.json({ ok: true, data: { username: clean } });
     } catch (error) {
       return sendDbError(res, error, "Failed to update username");
@@ -429,10 +434,12 @@ export function createApiRouter(): Router {
   router.patch("/account/display-name", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const displayName = String(req.body?.displayName || "").trim().slice(0, 48);
-      await db
-        .update(users)
-        .set({ displayName, updatedAt: new Date() })
-        .where(eq(users.id, req.dbUser!.id));
+      await withDbRetry(() =>
+        db
+          .update(users)
+          .set({ displayName, updatedAt: new Date() })
+          .where(eq(users.id, req.dbUser!.id))
+      );
       return res.json({ ok: true, data: { displayName } });
     } catch (error) {
       return sendDbError(res, error, "Failed to update display name");
@@ -445,13 +452,17 @@ export function createApiRouter(): Router {
       if (!clean || clean.length < 1 || clean.length > 24) {
         return res.status(400).json({ error: "Enter a valid alias (1–24 characters)." });
       }
-      const existingAlias = await db.select({ id: aliases.id }).from(aliases).where(eq(aliases.alias, clean)).limit(1);
-      const existingUser = await db.select({ id: users.id }).from(users).where(eq(users.username, clean)).limit(1);
+      const [existingAlias, existingUser] = await withDbRetry(() =>
+        Promise.all([
+          db.select({ id: aliases.id }).from(aliases).where(eq(aliases.alias, clean)).limit(1),
+          db.select({ id: users.id }).from(users).where(eq(users.username, clean)).limit(1),
+        ])
+      );
       if (existingAlias.length > 0 || existingUser.length > 0) {
         return res.status(409).json({ error: "That handle is already claimed." });
       }
-      await db.insert(aliases).values({ userId: req.dbUser!.id, alias: clean });
-      return res.json({ ok: true, data: await getAliasStateForUser(req.dbUser!.id) });
+      await withDbRetry(() => db.insert(aliases).values({ userId: req.dbUser!.id, alias: clean }));
+      return res.json({ ok: true, data: await withDbRetry(() => getAliasStateForUser(req.dbUser!.id)) });
     } catch (error) {
       return sendDbError(res, error, "Failed to add alias");
     }
@@ -462,11 +473,13 @@ export function createApiRouter(): Router {
       const id = Number(req.params.id);
       const clean = String(req.body?.alias || "").toLowerCase().trim();
       if (!clean) return res.status(400).json({ error: "Alias is required." });
-      await db
-        .update(aliases)
-        .set({ alias: clean })
-        .where(and(eq(aliases.id, id), eq(aliases.userId, req.dbUser!.id)));
-      return res.json({ ok: true, data: await getAliasStateForUser(req.dbUser!.id) });
+      await withDbRetry(() =>
+        db
+          .update(aliases)
+          .set({ alias: clean })
+          .where(and(eq(aliases.id, id), eq(aliases.userId, req.dbUser!.id)))
+      );
+      return res.json({ ok: true, data: await withDbRetry(() => getAliasStateForUser(req.dbUser!.id)) });
     } catch (error) {
       return sendDbError(res, error, "Failed to update alias");
     }
@@ -475,10 +488,12 @@ export function createApiRouter(): Router {
   router.delete("/account/aliases/:id", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const id = Number(req.params.id);
-      await db
-        .delete(aliases)
-        .where(and(eq(aliases.id, id), eq(aliases.userId, req.dbUser!.id)));
-      return res.json({ ok: true, data: await getAliasStateForUser(req.dbUser!.id) });
+      await withDbRetry(() =>
+        db
+          .delete(aliases)
+          .where(and(eq(aliases.id, id), eq(aliases.userId, req.dbUser!.id)))
+      );
+      return res.json({ ok: true, data: await withDbRetry(() => getAliasStateForUser(req.dbUser!.id)) });
     } catch (error) {
       return sendDbError(res, error, "Failed to delete alias");
     }
@@ -487,20 +502,24 @@ export function createApiRouter(): Router {
   router.post("/account/aliases/:id/swap", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const id = Number(req.params.id);
-      const [target] = await db
-        .select()
-        .from(aliases)
-        .where(and(eq(aliases.id, id), eq(aliases.userId, req.dbUser!.id)))
-        .limit(1);
+      const [target] = await withDbRetry(() =>
+        db
+          .select()
+          .from(aliases)
+          .where(and(eq(aliases.id, id), eq(aliases.userId, req.dbUser!.id)))
+          .limit(1)
+      );
       if (!target) return res.status(404).json({ error: "Alias not found." });
 
       const oldUsername = req.dbUser!.username;
       const newUsername = target.alias;
-      await db.update(aliases).set({ alias: `__swap_${id}_${Date.now()}` }).where(eq(aliases.id, id));
-      await db.update(users).set({ username: newUsername, updatedAt: new Date() }).where(eq(users.id, req.dbUser!.id));
-      await db.update(aliases).set({ alias: oldUsername }).where(eq(aliases.id, id));
+      await withDbRetry(async () => {
+        await db.update(aliases).set({ alias: `__swap_${id}_${Date.now()}` }).where(eq(aliases.id, id));
+        await db.update(users).set({ username: newUsername, updatedAt: new Date() }).where(eq(users.id, req.dbUser!.id));
+        await db.update(aliases).set({ alias: oldUsername }).where(eq(aliases.id, id));
+      });
 
-      const state = await getAliasStateForUser(req.dbUser!.id);
+      const state = await withDbRetry(() => getAliasStateForUser(req.dbUser!.id));
       return res.json({ ok: true, data: { ...state, username: newUsername } });
     } catch (error) {
       return sendDbError(res, error, "Failed to swap alias");
@@ -518,7 +537,7 @@ export function createApiRouter(): Router {
       }
       if (body.twoFactorEnabled === true) updates.twoFactorEnabledAt = new Date();
       if (body.twoFactorEnabled === false) updates.twoFactorEnabledAt = null;
-      await db.update(users).set(updates).where(eq(users.id, req.dbUser!.id));
+      await withDbRetry(() => db.update(users).set(updates).where(eq(users.id, req.dbUser!.id)));
       return res.json({ ok: true, data: {} });
     } catch (error) {
       return sendDbError(res, error, "Failed to update account settings");

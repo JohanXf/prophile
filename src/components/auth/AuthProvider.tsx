@@ -13,6 +13,7 @@ import {
   setInMemoryAuthToken,
 } from "@/lib/auth-client";
 import {
+  applyUpdatedUserToStore,
   hydrateStoreFromServer,
   getStore,
   subscribeStore,
@@ -62,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    void hydrateStoreFromServer();
+    const initialBootstrap = hydrateStoreFromServer(false);
     const unsubscribe = onIdTokenChanged(auth, async (fbUser) => {
       setFirebaseUser(fbUser);
       const hasLocalSession = isLocalTokenInMemory();
@@ -76,7 +77,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (!fbUser && !hasLocalSession) {
         setInMemoryAuthToken(null);
       }
-      const nextState = await hydrateStoreFromServer(Boolean(fbUser && !hasLocalSession));
+
+      const nextState =
+        fbUser && !hasLocalSession
+          ? await hydrateStoreFromServer(true)
+          : await initialBootstrap;
+
       if (fbUser && !hasLocalSession) {
         if (nextState.currentUserId != null && fbUser.emailVerified) {
           const syncedUser = hydrateFullUser(nextState.users[nextState.currentUserId]);
@@ -149,6 +155,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data.token) {
         setInMemoryAuthToken(data.token);
       }
+      if (data.user) {
+        applyUpdatedUserToStore(data.user);
+      }
       const nextState = await hydrateStoreFromServer(true);
       if (nextState.currentUserId == null) {
         return { ok: false, error: "Sign-in succeeded, but failed to load your session. Please try again." };
@@ -195,6 +204,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         clearStoredLocalToken();
         if (data.token) {
           setInMemoryAuthToken(data.token);
+        }
+        if (data.user) {
+          applyUpdatedUserToStore(data.user);
         }
         const nextState = await hydrateStoreFromServer(true);
         if (nextState.currentUserId == null) {

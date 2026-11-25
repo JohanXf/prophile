@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { adminAuth } from "../lib/firebase-admin.ts";
+import { isTransientDbError, withDbRetry } from "../db/index.ts";
 import { findUserById, getOrCreateUserFromAuth, type DbUserRow } from "../db/repository.ts";
 import {
   getSessionCookieToken,
@@ -21,7 +22,7 @@ async function resolveSessionToken(req: Request, token: string): Promise<DbUserR
   if (isLocalSessionToken(token)) {
     const payload = verifySessionToken(token);
     if (!payload) return null;
-    const dbUser = await findUserById(payload.userId);
+    const dbUser = await withDbRetry(() => findUserById(payload.userId));
     if (!dbUser) return null;
     (req as AuthenticatedRequest).authUser = {
       uid: dbUser.uid ?? `local_${dbUser.id}`,
@@ -34,12 +35,14 @@ async function resolveSessionToken(req: Request, token: string): Promise<DbUserR
   }
 
   const decoded = await adminAuth.verifyIdToken(token);
-  const dbUser = await getOrCreateUserFromAuth({
-    uid: decoded.uid,
-    email: decoded.email ?? null,
-    name: decoded.name ?? null,
-    picture: decoded.picture ?? null,
-  });
+  const dbUser = await withDbRetry(() =>
+    getOrCreateUserFromAuth({
+      uid: decoded.uid,
+      email: decoded.email ?? null,
+      name: decoded.name ?? null,
+      picture: decoded.picture ?? null,
+    })
+  );
   (req as AuthenticatedRequest).authUser = {
     uid: decoded.uid,
     email: decoded.email,
@@ -80,6 +83,9 @@ export async function requireAuth(
     next();
   } catch (error) {
     console.error("Auth verification failed:", error instanceof Error ? error.message : String(error));
+    if (isTransientDbError(error)) {
+      return res.status(503).json({ error: "Database is waking up — please try again in a moment." });
+    }
     return res.status(401).json({ error: "Invalid or expired authentication token." });
   }
 }

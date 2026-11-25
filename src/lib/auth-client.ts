@@ -83,13 +83,25 @@ export async function getAuthHeaders(extra?: Record<string, string>): Promise<Re
 
 export async function authFetch(input: string, init: RequestInit = {}): Promise<Response> {
   const token = await getFreshAuthToken();
-  const headers = new Headers(init.headers);
-  if (token && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${token}`);
+  const buildInit = (): RequestInit => {
+    const headers = new Headers(init.headers);
+    if (token && !headers.has("Authorization")) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+    return {
+      ...init,
+      credentials: "include",
+      headers,
+    };
+  };
+
+  let res = await fetch(input, buildInit());
+  if (
+    (res.status === 502 || res.status === 503 || res.status === 504) &&
+    !(init.body instanceof FormData)
+  ) {
+    await new Promise((r) => setTimeout(r, 700));
+    res = await fetch(input, buildInit());
   }
-  return fetch(input, {
-    ...init,
-    credentials: "include",
-    headers,
-  });
+  return res;
 }

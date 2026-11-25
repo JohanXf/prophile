@@ -529,3 +529,105 @@ export function upsertFirebaseSessionInStore(profile: {
   return memoryState;
 }
 
+export function applyUpdatedUserToStore(updatedUser: StoredUserBase | null | undefined) {
+  if (!updatedUser || typeof updatedUser.id !== "number") return;
+  const revived = reviveDates(updatedUser);
+  memoryState = {
+    ...memoryState,
+    hydrated: true,
+    users: {
+      ...memoryState.users,
+      [revived.id]: revived,
+    },
+  };
+  notifySubscribers();
+}
+
+export function applyUpdatedBackgroundsToStore(userId: number, urls: string[]) {
+  memoryState = {
+    ...memoryState,
+    backgrounds: {
+      ...memoryState.backgrounds,
+      [userId]: urls,
+    },
+    userBackgrounds: {
+      ...memoryState.userBackgrounds,
+      [userId]: urls,
+    },
+  };
+  notifySubscribers();
+}
+
+export function upsertPublicProfileInStore(profile: {
+  uid: number;
+  ownerUid: string;
+  username: string;
+  displayName: string;
+  avatarUrl?: string;
+  bannerUrl?: string;
+  bio?: string;
+  location?: string;
+  occupation?: string;
+  badges?: string[];
+}) {
+  const existing = Object.values(memoryState.users).find(
+    (u) => u.username.toLowerCase() === profile.username.toLowerCase()
+  );
+  if (existing) return existing;
+  const now = new Date();
+  const id = profile.uid || 900001;
+  const record = {
+    id,
+    uid: profile.ownerUid,
+    username: profile.username,
+    needsUsername: false,
+    email: null,
+    role: "user",
+    emailVerified: true,
+    isPremium: true,
+    hasImageHost: true,
+    hasVerified: true,
+    hasDonator: false,
+    badgeTokens: 1,
+    aliasTokens: 1,
+    domainTokens: 1,
+    usernameLoginEnabled: true,
+    views: 1,
+    likesCount: 0,
+    dislikesCount: 0,
+    displayName: profile.displayName || profile.username,
+    location: profile.location ?? null,
+    occupation: profile.occupation ?? null,
+    bio: profile.bio ?? "Welcome to my prophile page.",
+    avatarUrl: profile.avatarUrl ?? null,
+    bannerImageUrl: profile.bannerUrl ?? null,
+    createdAt: now,
+    updatedAt: now,
+    effectConfig: { ...DEFAULT_EFFECT_CONFIG },
+  } as StoredUserBase;
+
+  memoryState = {
+    ...memoryState,
+    hydrated: true,
+    users: {
+      ...memoryState.users,
+      [id]: reviveDates(record),
+    },
+    equippedBadges: {
+      ...memoryState.equippedBadges,
+      [id]: profile.badges ?? ["early", "verified"],
+    },
+    backgrounds: {
+      ...memoryState.backgrounds,
+      [id]: profile.bannerUrl ? [profile.bannerUrl] : [],
+    },
+    userBackgrounds: {
+      ...memoryState.userBackgrounds,
+      [id]: profile.bannerUrl ? [profile.bannerUrl] : [],
+    },
+  };
+  notifySubscribers();
+  return record;
+}
+
+
