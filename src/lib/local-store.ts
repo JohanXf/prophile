@@ -636,4 +636,65 @@ export function upsertPublicProfileInStore(profile: {
   return record;
 }
 
+export async function fetchSingleProfileIntoStore(
+  rawUsername: string
+): Promise<{ found: boolean; redirectUsername?: string }> {
+  const clean = rawUsername.toLowerCase().trim();
+  if (!clean) return { found: false };
+  try {
+    const res = await fetch(`/api/profiles/${encodeURIComponent(clean)}`, {
+      credentials: "include",
+    });
+    if (!res.ok) return { found: false };
+    const contentType = res.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) return { found: false };
+    const payload = (await res.json()) as {
+      user?: StoredUserBase;
+      backgrounds?: string[];
+      equippedBadges?: string[];
+      customBadges?: Array<{ id: string; name: string; iconUrl: string }>;
+      resolvedUsername?: string;
+    };
+    if (!payload.user || typeof payload.user.id !== "number") return { found: false };
+
+    const revived = reviveDates(payload.user);
+    const id = revived.id;
+    const bgs = Array.isArray(payload.backgrounds) ? payload.backgrounds : [];
+
+    memoryState = {
+      ...memoryState,
+      hydrated: true,
+      users: {
+        ...memoryState.users,
+        [id]: revived,
+      },
+      backgrounds: {
+        ...memoryState.backgrounds,
+        [id]: bgs,
+      },
+      userBackgrounds: {
+        ...memoryState.userBackgrounds,
+        [id]: bgs,
+      },
+      equippedBadges: {
+        ...memoryState.equippedBadges,
+        [id]: Array.isArray(payload.equippedBadges) ? payload.equippedBadges : ["early"],
+      },
+      customBadges: {
+        ...memoryState.customBadges,
+        [id]: Array.isArray(payload.customBadges) ? payload.customBadges : [],
+      },
+    };
+    notifySubscribers();
+
+    const resolved = (payload.resolvedUsername || revived.username || "").toLowerCase();
+    return {
+      found: true,
+      redirectUsername: resolved && resolved !== clean ? payload.resolvedUsername || revived.username : undefined,
+    };
+  } catch {
+    return { found: false };
+  }
+}
+
 

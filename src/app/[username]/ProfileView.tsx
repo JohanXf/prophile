@@ -14,6 +14,7 @@ import { getProfileRowsSync } from "./profile-data";
 import { normalizeProfileSections } from "@/lib/profile-sections";
 import { normalizeCollectionLayout, normalizePhotoCollection } from "@/lib/photo-collection";
 import {
+  fetchSingleProfileIntoStore,
   getStore,
   hydrateStoreFromServer,
   subscribeStore,
@@ -53,16 +54,25 @@ export default function ProfileView({
     setCheckingRemote(true);
     (async () => {
       try {
-        await hydrateStoreFromServer();
+        const single = await fetchSingleProfileIntoStore(username);
         if (cancelled) return;
-        if (getProfileRowsSync(username).length > 0) {
+        if (single.redirectUsername) {
+          navigateTo(`/${single.redirectUsername}`, true);
+          return;
+        }
+        if (single.found || getProfileRowsSync(username).length > 0) {
           setCheckingRemote(false);
           return;
         }
+
         const fsProfile = await fetchPublicProfileFromFirestore(username);
         if (!cancelled && fsProfile) {
           upsertPublicProfileInStore(fsProfile);
+          setCheckingRemote(false);
+          return;
         }
+
+        await hydrateStoreFromServer();
       } finally {
         if (!cancelled) setCheckingRemote(false);
       }

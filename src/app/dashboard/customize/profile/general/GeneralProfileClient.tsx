@@ -630,25 +630,41 @@ export default function GeneralProfileClient({ user, backgrounds = [] }: { user:
               return result.url;
             };
 
-            if (pendingFiles.avatar) {
-              finalOverrides.avatarUrl = await uploadPendingFile(pendingFiles.avatar, "avatar");
+            const [avatarUploaded, bannerUploaded, bgUploaded] = await Promise.all([
+              pendingFiles.avatar ? uploadPendingFile(pendingFiles.avatar, "avatar") : Promise.resolve(null),
+              pendingFiles.banner ? uploadPendingFile(pendingFiles.banner, "banner") : Promise.resolve(null),
+              pendingFiles.background && pendingBgIndex !== null
+                ? uploadPendingFile(pendingFiles.background, "background")
+                : Promise.resolve(null),
+            ]);
+
+            if (avatarUploaded) finalOverrides.avatarUrl = avatarUploaded;
+            if (bannerUploaded) finalOverrides.bannerImageUrl = bannerUploaded;
+            const finalBgUrls =
+              bgUploaded && pendingBgIndex !== null
+                ? bgUrls.map((u, i) => (i === pendingBgIndex ? bgUploaded : u))
+                : bgUrls;
+
+            const shouldSaveProfile = Object.keys(finalOverrides).length > 0;
+            const shouldSaveBgs = JSON.stringify(finalBgUrls) !== JSON.stringify(backgrounds);
+
+            const [profileRes, bgRes] = await Promise.all([
+              shouldSaveProfile
+                ? updateGeneralProfile(finalOverrides as Parameters<typeof updateGeneralProfile>[0])
+                : Promise.resolve<{ success: boolean; error?: string }>({ success: true }),
+              shouldSaveBgs
+                ? updateBackgrounds(finalBgUrls)
+                : Promise.resolve<{ success: boolean; error?: string }>({ success: true }),
+            ]);
+
+            if (!profileRes.success) {
+              throw new Error(profileRes.error || "Failed to save profile changes.");
             }
-            if (pendingFiles.banner) {
-              finalOverrides.bannerImageUrl = await uploadPendingFile(pendingFiles.banner, "banner");
-            }
-            let finalBgUrls = bgUrls;
-            if (pendingFiles.background && pendingBgIndex !== null) {
-              const uploaded = await uploadPendingFile(pendingFiles.background, "background");
-              finalBgUrls = bgUrls.map((u, i) => (i === pendingBgIndex ? uploaded : u));
+            if (!bgRes.success) {
+              throw new Error(bgRes.error || "Failed to save backgrounds.");
             }
 
-            await updateGeneralProfile(
-              finalOverrides as Parameters<typeof updateGeneralProfile>[0]
-            );
-            if (JSON.stringify(finalBgUrls) !== JSON.stringify(backgrounds)) {
-              await updateBackgrounds(finalBgUrls);
-            }
-            toast.success("Profile Saved Sucessfully");
+            toast.success("Profile Saved Successfully");
             clearPendingFiles();
             setPendingBgIndex(null);
             scheduleClear();

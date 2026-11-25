@@ -235,6 +235,39 @@ async function uploadViaServerMultipart(
   };
 }
 
+let r2DirectPutBlocked = false;
+
+async function saveBlobToIndexedDb(id: string, blob: Blob): Promise<void> {
+  if (typeof indexedDB === "undefined") return;
+  await new Promise<void>((resolve) => {
+    try {
+      const req = indexedDB.open("prophile-local-media", 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains("blobs")) {
+          db.createObjectStore("blobs");
+        }
+      };
+      req.onsuccess = () => {
+        const db = req.result;
+        const tx = db.transaction("blobs", "readwrite");
+        tx.objectStore("blobs").put(blob, id);
+        tx.oncomplete = () => {
+          db.close();
+          resolve();
+        };
+        tx.onerror = () => {
+          db.close();
+          resolve();
+        };
+      };
+      req.onerror = () => resolve();
+    } catch {
+      resolve();
+    }
+  });
+}
+
 /**
  * Uploads an image, audio, or video file via Cloudflare R2 presigned PUT URLs
  * when R2 is configured (with automatic fallback to server-side multipart upload
@@ -271,9 +304,16 @@ export async function uploadMediaFile(
         options.onProgress?.(100);
         return { url: dataUrl };
       }
-      throw new Error(
-        "Media upload API is unavailable on this preview URL (HTTP 404). Open the live app URL to upload audio or video files."
-      );
+
+      // Allow video/audio uploads to work locally in the browser even on static preview URLs without Express /api/*
+      options.onProgress?.(45);
+      const localKey = `${category}-${Date.now()}-${filename}`;
+      await saveBlobToIndexedDb(localKey, file);
+      const extMatch = filename.match(/\.([a-z0-9]+)$/i);
+      const extSuffix = extMatch ? `#.${extMatch[1].toLowerCase()}` : contentType.startsWith("video/") ? "#.mp4" : "";
+      const blobUrl = `${URL.createObjectURL(file)}${extSuffix}`;
+      options.onProgress?.(100);
+      return { url: blobUrl, storageKey: localKey };
     }
 
     const contentTypeHeader = presignRes.headers.get("content-type") || "";
@@ -300,7 +340,7 @@ export async function uploadMediaFile(
   };
 
   // Direct Cloudflare R2 presigned PUT flow (falls back to server-side R2 upload if CORS blocks direct PUT)
-  if (presign.mode === "r2" && presign.publicUrl && presign.storageKey) {
+  if (presign.mode === "r2" && presign.publicUrl && presign.storageKey && !r2DirectPutBlocked) {
     try {
       const putResult = await xhrUpload({
         method: "PUT",
@@ -338,12 +378,13 @@ export async function uploadMediaFile(
           file: confirmed.file,
         };
       }
+      r2DirectPutBlocked = true;
     } catch (directErr) {
       if (options.signal?.aborted) {
         throw directErr;
       }
-      // Direct R2 PUT failed (commonly due to R2 bucket CORS not allowing the preview origin).
-      // Fall back transparently to server-side multipart upload -> R2.
+      // Remember CORS failure for this session so subsequent uploads skip the failed direct PUT.
+      r2DirectPutBlocked = true;
       options.onProgress?.(0);
     }
   }

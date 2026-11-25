@@ -17,6 +17,8 @@ import {
 import {
   ensureSeedData,
   getBootstrapSnapshot,
+  getPublicProfileSnapshot,
+  invalidateProfileCache,
   serializeUserRow,
   updateUserProfilePatch,
   replaceUserBackgrounds,
@@ -129,9 +131,27 @@ export function createApiRouter(): Router {
   router.get("/bootstrap", optionalAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const snapshot = await withDbRetry(() => getBootstrapSnapshot(req.dbUser?.id ?? null));
+      res.setHeader(
+        "Cache-Control",
+        req.dbUser ? "private, no-store" : "public, max-age=10, stale-while-revalidate=30"
+      );
       return res.json(snapshot);
     } catch (error) {
       return sendDbError(res, error, "Failed to load application data");
+    }
+  });
+
+  router.get("/profiles/:username", async (req, res) => {
+    try {
+      const handle = decodeURIComponent(String(req.params.username || "")).trim();
+      const profile = await withDbRetry(() => getPublicProfileSnapshot(handle));
+      if (!profile) {
+        return res.status(404).json({ error: "Profile not found" });
+      }
+      res.setHeader("Cache-Control", "public, max-age=15, stale-while-revalidate=60");
+      return res.json(profile);
+    } catch (error) {
+      return sendDbError(res, error, "Failed to load profile");
     }
   });
 
@@ -425,6 +445,7 @@ export function createApiRouter(): Router {
           .set({ username: clean, needsUsername: false, updatedAt: new Date() })
           .where(eq(users.id, req.dbUser!.id))
       );
+      invalidateProfileCache();
       return res.json({ ok: true, data: { username: clean } });
     } catch (error) {
       return sendDbError(res, error, "Failed to update username");
@@ -440,6 +461,7 @@ export function createApiRouter(): Router {
           .set({ displayName, updatedAt: new Date() })
           .where(eq(users.id, req.dbUser!.id))
       );
+      invalidateProfileCache();
       return res.json({ ok: true, data: { displayName } });
     } catch (error) {
       return sendDbError(res, error, "Failed to update display name");
@@ -462,6 +484,7 @@ export function createApiRouter(): Router {
         return res.status(409).json({ error: "That handle is already claimed." });
       }
       await withDbRetry(() => db.insert(aliases).values({ userId: req.dbUser!.id, alias: clean }));
+      invalidateProfileCache();
       return res.json({ ok: true, data: await withDbRetry(() => getAliasStateForUser(req.dbUser!.id)) });
     } catch (error) {
       return sendDbError(res, error, "Failed to add alias");
@@ -479,6 +502,7 @@ export function createApiRouter(): Router {
           .set({ alias: clean })
           .where(and(eq(aliases.id, id), eq(aliases.userId, req.dbUser!.id)))
       );
+      invalidateProfileCache();
       return res.json({ ok: true, data: await withDbRetry(() => getAliasStateForUser(req.dbUser!.id)) });
     } catch (error) {
       return sendDbError(res, error, "Failed to update alias");
@@ -493,6 +517,7 @@ export function createApiRouter(): Router {
           .delete(aliases)
           .where(and(eq(aliases.id, id), eq(aliases.userId, req.dbUser!.id)))
       );
+      invalidateProfileCache();
       return res.json({ ok: true, data: await withDbRetry(() => getAliasStateForUser(req.dbUser!.id)) });
     } catch (error) {
       return sendDbError(res, error, "Failed to delete alias");
@@ -519,6 +544,7 @@ export function createApiRouter(): Router {
         await db.update(aliases).set({ alias: oldUsername }).where(eq(aliases.id, id));
       });
 
+      invalidateProfileCache();
       const state = await withDbRetry(() => getAliasStateForUser(req.dbUser!.id));
       return res.json({ ok: true, data: { ...state, username: newUsername } });
     } catch (error) {

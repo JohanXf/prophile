@@ -475,6 +475,7 @@ export async function getOrCreateUserFromAuth(authUser: {
         .onConflictDoNothing();
     }
 
+    invalidateProfileCache(created.username);
     return created;
   } catch (error) {
     console.error("Failed to sync user:", error instanceof Error ? error.message : String(error));
@@ -605,6 +606,7 @@ export async function registerUserWithEmailPassword(input: {
       .onConflictDoNothing();
   }
 
+  invalidateProfileCache(created.username);
   return { user: created };
 }
 
@@ -634,7 +636,117 @@ export async function updateUserPassword(
   return { ok: true };
 }
 
+const GUEST_BOOTSTRAP_TTL_MS = 20_000;
+const PUBLIC_PROFILE_TTL_MS = 30_000;
+
+let guestBootstrapCache: { data: Awaited<ReturnType<typeof loadBootstrapSnapshot>>; expiresAt: number } | null = null;
+const publicProfileCache = new Map<
+  string,
+  {
+    data: {
+      user: HydratedProfileUser;
+      backgrounds: string[];
+      equippedBadges: string[];
+      customBadges: Array<{ id: string; name: string; iconUrl: string }>;
+      resolvedUsername: string;
+    } | null;
+    expiresAt: number;
+  }
+>();
+
+export function invalidateProfileCache(username?: string | null) {
+  guestBootstrapCache = null;
+  if (username) {
+    publicProfileCache.delete(username.toLowerCase().trim());
+  } else {
+    publicProfileCache.clear();
+  }
+}
+
+export async function getPublicProfileSnapshot(rawHandle: string) {
+  await ensureSeedData();
+  const clean = rawHandle.toLowerCase().trim();
+  if (!clean || clean.length > 64) return null;
+
+  const cached = publicProfileCache.get(clean);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
+  }
+
+  let [row] = await db
+    .select()
+    .from(users)
+    .where(sql`lower(${users.username}) = ${clean}`)
+    .limit(1);
+
+  if (!row) {
+    const [aliasRow] = await db
+      .select({ userId: aliases.userId })
+      .from(aliases)
+      .where(sql`lower(${aliases.alias}) = ${clean}`)
+      .limit(1);
+    if (aliasRow) {
+      const [ownerRow] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, aliasRow.userId))
+        .limit(1);
+      row = ownerRow;
+    }
+  }
+
+  if (!row) {
+    publicProfileCache.set(clean, { data: null, expiresAt: Date.now() + 5_000 });
+    return null;
+  }
+
+  const [bgRows, badgeRows, cbRows] = await Promise.all([
+    db
+      .select({ url: userBackgrounds.url })
+      .from(userBackgrounds)
+      .where(eq(userBackgrounds.userId, row.id))
+      .orderBy(userBackgrounds.position, userBackgrounds.id),
+    db
+      .select({ badgeId: userBadges.badgeId, equipped: userBadges.equipped })
+      .from(userBadges)
+      .where(eq(userBadges.userId, row.id))
+      .orderBy(userBadges.position, userBadges.id),
+    db
+      .select({ id: customBadges.id, name: customBadges.name, iconUrl: customBadges.iconUrl })
+      .from(customBadges)
+      .where(eq(customBadges.userId, row.id))
+      .orderBy(customBadges.createdAt),
+  ]);
+
+  const result = {
+    user: serializeUserRow(row),
+    backgrounds: bgRows.map((b) => b.url),
+    equippedBadges: badgeRows.filter((b) => b.equipped).map((b) => b.badgeId),
+    customBadges: cbRows,
+    resolvedUsername: row.username,
+  };
+
+  if (publicProfileCache.size > 500) {
+    publicProfileCache.clear();
+  }
+  const expiresAt = Date.now() + PUBLIC_PROFILE_TTL_MS;
+  publicProfileCache.set(clean, { data: result, expiresAt });
+  publicProfileCache.set(row.username.toLowerCase(), { data: result, expiresAt });
+  return result;
+}
+
 export async function getBootstrapSnapshot(viewerId: number | null) {
+  if (viewerId == null && guestBootstrapCache && guestBootstrapCache.expiresAt > Date.now()) {
+    return guestBootstrapCache.data;
+  }
+  const data = await loadBootstrapSnapshot(viewerId);
+  if (viewerId == null) {
+    guestBootstrapCache = { data, expiresAt: Date.now() + GUEST_BOOTSTRAP_TTL_MS };
+  }
+  return data;
+}
+
+async function loadBootstrapSnapshot(viewerId: number | null) {
   await ensureSeedData();
   try {
     const [
@@ -854,6 +966,7 @@ export async function updateUserProfilePatch(
       .where(eq(users.id, userId))
       .returning();
 
+    invalidateProfileCache();
     return serializeUserRow(updated);
   } catch (error) {
     console.error("Failed to update user profile:", error instanceof Error ? error.message : String(error));
@@ -874,6 +987,7 @@ export async function replaceUserBackgrounds(userId: number, urls: string[]): Pr
         }))
       );
     }
+    invalidateProfileCache();
     return cleanUrls;
   } catch (error) {
     console.error("Failed to replace backgrounds:", error instanceof Error ? error.message : String(error));
@@ -937,6 +1051,7 @@ export async function saveUserEquippedBadges(userId: number, badgeIds: string[])
           set: { equipped: true, position: i },
         });
     }
+    invalidateProfileCache();
     return getUserBadgesState(userId);
   } catch (error) {
     console.error("Failed to save equipped badges:", error instanceof Error ? error.message : String(error));
@@ -961,6 +1076,7 @@ export async function createUserCustomBadge(
       .insert(userBadges)
       .values({ userId, badgeId: id, owned: true, equipped: true, position: 0 })
       .onConflictDoNothing();
+    invalidateProfileCache();
     return getUserBadgesState(userId);
   } catch (error) {
     console.error("Failed to create custom badge:", error instanceof Error ? error.message : String(error));
@@ -976,6 +1092,7 @@ export async function deleteUserCustomBadge(userId: number, badgeId: string) {
     await db
       .delete(userBadges)
       .where(and(eq(userBadges.badgeId, badgeId), eq(userBadges.userId, userId)));
+    invalidateProfileCache();
     return getUserBadgesState(userId);
   } catch (error) {
     console.error("Failed to delete custom badge:", error instanceof Error ? error.message : String(error));
@@ -996,6 +1113,7 @@ export async function resetUserCustomBadges(userId: number) {
         .delete(userBadges)
         .where(and(eq(userBadges.userId, userId), inArray(userBadges.badgeId, ids)));
     }
+    invalidateProfileCache();
     return getUserBadgesState(userId);
   } catch (error) {
     console.error("Failed to reset custom badges:", error instanceof Error ? error.message : String(error));
