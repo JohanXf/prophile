@@ -55,14 +55,37 @@ export function isLocalTokenInMemory(): boolean {
   return Boolean(tok && tok.startsWith("prophile."));
 }
 
-export async function getFreshAuthToken(): Promise<string | null> {
+export async function getFreshAuthToken(forceRefresh = false): Promise<string | null> {
+  if (forceRefresh && auth.currentUser) {
+    clearStoredLocalToken();
+    try {
+      const fresh = await auth.currentUser.getIdToken(true);
+      inMemoryIdToken = fresh;
+      return fresh;
+    } catch {
+      return inMemoryIdToken;
+    }
+  }
+
   const current = getInMemoryAuthToken();
   if (current && current.startsWith("prophile.")) {
     return current;
   }
+
+  if (!auth.currentUser && typeof auth.authStateReady === "function") {
+    try {
+      await Promise.race([
+        auth.authStateReady(),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
+    } catch {
+      // ignore
+    }
+  }
+
   if (auth.currentUser) {
     try {
-      const token = await auth.currentUser.getIdToken();
+      const token = await auth.currentUser.getIdToken(forceRefresh);
       inMemoryIdToken = token;
       return token;
     } catch {
@@ -82,10 +105,9 @@ export async function getAuthHeaders(extra?: Record<string, string>): Promise<Re
 }
 
 export async function authFetch(input: string, init: RequestInit = {}): Promise<Response> {
-  const token = await getFreshAuthToken();
-  const buildInit = (): RequestInit => {
+  const buildInit = (token: string | null): RequestInit => {
     const headers = new Headers(init.headers);
-    if (token && !headers.has("Authorization")) {
+    if (token) {
       headers.set("Authorization", `Bearer ${token}`);
     }
     return {
@@ -95,13 +117,23 @@ export async function authFetch(input: string, init: RequestInit = {}): Promise<
     };
   };
 
-  let res = await fetch(input, buildInit());
+  let token = await getFreshAuthToken(false);
+  let res = await fetch(input, buildInit(token));
+
+  if (res.status === 401 && !(init.body instanceof FormData)) {
+    const refreshed = await getFreshAuthToken(true);
+    if (refreshed && refreshed !== token) {
+      token = refreshed;
+      res = await fetch(input, buildInit(token));
+    }
+  }
+
   if (
     (res.status === 502 || res.status === 503 || res.status === 504) &&
     !(init.body instanceof FormData)
   ) {
     await new Promise((r) => setTimeout(r, 700));
-    res = await fetch(input, buildInit());
+    res = await fetch(input, buildInit(token));
   }
   return res;
 }

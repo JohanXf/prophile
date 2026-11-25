@@ -1,4 +1,6 @@
 import { authFetch, getFreshAuthToken } from "@/lib/auth-client";
+import { auth } from "@/lib/firebase";
+import { getStore } from "@/lib/local-store";
 
 export type UploadCategory =
   | "avatar"
@@ -62,6 +64,49 @@ function resolveContentType(file: File | Blob, filename: string): string {
   return EXT_MIME_MAP[ext] || file.type || "application/octet-stream";
 }
 
+function readBlobAsDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Failed to read file."));
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function compressImageToDataUrl(
+  file: File | Blob,
+  contentType: string,
+  category: UploadCategory
+): Promise<string> {
+  if (contentType === "image/gif" || contentType === "image/svg+xml" || file.size <= 160 * 1024) {
+    return readBlobAsDataUrl(file);
+  }
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error("Failed to decode image."));
+      el.src = objectUrl;
+    });
+    const maxDim = category === "avatar" || category === "badge" || category === "icon" || category === "cursor" ? 512 : 1400;
+    const scale = Math.min(1, maxDim / Math.max(img.naturalWidth || 1, img.naturalHeight || 1));
+    const width = Math.max(1, Math.round((img.naturalWidth || 1) * scale));
+    const height = Math.max(1, Math.round((img.naturalHeight || 1) * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return readBlobAsDataUrl(file);
+    ctx.drawImage(img, 0, 0, width, height);
+    return canvas.toDataURL("image/webp", 0.82);
+  } catch {
+    return readBlobAsDataUrl(file);
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+}
+
 function xhrUpload(params: {
   method: "PUT" | "POST";
   url: string;
@@ -115,47 +160,55 @@ async function uploadViaServerMultipart(
   category: UploadCategory,
   options: UploadMediaOptions
 ): Promise<UploadMediaResult> {
-  const form = new FormData();
-  form.append("file", file, filename);
-  form.append("category", category);
-
-  const token = await getFreshAuthToken();
-  const headers: Record<string, string> = {};
-  if (token) headers.Authorization = `Bearer ${token}`;
-
   const uploadEndpoint = category === "image-host" ? "/api/image-host/upload" : "/api/upload";
 
-  let status = 0;
-  let responseText = "";
+  const sendOnce = async (forceRefreshToken: boolean) => {
+    const form = new FormData();
+    form.append("file", file, filename);
+    form.append("category", category);
 
-  try {
-    const mpResult = await xhrUpload({
-      method: "POST",
-      url: uploadEndpoint,
-      body: form,
-      headers,
-      withCredentials: true,
-      onProgress: options.onProgress,
-      signal: options.signal,
-    });
-    status = mpResult.status;
-    responseText = mpResult.responseText;
-  } catch (xhrErr) {
-    if (options.signal?.aborted) {
-      throw xhrErr;
+    const token = await getFreshAuthToken(forceRefreshToken);
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    try {
+      return await xhrUpload({
+        method: "POST",
+        url: uploadEndpoint,
+        body: form,
+        headers,
+        withCredentials: true,
+        onProgress: options.onProgress,
+        signal: options.signal,
+      });
+    } catch (xhrErr) {
+      if (options.signal?.aborted) {
+        throw xhrErr;
+      }
+      const retryForm = new FormData();
+      retryForm.append("file", file, filename);
+      retryForm.append("category", category);
+      const fetchRes = await authFetch(uploadEndpoint, {
+        method: "POST",
+        body: retryForm,
+        signal: options.signal,
+      });
+      options.onProgress?.(100);
+      return { status: fetchRes.status, responseText: await fetchRes.text() };
     }
-    // Retry once via fetch in case XHR hit a transient proxy error
-    const retryForm = new FormData();
-    retryForm.append("file", file, filename);
-    retryForm.append("category", category);
-    const fetchRes = await authFetch(uploadEndpoint, {
-      method: "POST",
-      body: retryForm,
-      signal: options.signal,
-    });
-    status = fetchRes.status;
-    responseText = await fetchRes.text();
-    options.onProgress?.(100);
+  };
+
+  let { status, responseText } = await sendOnce(false);
+
+  if (status === 401) {
+    const retryAuth = await sendOnce(true);
+    status = retryAuth.status;
+    responseText = retryAuth.responseText;
+  } else if (status === 502 || status === 503 || status === 504) {
+    await new Promise((r) => setTimeout(r, 700));
+    const retryWarm = await sendOnce(false);
+    status = retryWarm.status;
+    responseText = retryWarm.responseText;
   }
 
   let parsed: { url?: string; storageKey?: string; file?: UploadMediaResult["file"]; error?: string } = {};
@@ -166,7 +219,13 @@ async function uploadViaServerMultipart(
   }
 
   if (status < 200 || status >= 300 || !parsed.url) {
-    throw new Error(parsed.error || `Upload failed (HTTP ${status || "network"}).`);
+    const fallback =
+      status === 401
+        ? "Please sign in to upload media files."
+        : status === 413
+          ? "File is too large to upload."
+          : `Upload failed (HTTP ${status || "network"}).`;
+    throw new Error(parsed.error || fallback);
   }
 
   return {
@@ -204,8 +263,33 @@ export async function uploadMediaFile(
   });
 
   if (!presignRes.ok) {
-    const errBody = await presignRes.json().catch(() => ({}));
-    throw new Error((errBody as { error?: string }).error || "Sign in to upload media files.");
+    const isSignedInClient = Boolean(auth.currentUser || getStore().currentUserId != null);
+    if (presignRes.status === 404 && isSignedInClient) {
+      if (contentType.startsWith("image/")) {
+        options.onProgress?.(40);
+        const dataUrl = await compressImageToDataUrl(file, contentType, category);
+        options.onProgress?.(100);
+        return { url: dataUrl };
+      }
+      throw new Error(
+        "Media upload API is unavailable on this preview URL (HTTP 404). Open the live app URL to upload audio or video files."
+      );
+    }
+
+    const contentTypeHeader = presignRes.headers.get("content-type") || "";
+    const errBody = contentTypeHeader.includes("application/json")
+      ? ((await presignRes.json().catch(() => ({}))) as { error?: string })
+      : {};
+
+    const fallback =
+      presignRes.status === 401
+        ? "Please sign in to upload media files."
+        : presignRes.status === 404
+          ? "Upload API unavailable on this URL (HTTP 404)."
+          : presignRes.status === 503
+            ? "Database is waking up — please try uploading again in a moment."
+            : `Upload failed (HTTP ${presignRes.status}).`;
+    throw new Error(errBody.error || fallback);
   }
 
   const presign = (await presignRes.json()) as {

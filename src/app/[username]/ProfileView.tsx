@@ -106,7 +106,7 @@ export default function ProfileView({
   const isStatic = isScreenshot || isPreview;
   const selectedEffect = getEffectByUrl(user.profileEffectUrl);
 
-  const equippedBadges = state.equippedBadges[user.id] ?? ["early", "premium", "verified"];
+  const equippedBadges = state.equippedBadges[user.id] ?? ["early"];
   const storedBackgrounds = state.userBackgrounds[user.id] ?? [];
   const customBadges = state.customBadges[user.id] ?? [];
 

@@ -153,30 +153,6 @@ function buildFaizenFromFirestore(docData: FirestorePublicProfile): CachedShowca
   };
 }
 
-function ShowcaseSkeleton() {
-  return (
-    <div
-      aria-label="Loading faizen profile"
-      className="relative w-full max-w-[700px] overflow-hidden rounded-[24px] border border-white/[0.08] bg-black/25 backdrop-blur-[5px] shadow-[0_40px_120px_rgba(0,0,0,0.7)] select-none"
-      style={{ fontFamily: FONT }}
-    >
-      <div className="h-[160px] w-full animate-pulse bg-gradient-to-b from-white/[0.06] to-transparent" />
-      <div className="flex items-start gap-5 px-6 mt-2.5">
-        <div className="w-[88px] h-[88px] shrink-0 rounded-full border border-white/10 bg-white/[0.06] animate-pulse" />
-        <div className="flex-1 min-w-0 flex flex-col items-start gap-2.5 pt-1">
-          <div className="h-6 w-36 rounded-lg bg-white/[0.08] animate-pulse" />
-          <div className="h-3.5 w-24 rounded-md bg-white/[0.06] animate-pulse" />
-          <div className="h-4 w-56 rounded-md bg-white/[0.06] animate-pulse mt-1" />
-        </div>
-      </div>
-      <div className="flex items-center gap-4 px-6 pt-6 pb-4">
-        <div className="h-3.5 w-12 rounded bg-white/[0.06] animate-pulse" />
-        <div className="h-3.5 w-24 rounded bg-white/[0.06] animate-pulse" />
-      </div>
-    </div>
-  );
-}
-
 function Card({ p }: { p: ShowcaseData }) {
   return (
     <Link href={`/${p.username}`} className="block w-full max-w-[700px]">
@@ -309,10 +285,25 @@ function Card({ p }: { p: ShowcaseData }) {
   );
 }
 
+const BASELINE_FAIZEN_PROFILE: CachedShowcase = {
+  uid: 11,
+  username: "faizen",
+  name: "F$",
+  avatarUrl:
+    "https://pub-1f73968016824659bd7ae9e6b2cb7d4e.r2.dev/u/11/avatar/1795084291049-2ec2be85615fbee67cb4.webp",
+  bannerUrl:
+    "https://pub-1f73968016824659bd7ae9e6b2cb7d4e.r2.dev/u/11/banner/1795084269994-a99b8b11ae4149891e35.webp",
+  badges: ["owner", "developer", "verified"],
+  location: "🐈",
+  job: null,
+  joined: "Nov 19, '26",
+  bioLines: ["Welcome to my prophile page."],
+};
+
 export default function ShowcaseProfileCard() {
   const [, setTick] = useState(0);
-  const [fallbackProfile, setFallbackProfile] = useState<CachedShowcase | null>(() =>
-    readCachedShowcase()
+  const [fallbackProfile, setFallbackProfile] = useState<CachedShowcase>(
+    () => readCachedShowcase() ?? BASELINE_FAIZEN_PROFILE
   );
 
   useEffect(() => {
@@ -364,7 +355,7 @@ export default function ShowcaseProfileCard() {
   return (
     <div className="grid w-full max-w-[700px] place-items-center">
       <div className="w-full flex justify-center">
-        {resolved ? <Card p={toShowcaseData(resolved)} /> : <ShowcaseSkeleton />}
+        <Card p={toShowcaseData(resolved)} />
       </div>
     </div>
   );

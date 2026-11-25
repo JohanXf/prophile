@@ -474,6 +474,11 @@ export function upsertFirebaseSessionInStore(profile: {
   const id = existingByUid?.id ?? profile.uidNum;
   const now = new Date();
 
+  const isOwner =
+    profile.email.toLowerCase() === "faizennahmed@gmail.com" ||
+    profile.email.toLowerCase() === "testsohoj@gmail.com" ||
+    profile.username.toLowerCase() === "faizen";
+
   const userRecord = {
     ...(existingByUid ?? {}),
     id,
@@ -481,15 +486,15 @@ export function upsertFirebaseSessionInStore(profile: {
     username: profile.username,
     needsUsername: false,
     email: profile.email,
-    role: existingByUid?.role ?? (profile.email.toLowerCase() === "faizennahmed@gmail.com" ? "admin" : "user"),
+    role: existingByUid?.role ?? (isOwner ? "admin" : "user"),
     emailVerified: true,
-    isPremium: existingByUid?.isPremium ?? true,
-    hasImageHost: existingByUid?.hasImageHost ?? true,
-    hasVerified: existingByUid?.hasVerified ?? true,
+    isPremium: existingByUid?.isPremium ?? isOwner,
+    hasImageHost: existingByUid?.hasImageHost ?? isOwner,
+    hasVerified: existingByUid?.hasVerified ?? isOwner,
     hasDonator: existingByUid?.hasDonator ?? false,
-    badgeTokens: existingByUid?.badgeTokens ?? 3,
-    aliasTokens: existingByUid?.aliasTokens ?? 3,
-    domainTokens: existingByUid?.domainTokens ?? 2,
+    badgeTokens: existingByUid?.badgeTokens ?? (isOwner ? 10 : 1),
+    aliasTokens: existingByUid?.aliasTokens ?? (isOwner ? 10 : 1),
+    domainTokens: existingByUid?.domainTokens ?? (isOwner ? 5 : 1),
     usernameLoginEnabled: existingByUid?.usernameLoginEnabled ?? true,
     views: existingByUid?.views ?? 1,
     likesCount: existingByUid?.likesCount ?? 0,
@@ -516,12 +521,12 @@ export function upsertFirebaseSessionInStore(profile: {
     },
     equippedBadges: {
       ...memoryState.equippedBadges,
-      [id]: profile.badges ?? memoryState.equippedBadges[id] ?? ["early", "verified"],
+      [id]: profile.badges ?? memoryState.equippedBadges[id] ?? ["early"],
     },
     ownedBadges: {
       ...memoryState.ownedBadges,
       [id]: Array.from(
-        new Set([...(memoryState.ownedBadges[id] ?? []), ...(profile.badges ?? ["early", "verified"])])
+        new Set([...(memoryState.ownedBadges[id] ?? []), ...(profile.badges ?? ["early"])])
       ),
     },
   };
@@ -576,17 +581,18 @@ export function upsertPublicProfileInStore(profile: {
   if (existing) return existing;
   const now = new Date();
   const id = profile.uid || 900001;
+  const isOwner = profile.username.toLowerCase() === "faizen";
   const record = {
     id,
     uid: profile.ownerUid,
     username: profile.username,
     needsUsername: false,
     email: null,
-    role: "user",
+    role: isOwner ? "admin" : "user",
     emailVerified: true,
-    isPremium: true,
-    hasImageHost: true,
-    hasVerified: true,
+    isPremium: isOwner,
+    hasImageHost: isOwner,
+    hasVerified: isOwner,
     hasDonator: false,
     badgeTokens: 1,
     aliasTokens: 1,
@@ -615,7 +621,7 @@ export function upsertPublicProfileInStore(profile: {
     },
     equippedBadges: {
       ...memoryState.equippedBadges,
-      [id]: profile.badges ?? ["early", "verified"],
+      [id]: profile.badges ?? ["early"],
     },
     backgrounds: {
       ...memoryState.backgrounds,

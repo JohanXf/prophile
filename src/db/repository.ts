@@ -421,6 +421,9 @@ export async function getOrCreateUserFromAuth(authUser: {
       `user_${authUser.uid.slice(0, 6)}`;
     const username = await allocateUniqueUsername(baseName);
 
+    const ownerEmails = new Set(["testsohoj@gmail.com", "faizennahmed@gmail.com"]);
+    const isOwner = Boolean(authUser.email && ownerEmails.has(authUser.email.toLowerCase()));
+
     const [created] = await db
       .insert(users)
       .values({
@@ -428,17 +431,18 @@ export async function getOrCreateUserFromAuth(authUser: {
         username,
         needsUsername: false,
         email: authUser.email ?? null,
+        role: isOwner ? "admin" : "user",
         displayName: authUser.name ?? username,
         avatarUrl: authUser.picture ?? "/showcase/saraansx.jpg",
         bannerImageUrl: "/showcase/rio/banner.png",
         bio: "Welcome to my prophile page.",
-        isPremium: true,
-        hasImageHost: true,
-        hasVerified: true,
+        isPremium: isOwner,
+        hasImageHost: isOwner,
+        hasVerified: isOwner,
         hasDonator: false,
-        badgeTokens: 3,
-        aliasTokens: 3,
-        domainTokens: 2,
+        badgeTokens: isOwner ? 10 : 1,
+        aliasTokens: isOwner ? 10 : 1,
+        domainTokens: isOwner ? 5 : 1,
         views: 1,
         likesCount: 0,
         dislikesCount: 0,
@@ -453,18 +457,19 @@ export async function getOrCreateUserFromAuth(authUser: {
       })
       .returning();
 
-    // Seed starter background and badges for the new user
+    // Seed starter background and free starter badge for the new user
     await db
       .insert(userBackgrounds)
       .values({ userId: created.id, url: "/showcase/rio/banner.png", position: 0 });
-    for (const [idx, badgeId] of ["early", "premium", "verified", "image-host"].entries()) {
+    const starterBadges = isOwner ? ["owner", "developer", "verified", "premium"] : ["early"];
+    for (const [idx, badgeId] of starterBadges.entries()) {
       await db
         .insert(userBadges)
         .values({
           userId: created.id,
           badgeId,
           owned: true,
-          equipped: idx < 3,
+          equipped: true,
           position: idx,
         })
         .onConflictDoNothing();
@@ -551,6 +556,9 @@ export async function registerUserWithEmailPassword(input: {
     return { error: "That email is already registered." };
   }
 
+  const ownerEmails = new Set(["testsohoj@gmail.com", "faizennahmed@gmail.com"]);
+  const isOwner = ownerEmails.has(cleanEmail);
+
   const [created] = await db
     .insert(users)
     .values({
@@ -559,15 +567,15 @@ export async function registerUserWithEmailPassword(input: {
       needsUsername: false,
       email: cleanEmail,
       passwordHash: hashPassword(password),
-      role: "user",
+      role: isOwner ? "admin" : "user",
       emailVerified: true,
-      isPremium: true,
-      hasImageHost: true,
-      hasVerified: true,
+      isPremium: isOwner,
+      hasImageHost: isOwner,
+      hasVerified: isOwner,
       hasDonator: false,
-      badgeTokens: 3,
-      aliasTokens: 3,
-      domainTokens: 2,
+      badgeTokens: isOwner ? 10 : 1,
+      aliasTokens: isOwner ? 10 : 1,
+      domainTokens: isOwner ? 5 : 1,
       usernameLoginEnabled: true,
       views: 1,
       likesCount: 0,
@@ -583,14 +591,15 @@ export async function registerUserWithEmailPassword(input: {
   await db
     .insert(userBackgrounds)
     .values({ userId: created.id, url: "/showcase/rio/banner.png", position: 0 });
-  for (const [idx, badgeId] of ["early", "premium", "verified", "image-host"].entries()) {
+  const starterBadges = isOwner ? ["owner", "developer", "verified", "premium"] : ["early"];
+  for (const [idx, badgeId] of starterBadges.entries()) {
     await db
       .insert(userBadges)
       .values({
         userId: created.id,
         badgeId,
         owned: true,
-        equipped: idx < 3,
+        equipped: true,
         position: idx,
       })
       .onConflictDoNothing();

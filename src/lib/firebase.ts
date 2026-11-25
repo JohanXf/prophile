@@ -256,7 +256,7 @@ export async function ensureFirestoreUserAccount(
         username,
         displayName,
         bio: "Welcome to my prophile page.",
-        badges: ["early", "verified"],
+        badges: ["early"],
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
@@ -269,7 +269,7 @@ export async function ensureFirestoreUserAccount(
         displayName,
         bio: "Welcome to my prophile page.",
         avatarUrl,
-        badges: ["early", "verified"],
+        badges: ["early"],
       };
     }
   } catch (error) {
@@ -286,7 +286,7 @@ export async function ensureFirestoreUserAccount(
     bio: profileData?.bio || "Welcome to my prophile page.",
     location: profileData?.location,
     occupation: profileData?.occupation,
-    badges: profileData?.badges ?? ["early", "verified"],
+    badges: profileData?.badges ?? ["early"],
     uidNum: profileData?.uid || uidNum,
   };
 }

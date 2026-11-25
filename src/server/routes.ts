@@ -1331,13 +1331,15 @@ export function createApiRouter(): Router {
         );
       }
     }
-    const url = await saveMediaObjectFallback({
-      storageKey,
-      userId,
-      mimeType: resolvedMime,
-      sizeBytes: file.size,
-      buffer: file.buffer,
-    });
+    const url = await withDbRetry(() =>
+      saveMediaObjectFallback({
+        storageKey,
+        userId,
+        mimeType: resolvedMime,
+        sizeBytes: file.size,
+        buffer: file.buffer,
+      })
+    );
     return { url, storageKey, provider: "postgres", kind: check.kind };
   }
 
@@ -1352,6 +1354,9 @@ export function createApiRouter(): Router {
     } catch (error) {
       const message = error instanceof Error ? error.message : "Upload failed";
       const isValidation = message.includes("Unsupported file type") || message.includes("File size");
+      if (isTransientDbError(error)) {
+        return res.status(503).json({ error: "Database is waking up — please try again in a moment." });
+      }
       return res.status(isValidation ? 400 : 500).json({ error: message });
     }
   });
@@ -1370,7 +1375,7 @@ export function createApiRouter(): Router {
         }
       }
 
-      const fallback = await loadMediaObjectFallback(key);
+      const fallback = await withDbRetry(() => loadMediaObjectFallback(key));
       if (!fallback) return res.status(404).json({ error: "Media not found" });
 
       res.setHeader("Content-Type", fallback.mimeType);
@@ -1395,20 +1400,22 @@ export function createApiRouter(): Router {
         const saved = await persistUploadedBuffer(req.dbUser!.id, "image-host", file);
         const publicName = `${crypto.randomBytes(4).toString("hex")}-${file.originalname.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
 
-        const [inserted] = await db
-          .insert(imageHostFiles)
-          .values({
-            userId: req.dbUser!.id,
-            storageKey: saved.storageKey,
-            storageProvider: saved.provider,
-            url: saved.url,
-            publicName,
-            originalName: file.originalname,
-            mimeType: file.mimetype,
-            sizeBytes: file.size,
-            kind: saved.kind,
-          })
-          .returning();
+        const [inserted] = await withDbRetry(() =>
+          db
+            .insert(imageHostFiles)
+            .values({
+              userId: req.dbUser!.id,
+              storageKey: saved.storageKey,
+              storageProvider: saved.provider,
+              url: saved.url,
+              publicName,
+              originalName: file.originalname,
+              mimeType: file.mimetype,
+              sizeBytes: file.size,
+              kind: saved.kind,
+            })
+            .returning()
+        );
 
         return res.json({
           url: inserted.url,
@@ -1424,6 +1431,9 @@ export function createApiRouter(): Router {
           },
         });
       } catch (error) {
+        if (isTransientDbError(error)) {
+          return res.status(503).json({ error: "Database is waking up — please try again in a moment." });
+        }
         const message = error instanceof Error ? error.message : "Upload failed";
         return res.status(400).json({ error: message });
       }
